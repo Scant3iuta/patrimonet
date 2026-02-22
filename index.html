@@ -746,7 +746,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       <div class="user-name" id="userName">Administrator</div>
       <div class="user-role" id="userRoleLabel">Admin Aplicație</div>
     </div>
-    <div class="logout-btn" onclick="doLogout()" title="Deconectare">⏻</div>
+    <div class="logout-btn" onclick="logout()" title="Deconectare">⏻</div>
   </div>
 </aside>
 
@@ -1861,14 +1861,30 @@ function doLogin() {
   currentUser = {...found, rol: r};
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'flex';
+  // Reset ALL nav items visibility before applying role permissions
+  document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
+  // Reset ALL sections
+  document.querySelectorAll('.section').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
   initApp();
 }
 
-function doLogout() {
+function logout() {
+  currentUser = null;
+  // Reset nav items
+  document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
+  // Reset sections
+  document.querySelectorAll('.section').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+  // Reset notifications
+  notifications = [];
+  document.getElementById('notifPanel').classList.remove('open');
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
-  currentUser = null;
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  toast('La revedere!');
 }
+
+function doLogout() { logout(); }
 
 // ===== INIT =====
 function initApp() {
@@ -1965,13 +1981,22 @@ function seedData() {
 
 // ===== NAVIGATION =====
 function nav(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  // Hide all sections
+  document.querySelectorAll('.section').forEach(s => {
+    s.style.display = 'none';
+    s.classList.remove('active');
+  });
+  // Show requested section
+  const target = document.getElementById('section-' + id);
+  if (target) { target.style.display = 'block'; target.classList.add('active'); }
+  // Update nav active state
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('section-'+id).classList.add('active');
   if (el) el.classList.add('active');
-  document.addEventListener('DOMContentLoaded',()=>{const today=new Date().toISOString().split('T')[0];['prezData','meseData','filterRezData','rezData','auditDe','auditPana'].forEach(id=>{const el=document.getElementById(id);if(el&&el.type==='date')el.value=today;});const thisMonth=new Date().toISOString().slice(0,7);const rm=document.getElementById('raportLuna');if(rm)rm.value=thisMonth;});
-const titles = {dashboard:'Tablou de bord',cladiri:'Clădiri',camere:'Camere & Săli',inventar:'Inventar Bunuri',import:'Import / Export',qr:'Coduri QR',internat:'Internat & Cantină',furnizori:'Furnizori',achizitii:'Achiziții',mentenanta:'Mentenanță',fluxuri:'Fluxuri de lucru',personal:'Personal & Utilizatori',setari:'Setări',rapoarte:'Rapoarte & Statistici'};
-  document.getElementById('pageTitle').textContent = titles[id]||id;
+  // Update page title
+  const pageTitles = {dashboard:'Tablou de bord',cladiri:'Clădiri',camere:'Camere & Săli',inventar:'Inventar Bunuri',import:'Import / Export',qr:'Coduri QR',internat:'Internat & Cantină',furnizori:'Furnizori',achizitii:'Achiziții',mentenanta:'Mentenanță',fluxuri:'Fluxuri de lucru',personal:'Personal & Utilizatori',setari:'Setări',rapoarte:'Rapoarte & Statistici',mutari:'Mutări bunuri',rezervari:'Rezervare săli',aprobari:'Aprobări',istoric:'Istoric & Log',audit:'Rapoarte audit'};
+  const pt = document.getElementById('pageTitle');
+  if (pt) pt.textContent = pageTitles[id] || id;
+  // Render section content
   if (id==='camere') { populateCladireSelects(); renderCamere(); }
   if (id==='inventar') { populateCladireSelects(); renderInventar(); }
   if (id==='cladiri') renderCladiri();
@@ -1981,6 +2006,17 @@ const titles = {dashboard:'Tablou de bord',cladiri:'Clădiri',camere:'Camere & S
   if (id==='mentenanta') renderTasks();
   if (id==='personal') renderPersonal();
   if (id==='rapoarte') renderRapoarte();
+  if (id==='mutari') renderMutari();
+  if (id==='rezervari') { renderCalendarRez(); const d=new Date().toISOString().split('T')[0]; const frd=document.getElementById('filterRezData'); if(frd)frd.value=d; }
+  if (id==='aprobari') renderAprobariPending();
+  if (id==='istoric') renderIstoric();
+  if (id==='internat') { updateIntStatBox(); renderPrezenta(); updateIntBadges(); }
+  // Close notif panel and sidebar on mobile
+  const np = document.getElementById('notifPanel');
+  if(np) np.classList.remove('open');
+  const sb = document.querySelector('.sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  if(sb && sb.classList.contains('open')){ sb.classList.remove('open'); if(ov) ov.classList.remove('open'); }
 }
 
 function populateCladireSelects() {
@@ -3538,15 +3574,20 @@ const ROLE_PERMISSIONS = {
 function applyRolePermissions() {
   if (!currentUser) return;
   const perm = ROLE_PERMISSIONS[currentUser.rol] || ROLE_PERMISSIONS.profesor;
-  // Hide nav items not in permissions
+  // First SHOW ALL nav items, then hide what's not allowed
   document.querySelectorAll('.nav-item[onclick]').forEach(el => {
-    const match = el.getAttribute('onclick') ? el.getAttribute('onclick').match(/nav.'([^']+)'/) : null;
+    el.style.display = 'flex';
+  });
+  // Now hide items not in permissions
+  document.querySelectorAll('.nav-item[onclick]').forEach(el => {
+    const onclickAttr = el.getAttribute('onclick') || '';
+    const match = onclickAttr.match(/nav\('([^']+)'/);
     if (match) {
       const section = match[1];
       el.style.display = perm.sections.includes(section) ? 'flex' : 'none';
     }
   });
-  // Also show role-gated items
+  // Handle role-gated items
   document.querySelectorAll('.nav-item[data-roles]').forEach(el => {
     const roles = el.getAttribute('data-roles').split(',');
     el.style.display = roles.includes(currentUser.rol) ? 'flex' : 'none';
@@ -3576,24 +3617,11 @@ function initApp() {
   }, 100);
   applyRolePermissions();
   updateAprobari();
+  // Navigate to dashboard on login
+  nav('dashboard', document.querySelector('.nav-item'));
 }
 
-// ===== OVERRIDE nav to handle new sections =====
-const _origNav = nav;
-function nav(id, el) {
-  _origNav(id, el);
-  if (id==='mutari') renderMutari();
-  if (id==='rezervari') { renderCalendarRez(); const d=new Date().toISOString().split('T')[0]; document.getElementById('filterRezData').value=d; }
-  if (id==='aprobari') { renderAprobariPending(); }
-  if (id==='istoric') { renderIstoric(); }
-  if (id==='audit') {}
-  if (id==='internat') { updateIntStatBox(); renderPrezenta(); updateIntBadges(); }
-  // Close notif panel and sidebar on mobile
-  document.getElementById('notifPanel').classList.remove('open');
-  const s=document.querySelector('.sidebar');
-  const o=document.getElementById('sidebarOverlay');
-  if(s.classList.contains('open')){s.classList.remove('open');o.classList.remove('open');}
-}
+
 
 
 // ===== INTERNAT & CANTINA =====

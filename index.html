@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PatrimoNet — CN Vasile Goldiș Arad</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root {
+  --ink: #1a1f2e;
+  --ink2: #2d3448;
+  --slate: #4a5168;
+  --mist: #8892a4;
+  --border: #e2e6ed;
+  --surface: #f7f8fa;
+  --white: #ffffff;
+  --gold: #d4a843;
+  --gold2: #e8c56a;
+  --teal: #0d7c6b;
+  --teal2: #0fa88f;
+  --rose: #c0392b;
+  --sky: #1a6fa8;
+  --amber: #d97706;
+  --shadow-sm: 0 1px 4px rgba(26,31,46,0.08);
+  --shadow: 0 4px 16px rgba(26,31,46,0.10);
+  --shadow-lg: 0 12px 40px rgba(26,31,46,0.15);
+  --r: 10px;
+  --r-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sora', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+
+/* ===== LOGIN ===== */
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(212,168,67,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  bottom: -150px; left: -150px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(13,124,107,0.10) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+  z-index: 1;
+}
+.login-brand {
+  margin-bottom: 60px;
+}
+.login-brand-logo {
+  width: 56px; height: 56px;
+  background: var(--gold);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(212,168,67,0.3);
+}
+.login-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+.login-brand-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.login-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: 40px;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.login-tagline span { color: var(--gold); }
+.login-desc { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 420px; }
+.login-features {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.login-feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+.login-feat-icon {
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.login-right {
+  width: 440px;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 48px;
+  position: relative;
+  z-index: 1;
+}
+.login-form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.login-form-sub { font-size: 13px; color: var(--mist); margin-bottom: 36px; }
+.login-field { margin-bottom: 16px; }
+.login-field label { display: block; font-size: 11px; font-weight: 600; color: var(--slate); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.login-field input, .login-field select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  transition: border-color 0.15s;
+}
+.login-field input:focus, .login-field select:focus { outline: none; border-color: var(--gold); background: white; }
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--gold);
+  border: none;
+  border-radius: var(--r);
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.login-btn:hover { background: var(--ink2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,31,46,0.2); }
+.login-hint {
+  margin-top: 28px;
+  background: var(--surface);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--slate);
+}
+.login-hint strong { color: var(--ink); display: block; margin-bottom: 6px; }
+.login-hint-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.login-hint-row:last-child { border-bottom: none; }
+
+/* ===== APP ===== */
+#appShell { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 256px;
+  background: var(--ink);
+  min-height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-logo-box {
+  width: 38px; height: 38px;
+  background: var(--gold);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--white); }
+.sidebar-logo-sub { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+
+.sidebar-school {
+  padding: 12px 20px;
+  background: rgba(212,168,67,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.school-logo-placeholder {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.school-logo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+.school-name { font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.4; }
+
+.nav-group { padding: 10px 0; }
+.nav-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.2); padding: 8px 20px 4px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+.nav-item.active { background: rgba(212,168,67,0.1); color: var(--gold); border-left-color: var(--gold); }
+.nav-icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--rose); color: white; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+
+/* hidden nav items based on role */
+.nav-item[data-roles] { display: none; }
+
+.sidebar-user {
+  margin-top: auto;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.user-name { font-size: 12px; color: rgba(255,255,255,0.7); }
+.user-role { font-size: 10px; color: rgba(255,255,255,0.3); }
+.logout-btn { margin-left: auto; font-size: 16px; cursor: pointer; opacity: 0.4; transition: opacity 0.15s; }
+.logout-btn:hover { opacity: 0.9; }
+
+/* MAIN */
+.main { margin-left: 256px; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); }
+.topbar-breadcrumb { font-size: 12px; color: var(--mist); }
+.topbar-right { display: flex; gap: 10px; align-items: center; }
+.topbar-notif { position: relative; cursor: pointer; font-size: 18px; padding: 4px; }
+.notif-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: var(--rose); border-radius: 50%; border: 2px solid white; }
+
+.content { padding: 24px 28px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* BUTTONS */
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary { background: var(--ink); color: var(--gold); }
+.btn-primary:hover { background: var(--ink2); transform: translateY(-1px); }
+.btn-gold { background: var(--gold); color: var(--ink); }
+.btn-gold:hover { background: var(--gold2); }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-teal { background: var(--teal); color: white; }
+.btn-teal:hover { background: var(--teal2); }
+.btn-danger { background: var(--rose); color: white; }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+
+/* CARDS */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--white);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  border-top: 3px solid var(--border);
+  transition: all 0.2s;
+}
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.stat-card.gold { border-top-color: var(--gold); }
+.stat-card.teal { border-top-color: var(--teal); }
+.stat-card.rose { border-top-color: var(--rose); }
+.stat-card.sky { border-top-color: var(--sky); }
+.stat-card.amber { border-top-color: var(--amber); }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--mist); margin-bottom: 6px; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--ink); }
+.stat-sub { font-size: 11px; color: var(--mist); margin-top: 2px; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+.card-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+.card-title { font-weight: 600; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+
+table { width: 100%; border-collapse: collapse; }
+th { background: var(--surface); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--mist); padding: 10px 14px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+td { padding: 11px 14px; border-bottom: 1px solid var(--surface); font-size: 13px; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fdfcfb; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.b-green { background: #d1fae5; color: #065f46; }
+.b-yellow { background: #fef3c7; color: #92400e; }
+.b-red { background: #fee2e2; color: #991b1b; }
+.b-blue { background: #dbeafe; color: #1e40af; }
+.b-gray { background: #f3f4f6; color: #374151; }
+.b-teal { background: #ccfbf1; color: #0f766e; }
+.b-gold { background: #fef9c3; color: #854d0e; }
+
+/* FILTERS */
+.filters { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.search-box { flex: 1; min-width: 180px; background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; padding: 0 12px; display: flex; align-items: center; gap: 8px; }
+.search-box input { border: none; outline: none; padding: 9px 0; font-family: 'Sora', sans-serif; font-size: 13px; background: transparent; color: var(--ink); width: 100%; }
+select, input[type=text], input[type=number], input[type=date], input[type=email], input[type=password], textarea {
+  font-family: 'Sora', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+select:focus, input:focus, textarea:focus { border-color: var(--gold); }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,31,46,0.6); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: var(--r-lg); padding: 0; width: 560px; max-width: 96vw; max-height: 92vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalIn 0.22s ease; }
+@keyframes modalIn { from { transform: scale(0.96) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+.modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface); }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); }
+.modal-close { cursor: pointer; font-size: 20px; color: var(--mist); transition: color 0.15s; line-height: 1; }
+.modal-close:hover { color: var(--ink); }
+.modal-body { padding: 22px 24px; }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: var(--surface); }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 11px; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; }
+.form-row textarea { resize: vertical; min-height: 70px; }
+.form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* QR MODAL */
+.qr-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+#qrCanvas { margin: 16px 0; }
+.qr-info { background: var(--surface); border-radius: var(--r); padding: 12px 16px; width: 100%; font-size: 12px; }
+.qr-info-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.qr-info-row:last-child { border-bottom: none; }
+
+/* WORKFLOW BADGES */
+.workflow-step { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ws-num { width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--gold); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ws-text { font-size: 13px; }
+.ws-arrow { color: var(--mist); margin: 0 4px; }
+
+/* TABS */
+.tabs { display: flex; gap: 2px; background: var(--surface); border-radius: var(--r); padding: 4px; margin-bottom: 20px; border: 1px solid var(--border); width: fit-content; }
+.tab { padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--mist); transition: all 0.15s; }
+.tab.active { background: var(--white); color: var(--ink); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ALERT */
+.alert { padding: 12px 16px; border-radius: var(--r); font-size: 13px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; }
+.alert-warn { background: #fef9c3; border-left: 3px solid var(--amber); color: #78350f; }
+.alert-info { background: #eff6ff; border-left: 3px solid var(--sky); color: #1e3a5f; }
+
+/* BUILDING CARD */
+.building-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.building-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--gold); }
+.building-card-header { padding: 16px 18px; background: var(--ink); color: white; }
+.building-card-name { font-family: 'Playfair Display', serif; font-size: 16px; margin-bottom: 4px; }
+.building-card-addr { font-size: 11px; color: rgba(255,255,255,0.45); }
+.building-card-body { padding: 14px 18px; }
+.building-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--surface); }
+.building-stat:last-child { border-bottom: none; }
+.building-stat-val { font-weight: 700; color: var(--ink); }
+
+/* PERSONNEL CARD */
+.person-card { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--surface); transition: background 0.15s; }
+.person-card:hover { background: var(--surface); }
+.person-card:last-child { border-bottom: none; }
+.person-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.person-info { flex: 1; }
+.person-name { font-size: 14px; font-weight: 600; }
+.person-role { font-size: 11px; color: var(--mist); }
+.person-contact { font-size: 11px; color: var(--sky); }
+.person-actions { display: flex; gap: 6px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: var(--white); padding: 12px 18px; border-radius: 10px; font-size: 13px; box-shadow: var(--shadow-lg); transform: translateY(70px); opacity: 0; transition: all 0.28s cubic-bezier(.34,1.56,.64,1); z-index: 999; border-left: 3px solid var(--gold); max-width: 320px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* MAINTENANCE TASK */
+.task-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--surface); }
+.task-row:last-child { border-bottom: none; }
+.task-priority { width: 4px; border-radius: 4px; align-self: stretch; flex-shrink: 0; }
+.tp-high { background: var(--rose); }
+.tp-med { background: var(--amber); }
+.tp-low { background: var(--teal); }
+.task-info { flex: 1; }
+.task-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.task-meta { font-size: 11px; color: var(--mist); }
+.task-assign { font-size: 11px; background: var(--surface); border-radius: 6px; padding: 2px 8px; color: var(--slate); }
+
+/* SETTINGS SECTION */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.settings-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; }
+.settings-card-title { font-weight: 700; font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--surface); }
+.logo-upload-area { border: 2px dashed var(--border); border-radius: var(--r); padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.15s; margin-bottom: 12px; }
+.logo-upload-area:hover { border-color: var(--gold); }
+.logo-preview { max-height: 80px; max-width: 200px; object-fit: contain; display: none; margin: 0 auto; }
+.permission-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--surface); font-size: 13px; }
+.permission-row:last-child { border-bottom: none; }
+.toggle { width: 36px; height: 20px; background: var(--border); border-radius: 10px; position: relative; cursor: pointer; transition: background 0.2s; }
+.toggle.on { background: var(--teal); }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { transform: translateX(16px); }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 40px; color: var(--mist); }
+.empty-icon { font-size: 40px; margin-bottom: 10px; }
+.empty p { font-size: 13px; }
+
+/* ROLE COLORS */
+.role-admin_app { background: #1a1f2e; color: var(--gold); }
+.role-admin_pat { background: #0d7c6b; color: white; }
+.role-director { background: #7c3aed; color: white; }
+.role-contabil { background: #1a6fa8; color: white; }
+.role-informatician { background: #0369a1; color: white; }
+.role-profesor { background: #0891b2; color: white; }
+.role-mentenanta { background: #d97706; color: white; }
+
+@media print {
+  .sidebar, .topbar, .filters, .btn, .nav-badge { display: none !important; }
+  .main { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen">
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="login-brand-logo">🏛️</div>
+      <div class="login-brand-name">PatrimoNet — CNVGA</div>
+      <div class="login-brand-sub">CN „Vasile Goldiș" Arad</div>
+    </div>
+    <div class="login-tagline">Patrimoniul<br><span>Goldiș,</span><br>organizat perfect.</div>
+    <div class="login-desc">Platformă dedicată administrării patrimoniului Colegiului Național „Vasile Goldiș" Arad — Clădirea A (Calea Victoriei) și Clădirea B (Bd. Doinaș).</div>
+    <div class="login-features">
+      <div class="login-feat"><div class="login-feat-icon">🏢</div> Multiple clădiri și locații</div>
+      <div class="login-feat"><div class="login-feat-icon">📱</div> Coduri QR pentru fiecare bun</div>
+      <div class="login-feat"><div class="login-feat-icon">🔐</div> Roluri și permisiuni granulare</div>
+      <div class="login-feat"><div class="login-feat-icon">⚙️</div> Fluxuri de lucru automatizate</div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-form-title">Bun venit!</div>
+    <div class="login-form-sub">Autentifică-te pentru a continua</div>
+    <div class="login-field">
+      <label>Utilizator</label>
+      <input type="text" id="loginUser" placeholder="utilizator@scoala.ro" value="admin">
+    </div>
+    <div class="login-field">
+      <label>Parolă</label>
+      <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
+    </div>
+    <div class="login-field">
+      <label>Rol</label>
+      <select id="loginRole">
+        <option value="admin_app">Administrator Aplicație</option>
+        <option value="admin_pat">Administrator Patrimoniu</option>
+        <option value="director">Director</option>
+        <option value="contabil">Contabil</option>
+        <option value="informatician">Informatician</option>
+        <option value="profesor">Profesor</option>
+        <option value="mentenanta">Personal Mentenanță</option>
+      </select>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Autentificare →</button>
+    <div class="login-hint">
+      <strong>Conturi demo:</strong>
+      <div class="login-hint-row"><span>admin / admin123</span><span>Admin Aplicație</span></div>
+      <div class="login-hint-row"><span>patrimoniu / pat123</span><span>Admin Patrimoniu</span></div>
+      <div class="login-hint-row"><span>director / dir123</span><span>Director / Dir. adj.</span></div>
+      <div class="login-hint-row"><span>contabil / con123</span><span>Contabil Șef</span></div>
+      <div class="login-hint-row"><span>mentenanta / men123</span><span>Mentenanță</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="appShell">
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-box">🏛️</div>
+    <div>
+      <div class="sidebar-logo-text">PatrimoNet — CNVGA</div>
+    </div>
+  </div>
+  <div class="sidebar-school">
+    <div class="school-logo-placeholder" id="sidebarLogoBox"><img src="https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg" style="width:100%;height:100%;object-fit:contain;padding:2px" onerror="this.style.display='none';this.parentNode.textContent='🏫'"></div>
+    <div class="school-name" id="sidebarSchoolName">CN „Vasile Goldiș"<br>Arad</div>
+  </div>
+  <nav style="flex:1;overflow-y:auto">
+    <div class="nav-group">
+      <div class="nav-group-label">Principal</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">📊</span> Tablou de bord</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Spații</div>
+      <div class="nav-item" onclick="nav('cladiri',this)"><span class="nav-icon">🏢</span> Clădiri</div>
+      <div class="nav-item" onclick="nav('camere',this)"><span class="nav-icon">🚪</span> Camere & Săli</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Patrimoniu</div>
+      <div class="nav-item" onclick="nav('inventar',this)"><span class="nav-icon">📦</span> Inventar Bunuri</div>
+      <div class="nav-item" onclick="nav('qr',this)"><span class="nav-icon">📲</span> Coduri QR</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Financiar</div>
+      <div class="nav-item" data-roles="admin_app,admin_pat,director,contabil" onclick="nav('furnizori',this)"><span class="nav-icon">🤝</span> Furnizori</div>
+      <div class="nav-item" data-roles="admin_app,admin_pat,director,contabil" onclick="nav('achizitii',this)"><span class="nav-icon">🛒</span> Achiziții <span class="nav-badge" id="achBadge" style="display:none">!</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Operațional</div>
+      <div class="nav-item" onclick="nav('mentenanta',this)"><span class="nav-icon">🔧</span> Mentenanță <span class="nav-badge" id="taskBadge">0</span></div>
+      <div class="nav-item" onclick="nav('fluxuri',this)"><span class="nav-icon">🔄</span> Fluxuri de lucru</div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Administrare</div>
+      <div class="nav-item" data-roles="admin_app,admin_pat" onclick="nav('personal',this)"><span class="nav-icon">👥</span> Personal</div>
+      <div class="nav-item" data-roles="admin_app" onclick="nav('setari',this)"><span class="nav-icon">⚙️</span> Setări</div>
+      <div class="nav-item" onclick="nav('rapoarte',this)"><span class="nav-icon">📈</span> Rapoarte</div>
+    </div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar" id="userAvatar">A</div>
+    <div>
+      <div class="user-name" id="userName">Administrator</div>
+      <div class="user-role" id="userRoleLabel">Admin Aplicație</div>
+    </div>
+    <div class="logout-btn" onclick="doLogout()" title="Deconectare">⏻</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title" id="pageTitle">Tablou de bord</div>
+        <div class="topbar-breadcrumb" id="todayLabel"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-notif" onclick="nav('mentenanta', document.querySelector('.nav-item:nth-of-type(9)'))">
+        🔔<div class="notif-dot" id="notifDot"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Tipărire</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="section-dashboard">
+      <div class="stats-row">
+        <div class="stat-card gold"><div class="stat-label">Clădiri</div><div class="stat-val" id="s-cladiri">0</div><div class="stat-sub">înregistrate</div></div>
+        <div class="stat-card teal"><div class="stat-label">Bunuri totale</div><div class="stat-val" id="s-bunuri">0</div><div class="stat-sub">în inventar</div></div>
+        <div class="stat-card rose"><div class="stat-label">Reparații</div><div class="stat-val" id="s-rep">0</div><div class="stat-sub">de rezolvat</div></div>
+        <div class="stat-card sky"><div class="stat-label">Valoare totală</div><div class="stat-val" id="s-val">0</div><div class="stat-sub">RON</div></div>
+        <div class="stat-card amber"><div class="stat-label">Sarcini deschise</div><div class="stat-val" id="s-tasks">0</div><div class="stat-sub">mentenanță</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🏢 Clădiri active</span></div>
+          <div id="dashCladiri" style="padding:4px 0"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔧 Sarcini recente mentenanță</span></div>
+          <div id="dashTasks" style="padding:4px 0"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📦 Distribuție stare bunuri</span></div>
+          <div style="padding:16px 20px" id="dashBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">⚡ Activitate recentă</span></div>
+          <div id="dashActivity" style="padding:4px 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLADIRI -->
+    <div class="section" id="section-cladiri">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută clădire..." oninput="filterCladiri(this.value)"></div>
+        <button class="btn btn-primary" onclick="openModal('modalCladire')">+ Adaugă clădire</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px" id="cladiriGrid"></div>
+    </div>
+
+    <!-- CAMERE -->
+    <div class="section" id="section-camere">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută cameră..." oninput="filterCamere(this.value)" id="searchCam"></div>
+        <select id="filterCladireC" onchange="filterCamere()"><option value="">Toate clădirile</option></select>
+        <select id="filterTipC" onchange="filterCamere()"><option value="">Toate tipurile</option><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option></select>
+        <button class="btn btn-primary" onclick="openModalCamera()">+ Adaugă cameră</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🚪 Camere & Săli</span><span style="font-size:11px;color:var(--mist)" id="camCount">0 spații</span></div>
+        <table><thead><tr><th>Cod</th><th>Denumire</th><th>Clădire</th><th>Nivel</th><th>Tip</th><th>Responsabil</th><th>Bunuri</th><th>Acțiuni</th></tr></thead>
+        <tbody id="camTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- INVENTAR -->
+    <div class="section" id="section-inventar">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută după cod, denumire..." oninput="filterInventar()" id="searchInv"></div>
+        <select onchange="filterInventar()" id="filterCat"><option value="">Toate categoriile</option><option>Mobilier</option><option>Tehnologie IT</option><option>Echipament Sportiv</option><option>Laborator</option><option>Auxiliar</option><option>Carte & Publicație</option></select>
+        <select onchange="filterInventar()" id="filterStare"><option value="">Toate stările</option><option>Funcțional</option><option>Necesită reparații</option><option>Casat</option></select>
+        <select onchange="filterInventar()" id="filterCladireI"><option value="">Toate clădirile</option></select>
+        <button class="btn btn-primary" onclick="openModalBun()">+ Adaugă bun</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">📦 Inventar bunuri</span><span style="font-size:11px;color:var(--mist)" id="invCount">0 bunuri</span></div>
+        <table><thead><tr><th>Nr. Inv.</th><th>Denumire</th><th>Cat.</th><th>Clădire / Cameră</th><th>Cant.</th><th>Valoare</th><th>Stare</th><th>Acțiuni</th></tr></thead>
+        <tbody id="invTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- QR -->
+    <div class="section" id="section-qr">
+      <div class="alert alert-info">ℹ️ <span>Selectează un bun din inventar pentru a genera codul QR. Codul conține toate informațiile bunului și poate fi scanat cu orice telefon.</span></div>
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută bun pentru QR..." oninput="filterQR(this.value)" id="searchQR"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">📲 Generare coduri QR</span></div>
+        <table><thead><tr><th>Nr. Inv.</th><th>Denumire</th><th>Cameră</th><th>Stare</th><th>Generează QR</th></tr></thead>
+        <tbody id="qrTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- FURNIZORI -->
+    <div class="section" id="section-furnizori">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută furnizor..." oninput="filterFurnizori(this.value)"></div>
+        <button class="btn btn-primary" onclick="openModal('modalFurnizor')">+ Adaugă furnizor</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🤝 Furnizori</span><span style="font-size:11px;color:var(--mist)" id="furnCount">0</span></div>
+        <table><thead><tr><th>Companie</th><th>CUI</th><th>Contact</th><th>Telefon</th><th>Email</th><th>Categorie</th><th>Acțiuni</th></tr></thead>
+        <tbody id="furnTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ACHIZITII -->
+    <div class="section" id="section-achizitii">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută achiziție..." oninput="filterAchizitii(this.value)" id="searchAch"></div>
+        <select id="filterAchStatus" onchange="filterAchizitii()"><option value="">Toate statusurile</option><option>Comandat</option><option>Livrat</option><option>În așteptare</option><option>Anulat</option></select>
+        <button class="btn btn-primary" onclick="openModalAch()">+ Adaugă achiziție</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🛒 Achiziții</span><span id="achCount" style="font-size:11px;color:var(--mist)">0</span></div>
+        <table><thead><tr><th>Nr.</th><th>Produs</th><th>Furnizor</th><th>Cant.</th><th>Valoare</th><th>Data</th><th>Status</th><th>Aprobat</th><th>Acțiuni</th></tr></thead>
+        <tbody id="achTable"></tbody></table>
+      </div>
+    </div>
+
+    <!-- MENTENANTA -->
+    <div class="section" id="section-mentenanta">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('tasks-open',this)">Sarcini deschise</div>
+        <div class="tab" onclick="switchTab('tasks-done',this)">Finalizate</div>
+      </div>
+      <div id="tasks-open">
+        <div class="filters">
+          <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută sarcină..." oninput="filterTasks(this.value)"></div>
+          <select id="filterPriority" onchange="filterTasks()"><option value="">Toate prioritățile</option><option>Înaltă</option><option>Medie</option><option>Scăzută</option></select>
+          <button class="btn btn-primary" onclick="openModalTask()">+ Adaugă sarcină</button>
+        </div>
+        <div class="card"><div class="card-header"><span class="card-title">🔧 Sarcini mentenanță deschise</span></div><div id="taskList"></div></div>
+      </div>
+      <div id="tasks-done" style="display:none">
+        <div class="card"><div class="card-header"><span class="card-title">✅ Sarcini finalizate</span></div><div id="taskListDone"></div></div>
+      </div>
+    </div>
+
+    <!-- FLUXURI -->
+    <div class="section" id="section-fluxuri">
+      <div class="alert alert-info">ℹ️ Fluxurile de lucru descriu procesele standard și etapele de aprobare pentru operațiunile principale.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span></div>
+          <div style="padding:16px 20px">
+            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Inițiere</strong> — Administrator Patrimoniu completează formularul de necesitate</div></div>
+            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare bugetară</strong> — Contabilul verifică disponibilul bugetar</div></div>
+            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă achiziția (peste 5.000 RON)</div></div>
+            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Comandă furnizor</strong> — Admin Patrimoniu emite comanda</div></div>
+            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Recepție</strong> — Comisia de recepție confirmă livrarea</div></div>
+            <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Inventariere</strong> — Se atribuie număr de inventar și se generează QR</div></div>
+            <div class="workflow-step"><div class="ws-num">7</div><div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează în evidențele contabile</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔧 Flux: Reparație bun defect</span></div>
+          <div style="padding:16px 20px">
+            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Sesizare defect</strong> — Profesorul/utilizatorul raportează defecțiunea</div></div>
+            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Înregistrare sarcină</strong> — Admin Patrimoniu creează sarcina de mentenanță</div></div>
+            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Evaluare</strong> — Personalul mentenanță evaluează defecțiunea</div></div>
+            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Decizie reparație/casare</strong> — Admin Patrimoniu decide</div></div>
+            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Reparație</strong> — Mentenanță intern SAU service extern</div></div>
+            <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Confirmare remediere</strong> — Actualizare stare bun în inventar</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🗑️ Flux: Casare bun</span></div>
+          <div style="padding:16px 20px">
+            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Propunere casare</strong> — Admin Patrimoniu propune bunul pentru casare</div></div>
+            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă casarea</div></div>
+            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Comisie evaluare</strong> — Comisia de casare evaluează bunul</div></div>
+            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Proces verbal</strong> — Se întocmește PV de casare</div></div>
+            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Scoatere din evidență</strong> — Bunul se marchează "Casat" în sistem</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔄 Flux: Transfer bun între camere</span></div>
+          <div style="padding:16px 20px">
+            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Cerere transfer</strong> — Profesorul responsabil solicită transferul</div></div>
+            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare Admin Pat.</strong> — Administratorul aprobă mutarea</div></div>
+            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Actualizare sistem</strong> — Se modifică locația bunului în inventar</div></div>
+            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Scanare QR</strong> — Noul responsabil scanează QR-ul pentru confirmare</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERSONAL -->
+    <div class="section" id="section-personal">
+      <div class="filters">
+        <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută persoană..." oninput="filterPersonal(this.value)"></div>
+        <select id="filterRolP" onchange="filterPersonal()">
+          <option value="">Toate rolurile</option>
+          <option value="admin_app">Admin Aplicație</option>
+          <option value="admin_pat">Admin Patrimoniu</option>
+          <option value="director">Director</option>
+          <option value="contabil">Contabil</option>
+          <option value="informatician">Informatician</option>
+          <option value="profesor">Profesor</option>
+          <option value="mentenanta">Mentenanță</option>
+        </select>
+        <button class="btn btn-primary" onclick="openModal('modalPersonal')">+ Adaugă utilizator</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">👥 Utilizatori & Personal</span></div>
+        <div id="personalList"></div>
+      </div>
+    </div>
+
+    <!-- SETARI -->
+    <div class="section" id="section-setari">
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="settings-card-title">🏫 Date instituție</div>
+          <div class="form-row"><label>Denumire instituție</label><input type="text" id="setNume" value="Colegiul Național „Vasile Goldiș" Arad"></div>
+          <div class="form-row"><label>CIF / CUI</label><input type="text" id="setCif" value="RO4262239"></div>
+          <div class="form-row"><label>Director</label><input type="text" id="setDirector" value="Prof. Ioja Petronela Angela"></div>
+          <div class="form-row"><label>Telefon</label><input type="text" id="setTel" value="0257 231 726"></div>
+          <div class="form-row"><label>Email instituție</label><input type="text" id="setEmail" value="secretariat@cnvga.ro"></div>
+          <button class="btn btn-primary" onclick="saveSettings()">💾 Salvează date</button>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">🖼️ Logo instituție</div>
+          <div class="logo-upload-area" onclick="document.getElementById('logoUpload').click()" id="logoArea">
+            <img id="logoPreview" class="logo-preview">
+            <div id="logoPlaceholder">
+              <div style="font-size:36px;margin-bottom:8px">🖼️</div>
+              <div style="font-size:13px;color:var(--mist)">Click pentru a încărca logo</div>
+              <div style="font-size:11px;color:var(--mist);margin-top:4px">PNG, JPG, SVG — max. 2MB</div>
+            </div>
+          </div>
+          <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="loadLogo(this)">
+          <button class="btn btn-outline btn-sm" onclick="removeLogo()">Elimină logo</button>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">🔐 Permisiuni pe roluri</div>
+          <div style="font-size:11px;color:var(--mist);margin-bottom:10px">Controlează ce poate vedea fiecare rol</div>
+          <div class="permission-row"><span>Admin Pat. poate aproba achiziții</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="permission-row"><span>Profesor poate raporta defecte</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="permission-row"><span>Contabil vede valori bunuri</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="permission-row"><span>Informatician editează IT</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="permission-row"><span>Mentenanță vede sarcinile sale</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="permission-row"><span>Director aprobă casări</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">📋 Prefix numere inventar</div>
+          <div class="form-row"><label>Prefix clădire principală</label><input type="text" value="CNVG-A-"></div>
+          <div class="form-row"><label>Prefix clădire secundară</label><input type="text" value="CNVG-B-"></div>
+          <div class="form-row"><label>Număr de start</label><input type="number" value="1001"></div>
+          <div class="form-row"><label>Format dată achiziție pe QR</label>
+            <select><option>ZZ/LL/AAAA</option><option>AAAA-LL-ZZ</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="toast('✅ Setări prefix salvate!')">💾 Salvează prefix</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAPOARTE -->
+    <div class="section" id="section-rapoarte">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 Bunuri pe categorii</span></div>
+          <div style="padding:16px 20px" id="repCat"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🏢 Valoare pe clădiri</span></div>
+          <div style="padding:16px 20px" id="repCladiri"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">💰 Achiziții pe luni</span></div>
+          <div style="padding:16px 20px" id="repAch"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔧 Sarcini mentenanță</span></div>
+          <div style="padding:16px 20px" id="repTask"></div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <button class="btn btn-outline" onclick="window.print()">🖨️ Tipărește raport complet</button>
+        <button class="btn btn-gold" style="margin-left:8px" onclick="toast('📥 Export CSV generat!')">📥 Export CSV</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- MODAL CLĂDIRE -->
+<div class="modal-overlay" id="modalCladire">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Clădire</span><span class="modal-close" onclick="closeModal('modalCladire')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="cladireEditId">
+      <div class="form-grid2">
+        <div class="form-row"><label>Cod clădire</label><input type="text" id="cladireCod" placeholder="ex: CLD-A"></div>
+        <div class="form-row"><label>Denumire</label><input type="text" id="cladireNume" placeholder="ex: Corp A — Principal"></div>
+      </div>
+      <div class="form-row"><label>Adresă completă</label><input type="text" id="cladireAdresa" placeholder="Str. ..., nr. ..., Localitate, Județ"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Număr etaje</label><input type="number" id="cladireEtaje" value="2" min="0" max="10"></div>
+        <div class="form-row"><label>An construcție</label><input type="number" id="cladireAn" placeholder="ex: 1975"></div>
+      </div>
+      <div class="form-row"><label>Responsabil clădire</label><input type="text" id="cladireResp" placeholder="Numele persoanei responsabile"></div>
+      <div class="form-row"><label>Note</label><textarea id="cladireNote" placeholder="Informații suplimentare despre clădire, stare generală..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalCladire')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveCladire()">Salvează clădire</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CAMERĂ -->
+<div class="modal-overlay" id="modalCamera">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title" id="modalCameraTitle">Cameră / Sală</span><span class="modal-close" onclick="closeModal('modalCamera')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="cameraEditId">
+      <div class="form-grid3">
+        <div class="form-row"><label>Cod cameră</label><input type="text" id="camCod" placeholder="ex: S-101"></div>
+        <div class="form-row"><label>Numerotare oficială</label><input type="text" id="camNr" placeholder="ex: 101"></div>
+        <div class="form-row"><label>Tip</label>
+          <select id="camTip"><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option></select>
+        </div>
+      </div>
+      <div class="form-row"><label>Denumire</label><input type="text" id="camNume" placeholder="ex: Sala de Fizică"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Clădire</label><select id="camCladire"></select></div>
+        <div class="form-row"><label>Nivel / Etaj</label>
+          <select id="camEtaj"><option value="Parter">Parter</option><option value="Etaj 1">Etaj 1</option><option value="Etaj 2">Etaj 2</option><option value="Etaj 3">Etaj 3</option><option value="Subsol">Subsol</option></select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Responsabil</label><input type="text" id="camResp" placeholder="Numele profesorului"></div>
+        <div class="form-row"><label>Suprafață (m²)</label><input type="number" id="camSup" placeholder="ex: 45"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalCamera')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveCamera()">Salvează camera</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BUN -->
+<div class="modal-overlay" id="modalBun">
+  <div class="modal" style="width:620px">
+    <div class="modal-head"><span class="modal-title" id="modalBunTitle">Bun inventar</span><span class="modal-close" onclick="closeModal('modalBun')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="bunEditId">
+      <div class="form-grid2">
+        <div class="form-row"><label>Număr inventar</label><input type="text" id="bunNrInv" placeholder="ex: CNM-A-1001"></div>
+        <div class="form-row"><label>Denumire bun</label><input type="text" id="bunNume" placeholder="Denumire completă"></div>
+      </div>
+      <div class="form-grid3">
+        <div class="form-row"><label>Categorie</label>
+          <select id="bunCat"><option>Mobilier</option><option>Tehnologie IT</option><option>Echipament Sportiv</option><option>Laborator</option><option>Auxiliar</option><option>Carte & Publicație</option></select>
+        </div>
+        <div class="form-row"><label>Clădire</label><select id="bunCladire" onchange="updateCamereForBun()"></select></div>
+        <div class="form-row"><label>Cameră</label><select id="bunCamera"></select></div>
+      </div>
+      <div class="form-grid3">
+        <div class="form-row"><label>Cantitate</label><input type="number" id="bunQty" value="1" min="1"></div>
+        <div class="form-row"><label>Valoare unitară (RON)</label><input type="number" id="bunVal" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="form-row"><label>Stare</label>
+          <select id="bunStare"><option>Funcțional</option><option>Necesită reparații</option><option>Casat</option></select>
+        </div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Data achiziției</label><input type="date" id="bunData"></div>
+        <div class="form-row"><label>Furnizor</label><select id="bunFurnizor"></select></div>
+      </div>
+      <div class="form-row"><label>Descriere / Specificații tehnice</label><textarea id="bunDesc" placeholder="Model, serie, specificații..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalBun')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveBun()">Salvează bun</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FURNIZOR -->
+<div class="modal-overlay" id="modalFurnizor">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Furnizor</span><span class="modal-close" onclick="closeModal('modalFurnizor')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="furnEditId">
+      <div class="form-grid2">
+        <div class="form-row"><label>Denumire companie</label><input type="text" id="furnNume" placeholder="S.C. ..."></div>
+        <div class="form-row"><label>CUI / CIF</label><input type="text" id="furnCui" placeholder="RO12345678"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Categorie produse</label>
+          <select id="furnCat"><option>Mobilier</option><option>Tehnologie IT</option><option>Papetărie</option><option>Curățenie</option><option>Laborator</option><option>Diverse</option></select>
+        </div>
+        <div class="form-row"><label>Persoană contact</label><input type="text" id="furnContact" placeholder="Nume prenume"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Telefon</label><input type="text" id="furnTel" placeholder="07xx xxx xxx"></div>
+        <div class="form-row"><label>Email</label><input type="text" id="furnEmail" placeholder="email@firma.ro"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalFurnizor')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveFurnizor()">Salvează</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ACHIZITIE -->
+<div class="modal-overlay" id="modalAchizitie">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Achiziție</span><span class="modal-close" onclick="closeModal('modalAchizitie')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="achEditId">
+      <div class="form-row"><label>Produs / Serviciu</label><input type="text" id="achProdus" placeholder="Descriere"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Furnizor</label><select id="achFurn"></select></div>
+        <div class="form-row"><label>Status</label>
+          <select id="achStatus"><option>Comandat</option><option>Livrat</option><option>În așteptare</option><option>Anulat</option></select>
+        </div>
+      </div>
+      <div class="form-grid3">
+        <div class="form-row"><label>Cantitate</label><input type="number" id="achQty" value="1" min="1"></div>
+        <div class="form-row"><label>Valoare totală</label><input type="number" id="achVal" placeholder="0.00"></div>
+        <div class="form-row"><label>Data comenzii</label><input type="date" id="achData"></div>
+      </div>
+      <div class="form-row"><label>Necesită aprobare director</label>
+        <select id="achAprobare"><option value="nu">Nu (sub 5.000 RON)</option><option value="da">Da (peste 5.000 RON)</option></select>
+      </div>
+      <div class="form-row"><label>Note</label><textarea id="achNote" placeholder="Observații..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalAchizitie')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveAchizitie()">Salvează</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SARCINA MENTENANTA -->
+<div class="modal-overlay" id="modalTask">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Sarcină mentenanță</span><span class="modal-close" onclick="closeModal('modalTask')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="taskEditId">
+      <div class="form-row"><label>Titlu sarcină</label><input type="text" id="taskTitle" placeholder="Descriere scurtă a problemei"></div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Prioritate</label>
+          <select id="taskPrio"><option>Înaltă</option><option>Medie</option><option>Scăzută</option></select>
+        </div>
+        <div class="form-row"><label>Atribuit lui</label><select id="taskAssign"></select></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Clădire</label><select id="taskCladire"></select></div>
+        <div class="form-row"><label>Cameră</label><select id="taskCamera2"></select></div>
+      </div>
+      <div class="form-row"><label>Bun afectat (opțional)</label><select id="taskBun"><option value="">— niciun bun specific —</option></select></div>
+      <div class="form-row"><label>Termen</label><input type="date" id="taskTermen"></div>
+      <div class="form-row"><label>Descriere detaliată</label><textarea id="taskDesc" placeholder="Detalii despre defecțiune / lucrare..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalTask')">Anulează</button>
+      <button class="btn btn-primary" onclick="saveTask()">Salvează sarcina</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERSONAL -->
+<div class="modal-overlay" id="modalPersonal">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Utilizator / Personal</span><span class="modal-close" onclick="closeModal('modalPersonal')">✕</span></div>
+    <div class="modal-body">
+      <input type="hidden" id="perEditId">
+      <div class="form-grid2">
+        <div class="form-row"><label>Prenume</label><input type="text" id="perPrenume" placeholder="Prenume"></div>
+        <div class="form-row"><label>Nume</label><input type="text" id="perNume" placeholder="Nume"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Email / username</label><input type="email" id="perEmail" placeholder="email@scoala.ro"></div>
+        <div class="form-row"><label>Telefon</label><input type="text" id="perTel" placeholder="07xx xxx xxx"></div>
+      </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Rol în aplicație</label>
+          <select id="perRol">
+            <option value="admin_app">Administrator Aplicație</option>
+            <option value="admin_pat">Administrator Patrimoniu</option>
+            <option value="director">Director</option>
+            <option value="contabil">Contabil</option>
+            <option value="informatician">Informatician</option>
+            <option value="profesor">Profesor</option>
+            <option value="mentenanta">Personal Mentenanță</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Parolă inițială</label><input type="password" id="perParola" placeholder="Parolă temporară"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalPersonal')">Anulează</button>
+      <button class="btn btn-primary" onclick="savePersonal()">Salvează utilizator</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QR -->
+<div class="modal-overlay" id="modalQR">
+  <div class="modal" style="width:380px">
+    <div class="modal-head"><span class="modal-title">Cod QR — Bun</span><span class="modal-close" onclick="closeModal('modalQR')">✕</span></div>
+    <div class="modal-body">
+      <div class="qr-wrap">
+        <div id="qrCanvas"></div>
+        <div class="qr-info" id="qrInfo"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('modalQR')">Închide</button>
+      <button class="btn btn-gold" onclick="printQR()">🖨️ Tipărește</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ===== STATE =====
+let DB = { cladiri:[], camere:[], inventar:[], furnizori:[], achizitii:[], personal:[], tasks:[] };
+let currentUser = null;
+let activities = [];
+
+// ===== DEMO USERS =====
+const DEMO_USERS = [
+  {id:1, prenume:'Administrator', nume:'Aplicație', email:'admin', parola:'admin123', rol:'admin_app'},
+  {id:2, prenume:'Administrator', nume:'Patrimoniu', email:'patrimoniu', parola:'pat123', rol:'admin_pat'},
+  {id:3, prenume:'Ioja Petronela', nume:'Angela', email:'director', parola:'dir123', rol:'director'},
+  {id:4, prenume:'Matica', nume:'Dan', email:'dir.adj1', parola:'dir123', rol:'director'},
+  {id:5, prenume:'Belei Cristina', nume:'Ligia', email:'dir.adj2', parola:'dir123', rol:'director'},
+  {id:6, prenume:'Contabil', nume:'Șef', email:'contabil', parola:'con123', rol:'contabil'},
+  {id:7, prenume:'Informatician', nume:'Școlar', email:'info', parola:'info123', rol:'informatician'},
+  {id:8, prenume:'Profesor', nume:'Responsabil', email:'profesor', parola:'prof123', rol:'profesor'},
+  {id:9, prenume:'Muncitor', nume:'Mentenanță 1', email:'mentenanta', parola:'men123', rol:'mentenanta'},
+  {id:10, prenume:'Muncitor', nume:'Mentenanță 2', email:'mentenanta2', parola:'men123', rol:'mentenanta'},
+];
+
+const ROLE_LABELS = {admin_app:'Administrator Aplicație',admin_pat:'Administrator Patrimoniu',director:'Director',contabil:'Contabil',informatician:'Informatician',profesor:'Profesor',mentenanta:'Personal Mentenanță'};
+const ROLE_COLORS = {admin_app:'#1a1f2e',admin_pat:'#0d7c6b',director:'#7c3aed',contabil:'#1a6fa8',informatician:'#0369a1',profesor:'#0891b2',mentenanta:'#d97706'};
+
+// ===== LOGIN =====
+function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  const r = document.getElementById('loginRole').value;
+  const found = DEMO_USERS.find(x => x.email === u && x.parola === p);
+  if (!found) { alert('Credențiale incorecte! Verifică datele de autentificare.'); return; }
+  currentUser = {...found, rol: r};
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  initApp();
+}
+
+function doLogout() {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  currentUser = null;
+}
+
+// ===== INIT =====
+function initApp() {
+  seedData();
+  // Show user info
+  document.getElementById('userAvatar').textContent = (currentUser.prenume[0] + currentUser.nume[0]).toUpperCase();
+  document.getElementById('userName').textContent = currentUser.prenume + ' ' + currentUser.nume;
+  document.getElementById('userRoleLabel').textContent = ROLE_LABELS[currentUser.rol];
+  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('ro-RO', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // Show nav items by role
+  document.querySelectorAll('.nav-item[data-roles]').forEach(el => {
+    const roles = el.getAttribute('data-roles').split(',');
+    if (roles.includes(currentUser.rol)) el.style.display = 'flex';
+  });
+  updateDashboard();
+  updateBadges();
+}
+
+// ===== SEED =====
+function seedData() {
+  DB.cladiri = [
+    {id:1,cod:'CLD-A',nume:'Clădirea A — Vasile Goldiș',adresa:'Calea Victoriei nr. 1-3, 310158 Arad (lângă Spitalul Județean)',etaje:3,an:1898,resp:'Admin. patrimoniu'},
+    {id:2,cod:'CLD-B',nume:'Clădirea B — Ioan Slavici',adresa:'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)',etaje:3,an:1965,resp:'Admin. patrimoniu'},
+  ];
+  DB.camere = [
+    {id:1,cod:'A-P01',nr:'P01',tip:'Birou',nume:'Birou Director',cladireId:1,etaj:'Parter',resp:'Dir. Ioja Petronela Angela',sup:24},
+    {id:2,cod:'A-P02',nr:'P02',tip:'Birou',nume:'Secretariat',cladireId:1,etaj:'Parter',resp:'Secretar șef',sup:30},
+    {id:3,cod:'A-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101',cladireId:1,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
+    {id:4,cod:'A-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102',cladireId:1,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
+    {id:5,cod:'A-LAB-I',nr:'301',tip:'Laborator',nume:'Laborator Informatică',cladireId:1,etaj:'Etaj 3',resp:'Prof. informatică',sup:40},
+    {id:6,cod:'A-LAB-F',nr:'201',tip:'Laborator',nume:'Laborator Fizică',cladireId:1,etaj:'Etaj 2',resp:'Prof. fizică',sup:52},
+    {id:7,cod:'A-CAN',nr:'SS1',tip:'Auxiliar',nume:'Cantină',cladireId:1,etaj:'Subsol',resp:'Admin. patrimoniu',sup:120},
+    {id:8,cod:'B-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101 — Clăd. B',cladireId:2,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
+    {id:9,cod:'B-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102 — Clăd. B',cladireId:2,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
+    {id:10,cod:'B-SPORT',nr:'S1',tip:'Sală sport',nume:'Sală de Sport',cladireId:2,etaj:'Parter',resp:'Prof. sport',sup:400},
+    {id:11,cod:'B-INT',nr:'INT',tip:'Auxiliar',nume:'Internat',cladireId:2,etaj:'Etaj 2',resp:'Admin. patrimoniu',sup:600},
+    {id:12,cod:'A-BIB',nr:'BIB',tip:'Auxiliar',nume:'Bibliotecă',cladireId:1,etaj:'Etaj 1',resp:'Bibliotecar',sup:80},
+  ];
+  DB.inventar = [
+    {id:1,nrInv:'CNVG-A-1001',nume:'Tablă interactivă SMART 86"',cat:'Tehnologie IT',cladireId:1,cameraId:5,qty:8,val:56000,stare:'Funcțional',data:'2023-09-01',furnId:1,desc:'SMART Board MX286'},
+    {id:2,nrInv:'CNVG-A-1002',nume:'Laptop Dell Vostro 3520',cat:'Tehnologie IT',cladireId:1,cameraId:5,qty:25,val:87500,stare:'Funcțional',data:'2023-01-10',furnId:1,desc:'i5-1235U, 8GB RAM, 256GB SSD'},
+    {id:3,nrInv:'CNVG-A-1003',nume:'Bancă elev bilocă',cat:'Mobilier',cladireId:1,cameraId:3,qty:28,val:22400,stare:'Funcțional',data:'2021-07-15',furnId:2,desc:'Set bancă + 2 scaune'},
+    {id:4,nrInv:'CNVG-A-1004',nume:'Catedră profesor',cat:'Mobilier',cladireId:1,cameraId:3,qty:1,val:1800,stare:'Funcțional',data:'2021-07-15',furnId:2,desc:'Catedră cu sertar'},
+    {id:5,nrInv:'CNVG-A-1005',nume:'Microscop optic Bresser',cat:'Laborator',cladireId:1,cameraId:6,qty:12,val:27600,stare:'Funcțional',data:'2022-04-20',furnId:3,desc:'Bresser Erudit DLX 40-1000x'},
+    {id:6,nrInv:'CNVG-A-1006',nume:'Scaun ergonomic birou director',cat:'Mobilier',cladireId:1,cameraId:1,qty:1,val:1200,stare:'Necesită reparații',data:'2019-09-01',furnId:2,desc:'Cilindru pneumatic defect'},
+    {id:7,nrInv:'CNVG-B-2001',nume:'Aparatură sală sport — saltele',cat:'Echipament Sportiv',cladireId:2,cameraId:10,qty:20,val:6000,stare:'Funcțional',data:'2022-03-01',furnId:3,desc:'Saltele gimnastică 5cm'},
+    {id:8,nrInv:'CNVG-B-2002',nume:'Mese cantină',cat:'Mobilier',cladireId:1,cameraId:7,qty:30,val:15000,stare:'Funcțional',data:'2020-06-01',furnId:2,desc:'Inox, 4 locuri'},
+    {id:9,nrInv:'CNVG-A-1007',nume:'Proiector Epson EB',cat:'Tehnologie IT',cladireId:1,cameraId:4,qty:3,val:9000,stare:'Funcțional',data:'2021-09-01',furnId:1,desc:'Epson EB-W51, 3800 lumeni'},
+    {id:10,nrInv:'CNVG-A-1008',nume:'Aparat foto Canon EOS',cat:'Tehnologie IT',cladireId:1,cameraId:2,qty:1,val:3500,stare:'Casat',data:'2010-09-01',furnId:1,desc:'Depășit moral, propus casare'},
+  ];
+  DB.furnizori = [
+    {id:1,nume:'S.C. InfoTech Arad SRL',cui:'RO24567890',contact:'Mircea Popa',tel:'0257 345 678',email:'contact@infotech-arad.ro',cat:'Tehnologie IT'},
+    {id:2,nume:'S.C. MobilSchool SA',cui:'RO34567891',contact:'Carmen Ionescu',tel:'0257 456 789',email:'vanzari@mobilschool.ro',cat:'Mobilier'},
+    {id:3,nume:'S.C. LabEquip West SRL',cui:'RO45678902',contact:'Bogdan Mureșan',tel:'0744 567 890',email:'office@labequip-west.ro',cat:'Laborator'},
+    {id:4,nume:'S.C. CleanPro Arad SRL',cui:'RO56789013',contact:'Lidia Bota',tel:'0257 567 890',email:'office@cleanpro-arad.ro',cat:'Curățenie'},
+  ];
+  DB.achizitii = [
+    {id:1,produs:'8x Tablă interactivă SMART 86"',furnId:1,qty:8,val:56000,data:'2023-08-15',status:'Livrat',aprobare:'da',note:'Aprobat director 10.08.2023, recepție 01.09.2023'},
+    {id:2,produs:'28x Set bancă-scaun elev bilocă',furnId:2,qty:28,val:22400,data:'2021-06-20',status:'Livrat',aprobare:'nu',note:''},
+    {id:3,produs:'25x Laptop Dell Vostro 3520',furnId:1,qty:25,val:87500,data:'2023-01-10',status:'Livrat',aprobare:'da',note:'Aprobat CA 05.01.2023'},
+    {id:4,produs:'Reactivi laborator chimie — stoc anual',furnId:3,qty:1,val:4800,data:'2026-01-15',status:'Livrat',aprobare:'nu',note:''},
+    {id:5,produs:'Materiale curățenie — trimestrul I',furnId:4,qty:1,val:3200,data:'2026-01-10',status:'Livrat',aprobare:'nu',note:''},
+    {id:6,produs:'10x Scaune elev ergonomice',furnId:2,qty:10,val:4500,data:'2026-02-01',status:'Comandat',aprobare:'nu',note:'Termen livrare 28.02.2026'},
+  ];
+  DB.personal = [
+    {id:1,prenume:'Administrator',nume:'Aplicație',email:'admin',parola:'admin123',rol:'admin_app',tel:''},
+    {id:2,prenume:'Soția',nume:'Ta',email:'patrimoniu',parola:'pat123',rol:'admin_pat',tel:''},
+    {id:3,prenume:'Ioja Petronela',nume:'Angela',email:'director',parola:'dir123',rol:'director',tel:'0257 231 726'},
+    {id:4,prenume:'Matica',nume:'Dan',email:'dir.adj1',parola:'dir123',rol:'director',tel:'0257 231 726'},
+    {id:5,prenume:'Belei Cristina',nume:'Ligia',email:'dir.adj2',parola:'dir123',rol:'director',tel:'0257 231 726'},
+    {id:6,prenume:'Contabil',nume:'Șef',email:'contabil',parola:'con123',rol:'contabil',tel:''},
+    {id:7,prenume:'Informatician',nume:'Școlar',email:'info',parola:'info123',rol:'informatician',tel:''},
+    {id:8,prenume:'Profesor',nume:'Responsabil',email:'profesor',parola:'prof123',rol:'profesor',tel:''},
+    {id:9,prenume:'Muncitor',nume:'Mentenanță 1',email:'mentenanta',parola:'men123',rol:'mentenanta',tel:''},
+    {id:10,prenume:'Muncitor',nume:'Mentenanță 2',email:'mentenanta2',parola:'men123',rol:'mentenanta',tel:''},
+  ];
+  DB.tasks = [
+    {id:1,title:'Înlocuire corpuri iluminat — Sala 101 Clăd. A',prio:'Înaltă',assignId:9,cladireId:1,cameraId:3,bunId:null,termen:'2026-02-28',desc:'4 corpuri LED defecte, necesită înlocuire urgentă',status:'deschis'},
+    {id:2,title:'Reparație scaun birou director',prio:'Medie',assignId:9,cladireId:1,cameraId:1,bunId:6,termen:'2026-03-05',desc:'Cilindru pneumatic defect, scaunul nu mai reglează înălțimea',status:'deschis'},
+    {id:3,title:'Verificare instalație termică Clăd. B',prio:'Înaltă',assignId:10,cladireId:2,cameraId:8,bunId:null,termen:'2026-02-25',desc:'Calorifere reci în 3 săli de clasă, necesită verificare urgentă',status:'deschis'},
+    {id:4,title:'Vopsire holuri Clăd. A — Etaj 2',prio:'Scăzută',assignId:9,cladireId:1,cameraId:3,bunId:null,termen:'2026-06-15',desc:'Planificat pentru vacanța de vară',status:'deschis'},
+    {id:5,title:'Curățare filtre AC laborator informatică',prio:'Scăzută',assignId:10,cladireId:1,cameraId:5,bunId:null,termen:'2026-02-20',desc:'Întreținere periodică trimestrială',status:'finalizat'},
+  ];
+  activities = [
+    {msg:'Demo personalizat CN „Vasile Goldiș" Arad', color:'teal', time:'Acum'},
+    {msg:'2 clădiri înregistrate: Clăd. A (Calea Victoriei) și Clăd. B (Bd. Doinaș)', color:'gold', time:'Acum'},
+    {msg:'4 sarcini mentenanță deschise — verificare necesară!', color:'rose', time:'Acum'},
+    {msg:'10 bunuri exemplu adăugate în inventar', color:'sky', time:'Acum'},
+  ];
+}
+
+// ===== NAVIGATION =====
+function nav(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {dashboard:'Tablou de bord',cladiri:'Clădiri',camere:'Camere & Săli',inventar:'Inventar Bunuri',qr:'Coduri QR',furnizori:'Furnizori',achizitii:'Achiziții',mentenanta:'Mentenanță',fluxuri:'Fluxuri de lucru',personal:'Personal & Utilizatori',setari:'Setări',rapoarte:'Rapoarte & Statistici'};
+  document.getElementById('pageTitle').textContent = titles[id]||id;
+  if (id==='camere') { populateCladireSelects(); renderCamere(); }
+  if (id==='inventar') { populateCladireSelects(); renderInventar(); }
+  if (id==='cladiri') renderCladiri();
+  if (id==='qr') renderQR();
+  if (id==='furnizori') renderFurnizori();
+  if (id==='achizitii') renderAchizitii();
+  if (id==='mentenanta') renderTasks();
+  if (id==='personal') renderPersonal();
+  if (id==='rapoarte') renderRapoarte();
+}
+
+function populateCladireSelects() {
+  const opts = DB.cladiri.map(c => `<option value="${c.id}">${c.cod} — ${c.nume.substring(0,30)}</option>`).join('');
+  ['filterCladireC','filterCladireI','camCladire','bunCladire','taskCladire'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const hasAll = el.id.startsWith('filter');
+    el.innerHTML = (hasAll ? '<option value="">Toate</option>' : '') + opts;
+  });
+}
+
+// ===== CLADIRI =====
+function renderCladiri(data) {
+  const items = data || DB.cladiri;
+  const grid = document.getElementById('cladiriGrid');
+  if (!items.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><p>Nicio clădire înregistrată.</p></div>'; return; }
+  grid.innerHTML = items.map(c => {
+    const camere = DB.camere.filter(x => x.cladireId===c.id);
+    const bunuri = DB.inventar.filter(x => x.cladireId===c.id);
+    const val = bunuri.reduce((s,b)=>s+b.val,0);
+    return `<div class="building-card">
+      <div class="building-card-header" style="cursor:pointer" onclick="editCladire(${c.id})">
+        <div class="building-card-name">🏢 ${c.cod} — ${c.nume}</div>
+        <div class="building-card-addr">📍 ${c.adresa}</div>
+      </div>
+      <div class="building-card-body">
+        <div class="building-stat"><span>Camere înregistrate</span><span class="building-stat-val">${camere.length}</span></div>
+        <div class="building-stat"><span>Bunuri inventariate</span><span class="building-stat-val">${bunuri.length}</span></div>
+        <div class="building-stat"><span>Valoare patrimoniu</span><span class="building-stat-val">${val.toLocaleString('ro-RO')} RON</span></div>
+        <div class="building-stat"><span>Etaje</span><span class="building-stat-val">${c.etaje}</span></div>
+        <div class="building-stat"><span>Responsabil</span><span class="building-stat-val" style="font-size:11px">${c.resp}</span></div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="editCladire(${c.id})">✏️ Editează</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCladire(${c.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCladiri(q) {
+  const s = (q||'').toLowerCase();
+  renderCladiri(DB.cladiri.filter(c => !s || c.nume.toLowerCase().includes(s) || c.adresa.toLowerCase().includes(s)));
+}
+
+function saveCladire() {
+  const id = document.getElementById('cladireEditId').value;
+  const c = {
+    id: id ? parseInt(id) : Date.now(),
+    cod: document.getElementById('cladireCod').value,
+    nume: document.getElementById('cladireNume').value,
+    adresa: document.getElementById('cladireAdresa').value,
+    etaje: parseInt(document.getElementById('cladireEtaje').value)||1,
+    an: document.getElementById('cladireAn').value,
+    resp: document.getElementById('cladireResp').value,
+    note: document.getElementById('cladireNote').value
+  };
+  if (!c.cod||!c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
+  if (id) { const i = DB.cladiri.findIndex(x=>x.id==id); DB.cladiri[i]=c; }
+  else DB.cladiri.push(c);
+  toast('✅ Clădire salvată!');
+  closeModal('modalCladire');
+  addActivity('Clădire salvată: '+c.cod+' — '+c.nume,'gold');
+  renderCladiri();
+  updateDashboard();
+}
+
+function editCladire(id) {
+  const c = DB.cladiri.find(x=>x.id===id);
+  document.getElementById('cladireEditId').value=c.id;
+  document.getElementById('cladireCod').value=c.cod;
+  document.getElementById('cladireNume').value=c.nume;
+  document.getElementById('cladireAdresa').value=c.adresa;
+  document.getElementById('cladireEtaje').value=c.etaje;
+  document.getElementById('cladireAn').value=c.an;
+  document.getElementById('cladireResp').value=c.resp;
+  document.getElementById('cladireNote').value=c.note||'';
+  openModal('modalCladire');
+}
+
+function deleteCladire(id) {
+  if (!confirm('Ștergi această clădire? Toate camerele și bunurile asociate vor rămâne neatribuite.')) return;
+  DB.cladiri = DB.cladiri.filter(x=>x.id!==id);
+  toast('🗑️ Clădire ștearsă!');
+  renderCladiri();
+  updateDashboard();
+}
+
+// ===== CAMERE =====
+function renderCamere(data) {
+  const items = data || DB.camere;
+  document.getElementById('camCount').textContent = items.length + ' spații';
+  const tbody = document.getElementById('camTable');
+  if (!items.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">🚪</div><p>Nicio cameră.</p></div></td></tr>'; return; }
+  tbody.innerHTML = items.map(c => {
+    const cld = DB.cladiri.find(x=>x.id===c.cladireId);
+    const bunuri = DB.inventar.filter(b=>b.cameraId===c.id);
+    return `<tr>
+      <td><code style="background:var(--surface);padding:2px 7px;border-radius:5px;font-size:11px">${c.cod}</code></td>
+      <td><strong>${c.nume}</strong><div style="font-size:11px;color:var(--mist)">Nr. ${c.nr||'—'}</div></td>
+      <td>${cld?'<span class="badge b-gray">'+cld.cod+'</span>':'—'}</td>
+      <td>${c.etaj}</td>
+      <td><span class="badge b-blue">${c.tip}</span></td>
+      <td style="font-size:12px">${c.resp}</td>
+      <td><strong>${bunuri.length}</strong></td>
+      <td style="display:flex;gap:4px;padding-top:9px">
+        <button class="btn btn-outline btn-sm" onclick="editCamera(${c.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCamera(${c.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterCamere(q) {
+  const s = (q !== undefined ? q : document.getElementById('searchCam').value).toLowerCase();
+  const cld = document.getElementById('filterCladireC').value;
+  const tip = document.getElementById('filterTipC').value;
+  renderCamere(DB.camere.filter(c =>
+    (!s || c.nume.toLowerCase().includes(s) || c.cod.toLowerCase().includes(s)) &&
+    (!cld || c.cladireId==cld) && (!tip || c.tip===tip)
+  ));
+}
+
+function openModalCamera() { populateCladireSelects(); document.getElementById('cameraEditId').value=''; openModal('modalCamera'); }
+
+function saveCamera() {
+  const id = document.getElementById('cameraEditId').value;
+  const c = {
+    id: id?parseInt(id):Date.now(),
+    cod: document.getElementById('camCod').value,
+    nr: document.getElementById('camNr').value,
+    tip: document.getElementById('camTip').value,
+    nume: document.getElementById('camNume').value,
+    cladireId: parseInt(document.getElementById('camCladire').value),
+    etaj: document.getElementById('camEtaj').value,
+    resp: document.getElementById('camResp').value,
+    sup: document.getElementById('camSup').value
+  };
+  if (!c.cod||!c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
+  if (id) { const i=DB.camere.findIndex(x=>x.id==id); DB.camere[i]=c; }
+  else DB.camere.push(c);
+  toast('✅ Cameră salvată!');
+  closeModal('modalCamera');
+  renderCamere();
+}
+
+function editCamera(id) {
+  populateCladireSelects();
+  const c = DB.camere.find(x=>x.id===id);
+  document.getElementById('cameraEditId').value=c.id;
+  document.getElementById('camCod').value=c.cod;
+  document.getElementById('camNr').value=c.nr||'';
+  document.getElementById('camTip').value=c.tip;
+  document.getElementById('camNume').value=c.nume;
+  document.getElementById('camCladire').value=c.cladireId;
+  document.getElementById('camEtaj').value=c.etaj;
+  document.getElementById('camResp').value=c.resp;
+  document.getElementById('camSup').value=c.sup||'';
+  openModal('modalCamera');
+}
+
+function deleteCamera(id) {
+  if (!confirm('Ștergi camera?')) return;
+  DB.camere = DB.camere.filter(x=>x.id!==id);
+  toast('🗑️ Cameră ștearsă!');
+  renderCamere();
+}
+
+// ===== INVENTAR =====
+function renderInventar(data) {
+  const items = data || DB.inventar;
+  document.getElementById('invCount').textContent = items.length + ' bunuri';
+  const tbody = document.getElementById('invTable');
+  if (!items.length) { tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><p>Niciun bun.</p></div></td></tr>'; return; }
+  tbody.innerHTML = items.map(b => {
+    const cld = DB.cladiri.find(x=>x.id===b.cladireId);
+    const cam = DB.camere.find(x=>x.id===b.cameraId);
+    const sb = b.stare==='Funcțional'?'b-green':b.stare==='Necesită reparații'?'b-yellow':'b-red';
+    return `<tr>
+      <td><code style="background:var(--surface);padding:2px 6px;border-radius:5px;font-size:11px;font-weight:700">${b.nrInv}</code></td>
+      <td><strong>${b.nume}</strong><div style="font-size:11px;color:var(--mist)">${b.desc||''}</div></td>
+      <td><span class="badge b-blue">${b.cat}</span></td>
+      <td style="font-size:12px">${cld?cld.cod:'—'} / ${cam?cam.cod:'—'}<div style="font-size:10px;color:var(--mist)">${cam?cam.etaj:'—'}</div></td>
+      <td>${b.qty}</td>
+      <td>${Number(b.val).toLocaleString('ro-RO')} RON</td>
+      <td><span class="badge ${sb}">${b.stare}</span></td>
+      <td style="display:flex;gap:4px;padding-top:9px">
+        <button class="btn btn-teal btn-sm" onclick="showQR(${b.id})">📲</button>
+        <button class="btn btn-outline btn-sm" onclick="editBun(${b.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteBun(${b.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+  updateDashboard();
+}
+
+function filterInventar() {
+  const q = document.getElementById('searchInv').value.toLowerCase();
+  const cat = document.getElementById('filterCat').value;
+  const stare = document.getElementById('filterStare').value;
+  const cld = document.getElementById('filterCladireI').value;
+  renderInventar(DB.inventar.filter(b =>
+    (!q || b.nume.toLowerCase().includes(q) || b.nrInv.toLowerCase().includes(q)) &&
+    (!cat || b.cat===cat) && (!stare || b.stare===stare) && (!cld || b.cladireId==cld)
+  ));
+}
+
+function openModalBun() {
+  populateCladireSelects();
+  document.getElementById('bunEditId').value='';
+  document.getElementById('modalBunTitle').textContent='Adaugă bun';
+  const furnOpts = DB.furnizori.map(f=>`<option value="${f.id}">${f.nume}</option>`).join('');
+  document.getElementById('bunFurnizor').innerHTML = '<option value="">— Furnizor —</option>'+furnOpts;
+  updateCamereForBun();
+  openModal('modalBun');
+}
+
+function updateCamereForBun() {
+  const cldId = parseInt(document.getElementById('bunCladire').value);
+  const camere = DB.camere.filter(c=>!cldId||c.cladireId===cldId);
+  document.getElementById('bunCamera').innerHTML = camere.map(c=>`<option value="${c.id}">${c.cod} — ${c.nume}</option>`).join('');
+}
+
+function saveBun() {
+  const id = document.getElementById('bunEditId').value;
+  const b = {
+    id: id?parseInt(id):Date.now(),
+    nrInv: document.getElementById('bunNrInv').value || 'INV-'+Date.now(),
+    nume: document.getElementById('bunNume').value,
+    cat: document.getElementById('bunCat').value,
+    cladireId: parseInt(document.getElementById('bunCladire').value),
+    cameraId: parseInt(document.getElementById('bunCamera').value),
+    qty: parseInt(document.getElementById('bunQty').value)||1,
+    val: parseFloat(document.getElementById('bunVal').value)||0,
+    stare: document.getElementById('bunStare').value,
+    data: document.getElementById('bunData').value,
+    furnId: parseInt(document.getElementById('bunFurnizor').value)||null,
+    desc: document.getElementById('bunDesc').value
+  };
+  if (!b.nume) { toast('⚠️ Completează denumirea!'); return; }
+  if (id) { const i=DB.inventar.findIndex(x=>x.id==id); DB.inventar[i]=b; toast('✅ Bun actualizat!'); }
+  else { DB.inventar.push(b); toast('✅ Bun adăugat — '+b.nrInv); }
+  addActivity('Bun inventar: '+b.nrInv+' — '+b.nume,'teal');
+  closeModal('modalBun');
+  renderInventar();
+}
+
+function editBun(id) {
+  const b = DB.inventar.find(x=>x.id===id);
+  populateCladireSelects();
+  document.getElementById('bunEditId').value=b.id;
+  document.getElementById('bunNrInv').value=b.nrInv;
+  document.getElementById('bunNume').value=b.nume;
+  document.getElementById('bunCat').value=b.cat;
+  document.getElementById('bunCladire').value=b.cladireId;
+  updateCamereForBun();
+  document.getElementById('bunCamera').value=b.cameraId;
+  document.getElementById('bunQty').value=b.qty;
+  document.getElementById('bunVal').value=b.val;
+  document.getElementById('bunStare').value=b.stare;
+  document.getElementById('bunData').value=b.data;
+  document.getElementById('bunDesc').value=b.desc||'';
+  const furnOpts = DB.furnizori.map(f=>`<option value="${f.id}">${f.nume}</option>`).join('');
+  document.getElementById('bunFurnizor').innerHTML='<option value="">— Furnizor —</option>'+furnOpts;
+  if (b.furnId) document.getElementById('bunFurnizor').value=b.furnId;
+  document.getElementById('modalBunTitle').textContent='Editează bun';
+  openModal('modalBun');
+}
+
+function deleteBun(id) {
+  if (!confirm('Ștergi bunul din inventar?')) return;
+  const b = DB.inventar.find(x=>x.id===id);
+  DB.inventar = DB.inventar.filter(x=>x.id!==id);
+  toast('🗑️ Bun șters: '+b.nrInv);
+  addActivity('Bun șters din inventar: '+b.nrInv,'rose');
+  renderInventar();
+}
+
+// ===== QR =====
+function renderQR(data) {
+  const items = data || DB.inventar;
+  const tbody = document.getElementById('qrTable');
+  tbody.innerHTML = items.map(b => {
+    const cam = DB.camere.find(x=>x.id===b.cameraId);
+    const sb = b.stare==='Funcțional'?'b-green':b.stare==='Necesită reparații'?'b-yellow':'b-red';
+    return `<tr>
+      <td><code style="background:var(--surface);padding:2px 6px;border-radius:5px;font-size:11px">${b.nrInv}</code></td>
+      <td><strong>${b.nume}</strong></td>
+      <td>${cam?cam.cod+' — '+cam.etaj:'—'}</td>
+      <td><span class="badge ${sb}">${b.stare}</span></td>
+      <td><button class="btn btn-teal btn-sm" onclick="showQR(${b.id})">📲 Generează QR</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterQR(q) {
+  const s = q.toLowerCase();
+  renderQR(DB.inventar.filter(b=>!s||b.nrInv.toLowerCase().includes(s)||b.nume.toLowerCase().includes(s)));
+}
+
+function showQR(id) {
+  const b = DB.inventar.find(x=>x.id===id);
+  const cam = DB.camere.find(x=>x.id===b.cameraId);
+  const cld = DB.cladiri.find(x=>x.id===b.cladireId);
+  const qrData = JSON.stringify({nrInv:b.nrInv,nume:b.nume,cat:b.cat,cladire:cld?cld.cod:'—',camera:cam?cam.cod:'—',stare:b.stare,val:b.val});
+  const container = document.getElementById('qrCanvas');
+  container.innerHTML = '';
+  new QRCode(container, {text:qrData, width:200, height:200, colorDark:'#1a1f2e', colorLight:'#ffffff'});
+  document.getElementById('qrInfo').innerHTML = `
+    <div class="qr-info-row"><span>Nr. inventar</span><strong>${b.nrInv}</strong></div>
+    <div class="qr-info-row"><span>Denumire</span><strong>${b.nume}</strong></div>
+    <div class="qr-info-row"><span>Clădire</span><strong>${cld?cld.cod+' — '+cld.nume.substring(0,25):'—'}</strong></div>
+    <div class="qr-info-row"><span>Cameră</span><strong>${cam?cam.cod+' — '+cam.etaj:'—'}</strong></div>
+    <div class="qr-info-row"><span>Stare</span><strong>${b.stare}</strong></div>
+    <div class="qr-info-row"><span>Valoare</span><strong>${b.val.toLocaleString('ro-RO')} RON</strong></div>
+  `;
+  openModal('modalQR');
+}
+
+function printQR() { window.print(); toast('🖨️ Trimis la imprimantă!'); }
+
+// ===== FURNIZORI =====
+function renderFurnizori(data) {
+  const items = data||DB.furnizori;
+  document.getElementById('furnCount').textContent=items.length+' furnizori';
+  const t=document.getElementById('furnTable');
+  if(!items.length){t.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">🤝</div><p>Niciun furnizor.</p></div></td></tr>';return;}
+  t.innerHTML=items.map(f=>`<tr>
+    <td><strong>${f.nume}</strong></td><td>${f.cui}</td><td>${f.contact}</td><td>${f.tel}</td>
+    <td><a href="mailto:${f.email}" style="color:var(--sky)">${f.email}</a></td>
+    <td><span class="badge b-teal">${f.cat}</span></td>
+    <td style="display:flex;gap:4px;padding-top:9px">
+      <button class="btn btn-outline btn-sm" onclick="editFurnizor(${f.id})">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteFurnizor(${f.id})">🗑️</button>
+    </td>
+  </tr>`).join('');
+}
+function filterFurnizori(q){renderFurnizori(DB.furnizori.filter(f=>!(q||(q='')) || f.nume.toLowerCase().includes(q.toLowerCase())));}
+function saveFurnizor(){
+  const id=document.getElementById('furnEditId').value;
+  const f={id:id?parseInt(id):Date.now(),nume:document.getElementById('furnNume').value,cui:document.getElementById('furnCui').value,contact:document.getElementById('furnContact').value,tel:document.getElementById('furnTel').value,email:document.getElementById('furnEmail').value,cat:document.getElementById('furnCat').value};
+  if(!f.nume){toast('⚠️ Completează denumirea!');return;}
+  if(id){const i=DB.furnizori.findIndex(x=>x.id==id);DB.furnizori[i]=f;}else DB.furnizori.push(f);
+  toast('✅ Furnizor salvat!');closeModal('modalFurnizor');
+  document.getElementById('furnEditId').value='';renderFurnizori();
+}
+function editFurnizor(id){
+  const f=DB.furnizori.find(x=>x.id===id);
+  document.getElementById('furnEditId').value=f.id;
+  document.getElementById('furnNume').value=f.nume;document.getElementById('furnCui').value=f.cui;
+  document.getElementById('furnContact').value=f.contact;document.getElementById('furnTel').value=f.tel;
+  document.getElementById('furnEmail').value=f.email;document.getElementById('furnCat').value=f.cat;
+  openModal('modalFurnizor');
+}
+function deleteFurnizor(id){if(!confirm('Ștergi furnizorul?'))return;DB.furnizori=DB.furnizori.filter(x=>x.id!==id);toast('🗑️ Furnizor șters!');renderFurnizori();}
+
+// ===== ACHIZITII =====
+function renderAchizitii(data){
+  const items=data||DB.achizitii;
+  document.getElementById('achCount').textContent=items.length+' achiziții';
+  const t=document.getElementById('achTable');
+  if(!items.length){t.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">🛒</div><p>Nicio achiziție.</p></div></td></tr>';return;}
+  const sb={Livrat:'b-green',Comandat:'b-blue','În așteptare':'b-yellow',Anulat:'b-red'};
+  t.innerHTML=items.map((a,i)=>{
+    const f=DB.furnizori.find(x=>x.id==a.furnId);
+    return `<tr>
+      <td>${i+1}</td><td><strong>${a.produs}</strong></td>
+      <td>${f?f.nume:'—'}</td><td>${a.qty}</td>
+      <td>${Number(a.val).toLocaleString('ro-RO')} RON</td><td>${a.data}</td>
+      <td><span class="badge ${sb[a.status]||'b-gray'}">${a.status}</span></td>
+      <td>${a.aprobare==='da'?'<span class="badge b-gold">Director</span>':'<span class="badge b-gray">Nu e nevoie</span>'}</td>
+      <td style="display:flex;gap:4px;padding-top:9px">
+        <button class="btn btn-outline btn-sm" onclick="editAch(${a.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAch(${a.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function filterAchizitii(q){
+  const s=(q||document.getElementById('searchAch').value||'').toLowerCase();
+  const status=document.getElementById('filterAchStatus').value;
+  renderAchizitii(DB.achizitii.filter(a=>(!s||a.produs.toLowerCase().includes(s))&&(!status||a.status===status)));
+}
+function openModalAch(){
+  document.getElementById('achEditId').value='';
+  document.getElementById('achFurn').innerHTML=DB.furnizori.map(f=>`<option value="${f.id}">${f.nume}</option>`).join('');
+  openModal('modalAchizitie');
+}
+function saveAchizitie(){
+  const id=document.getElementById('achEditId').value;
+  const a={id:id?parseInt(id):Date.now(),produs:document.getElementById('achProdus').value,furnId:parseInt(document.getElementById('achFurn').value),qty:parseInt(document.getElementById('achQty').value)||1,val:parseFloat(document.getElementById('achVal').value)||0,data:document.getElementById('achData').value,status:document.getElementById('achStatus').value,aprobare:document.getElementById('achAprobare').value,note:document.getElementById('achNote').value};
+  if(!a.produs){toast('⚠️ Completează produsul!');return;}
+  if(id){const i=DB.achizitii.findIndex(x=>x.id==id);DB.achizitii[i]=a;}else DB.achizitii.push(a);
+  toast('✅ Achiziție salvată!');closeModal('modalAchizitie');
+  document.getElementById('achEditId').value='';addActivity('Achiziție: '+a.produs,'sky');
+  renderAchizitii();updateBadges();
+}
+function editAch(id){
+  const a=DB.achizitii.find(x=>x.id===id);
+  document.getElementById('achEditId').value=a.id;
+  document.getElementById('achFurn').innerHTML=DB.furnizori.map(f=>`<option value="${f.id}">${f.nume}</option>`).join('');
+  document.getElementById('achProdus').value=a.produs;document.getElementById('achFurn').value=a.furnId;
+  document.getElementById('achQty').value=a.qty;document.getElementById('achVal').value=a.val;
+  document.getElementById('achData').value=a.data;document.getElementById('achStatus').value=a.status;
+  document.getElementById('achAprobare').value=a.aprobare;document.getElementById('achNote').value=a.note;
+  openModal('modalAchizitie');
+}
+function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB.achizitii.filter(x=>x.id!==id);toast('🗑️ Achiziție ștearsă!');renderAchizitii();}
+
+// ===== TASKS =====
+function renderTasks(data) {
+  const openItems=(data||DB.tasks).filter(t=>t.status==='deschis');
+  const doneItems=(data||DB.tasks).filter(t=>t.status==='finalizat');
+  const pColors={Înaltă:'tp-high',Medie:'tp-med',Scăzută:'tp-low'};
+  const renderList=(items,containerId)=>{
+    const c=document.getElementById(containerId);
+    if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
+    c.innerHTML=items.map(t=>{
+      const per=DB.personal.find(x=>x.id===t.assignId);
+      const cam=DB.camere.find(x=>x.id===t.cameraId);
+      const cld=DB.cladiri.find(x=>x.id===t.cladireId);
+      return `<div class="task-row">
+        <div class="task-priority ${pColors[t.prio]||'tp-low'}"></div>
+        <div class="task-info">
+          <div class="task-title">${t.title}</div>
+          <div class="task-meta">📍 ${cld?cld.cod:'—'} / ${cam?cam.cod:'—'} &nbsp;|&nbsp; ⏰ Termen: ${t.termen||'—'}</div>
+          <div style="font-size:11px;color:var(--mist);margin-top:3px">${t.desc}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <span class="task-assign">👤 ${per?per.prenume+' '+per.nume:'Neatribuit'}</span>
+          <span class="badge ${t.prio==='Înaltă'?'b-red':t.prio==='Medie'?'b-yellow':'b-green'}">${t.prio}</span>
+          ${t.status==='deschis'?`<button class="btn btn-teal btn-sm" onclick="finishTask(${t.id})">✓ Finalizat</button>`:''}
+          <button class="btn btn-danger btn-sm" onclick="deleteTask(${t.id})">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  };
+  renderList(openItems,'taskList');
+  renderList(doneItems,'taskListDone');
+  updateBadges();
+}
+function filterTasks(q){
+  const s=(q||'').toLowerCase();const p=document.getElementById('filterPriority').value;
+  renderTasks(DB.tasks.filter(t=>(!s||t.title.toLowerCase().includes(s))&&(!p||t.prio===p)));
+}
+function openModalTask(){
+  populateCladireSelects();
+  document.getElementById('taskEditId').value='';
+  document.getElementById('taskAssign').innerHTML=DB.personal.filter(p=>p.rol==='mentenanta').map(p=>`<option value="${p.id}">${p.prenume} ${p.nume}</option>`).join('');
+  document.getElementById('taskBun').innerHTML='<option value="">— niciun bun —</option>'+DB.inventar.map(b=>`<option value="${b.id}">${b.nrInv} — ${b.nume}</option>`).join('');
+  document.getElementById('taskCamera2').innerHTML=DB.camere.map(c=>`<option value="${c.id}">${c.cod} — ${c.nume}</option>`).join('');
+  openModal('modalTask');
+}
+function saveTask(){
+  const id=document.getElementById('taskEditId').value;
+  const t={id:id?parseInt(id):Date.now(),title:document.getElementById('taskTitle').value,prio:document.getElementById('taskPrio').value,assignId:parseInt(document.getElementById('taskAssign').value),cladireId:parseInt(document.getElementById('taskCladire').value),cameraId:parseInt(document.getElementById('taskCamera2').value),bunId:document.getElementById('taskBun').value||null,termen:document.getElementById('taskTermen').value,desc:document.getElementById('taskDesc').value,status:'deschis'};
+  if(!t.title){toast('⚠️ Completează titlul sarcinii!');return;}
+  if(id){const i=DB.tasks.findIndex(x=>x.id==id);DB.tasks[i]=t;}else DB.tasks.push(t);
+  toast('✅ Sarcină mentenanță creată!');closeModal('modalTask');
+  addActivity('Sarcină mentenanță: '+t.title,'amber');
+  renderTasks();updateDashboard();
+}
+function finishTask(id){DB.tasks.find(x=>x.id===id).status='finalizat';toast('✅ Sarcină finalizată!');addActivity('Sarcină finalizată','teal');renderTasks();updateDashboard();}
+function deleteTask(id){if(!confirm('Ștergi sarcina?'))return;DB.tasks=DB.tasks.filter(x=>x.id!==id);toast('🗑️ Sarcină ștearsă!');renderTasks();}
+
+// ===== PERSONAL =====
+function renderPersonal(data){
+  const items=data||DB.personal;
+  const c=document.getElementById('personalList');
+  if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">👥</div><p>Niciun utilizator.</p></div>';return;}
+  c.innerHTML=items.map(p=>{
+    const bg=ROLE_COLORS[p.rol]||'#4a5168';
+    return `<div class="person-card">
+      <div class="person-avatar" style="background:${bg};color:white">${(p.prenume[0]+p.nume[0]).toUpperCase()}</div>
+      <div class="person-info">
+        <div class="person-name">${p.prenume} ${p.nume}</div>
+        <div class="person-role">${ROLE_LABELS[p.rol]||p.rol}</div>
+        <div class="person-contact">${p.email}</div>
+      </div>
+      <div class="person-actions">
+        <span class="badge" style="background:${bg};color:white;font-size:10px">${ROLE_LABELS[p.rol]}</span>
+        ${currentUser.rol==='admin_app'?`<button class="btn btn-outline btn-sm" onclick="editPersonal(${p.id})">✏️</button><button class="btn btn-danger btn-sm" onclick="deletePersonal(${p.id})">🗑️</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterPersonal(q){
+  const s=(q||'').toLowerCase();const r=document.getElementById('filterRolP').value;
+  renderPersonal(DB.personal.filter(p=>(!s||p.prenume.toLowerCase().includes(s)||p.nume.toLowerCase().includes(s))&&(!r||p.rol===r)));
+}
+function savePersonal(){
+  const id=document.getElementById('perEditId').value;
+  const p={id:id?parseInt(id):Date.now(),prenume:document.getElementById('perPrenume').value,nume:document.getElementById('perNume').value,email:document.getElementById('perEmail').value,tel:document.getElementById('perTel').value,rol:document.getElementById('perRol').value,parola:document.getElementById('perParola').value||'temp123'};
+  if(!p.prenume||!p.email){toast('⚠️ Completează câmpurile obligatorii!');return;}
+  if(id){const i=DB.personal.findIndex(x=>x.id==id);DB.personal[i]=p;}else DB.personal.push(p);
+  toast('✅ Utilizator salvat!');closeModal('modalPersonal');
+  document.getElementById('perEditId').value='';renderPersonal();
+}
+function editPersonal(id){
+  const p=DB.personal.find(x=>x.id===id);
+  document.getElementById('perEditId').value=p.id;
+  document.getElementById('perPrenume').value=p.prenume;document.getElementById('perNume').value=p.nume;
+  document.getElementById('perEmail').value=p.email;document.getElementById('perTel').value=p.tel||'';
+  document.getElementById('perRol').value=p.rol;document.getElementById('perParola').value='';
+  openModal('modalPersonal');
+}
+function deletePersonal(id){if(!confirm('Ștergi utilizatorul?'))return;DB.personal=DB.personal.filter(x=>x.id!==id);toast('🗑️ Utilizator șters!');renderPersonal();}
+
+// ===== RAPOARTE =====
+function renderRapoarte(){
+  const cats={};DB.inventar.forEach(b=>{cats[b.cat]=(cats[b.cat]||0)+b.qty;});
+  const colors=['#d4a843','#0d7c6b','#1a6fa8','#c0392b','#7c3aed','#d97706'];
+  const maxC=Math.max(...Object.values(cats),1);
+  document.getElementById('repCat').innerHTML=Object.entries(cats).map(([k,v],i)=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${k}</span><span>${v} buc.</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(v/maxC*100)}%;height:100%;border-radius:4px;background:${colors[i%colors.length]};transition:width 0.8s"></div></div></div>`).join('') || '<p style="color:var(--mist);font-size:13px">Nicio dată</p>';
+  
+  const cldV={};DB.inventar.forEach(b=>{cldV[b.cladireId]=(cldV[b.cladireId]||0)+b.val;});
+  const maxV=Math.max(...Object.values(cldV),1);
+  document.getElementById('repCladiri').innerHTML=Object.entries(cldV).map(([cid,v],i)=>{const c=DB.cladiri.find(x=>x.id==cid);return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${c?c.cod:'—'}</span><span>${v.toLocaleString('ro-RO')} RON</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(v/maxV*100)}%;height:100%;border-radius:4px;background:${colors[i%colors.length]}"></div></div></div>`}).join('') || '<p style="color:var(--mist);font-size:13px">Nicio dată</p>';
+  
+  const achByM={};DB.achizitii.forEach(a=>{const m=(a.data||'').substring(0,7);achByM[m]=(achByM[m]||0)+a.val;});
+  document.getElementById('repAch').innerHTML=Object.entries(achByM).sort().map(([m,v])=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${m}</span><span>${v.toLocaleString('ro-RO')} RON</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(v/Math.max(...Object.values(achByM))*100)}%;height:100%;border-radius:4px;background:#1a6fa8"></div></div></div>`).join('') || '<p style="color:var(--mist);font-size:13px">Nicio achiziție</p>';
+
+  const open=DB.tasks.filter(t=>t.status==='deschis').length;
+  const done=DB.tasks.filter(t=>t.status==='finalizat').length;
+  const tot=open+done||1;
+  document.getElementById('repTask').innerHTML=`
+    <div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Deschise</span><span>${open}</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(open/tot*100)}%;height:100%;border-radius:4px;background:#c0392b"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>Finalizate</span><span>${done}</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(done/tot*100)}%;height:100%;border-radius:4px;background:#0d7c6b"></div></div></div>`;
+}
+
+// ===== DASHBOARD =====
+function updateDashboard(){
+  document.getElementById('s-cladiri').textContent=DB.cladiri.length;
+  const totBun=DB.inventar.reduce((s,b)=>s+b.qty,0);
+  document.getElementById('s-bunuri').textContent=totBun;
+  const rep=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+b.qty,0);
+  document.getElementById('s-rep').textContent=rep;
+  const val=DB.inventar.reduce((s,b)=>s+b.val,0);
+  document.getElementById('s-val').textContent=val.toLocaleString('ro-RO');
+  const openTasks=DB.tasks.filter(t=>t.status==='deschis').length;
+  document.getElementById('s-tasks').textContent=openTasks;
+
+  // Cladiri list
+  document.getElementById('dashCladiri').innerHTML=DB.cladiri.map(c=>{
+    const bunuri=DB.inventar.filter(b=>b.cladireId===c.id).length;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--surface)">
+      <div style="width:36px;height:36px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:16px">🏢</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${c.cod} — ${c.nume.substring(0,30)}</div><div style="font-size:11px;color:var(--mist)">📍 ${c.adresa.substring(0,40)}</div></div>
+      <div style="text-align:right"><div style="font-weight:700">${bunuri}</div><div style="font-size:10px;color:var(--mist)">bunuri</div></div>
+    </div>`;
+  }).join('');
+
+  // Tasks
+  const taskItems=DB.tasks.filter(t=>t.status==='deschis').slice(0,4);
+  document.getElementById('dashTasks').innerHTML=taskItems.length?taskItems.map(t=>{
+    const per=DB.personal.find(x=>x.id===t.assignId);
+    const pc=t.prio==='Înaltă'?'#c0392b':t.prio==='Medie'?'#d97706':'#0d7c6b';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.title}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?per.prenume+' '+per.nume:'—'}</div></div>
+      <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prio}</span>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';
+
+  // Bars
+  const f=DB.inventar.filter(b=>b.stare==='Funcțional').reduce((s,b)=>s+b.qty,0);
+  const r=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+b.qty,0);
+  const cas=DB.inventar.filter(b=>b.stare==='Casat').reduce((s,b)=>s+b.qty,0);
+  const tot2=f+r+cas||1;
+  document.getElementById('dashBars').innerHTML=`
+    <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Funcțional</span><span>${f} (${Math.round(f/tot2*100)}%)</span></div><div style="background:var(--surface);border-radius:4px;height:10px"><div style="width:${Math.round(f/tot2*100)}%;height:100%;border-radius:4px;background:#0d7c6b;transition:width 1s"></div></div></div>
+    <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Necesită reparații</span><span>${r} (${Math.round(r/tot2*100)}%)</span></div><div style="background:var(--surface);border-radius:4px;height:10px"><div style="width:${Math.round(r/tot2*100)}%;height:100%;border-radius:4px;background:#d97706;transition:width 1s"></div></div></div>
+    <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Casat</span><span>${cas} (${Math.round(cas/tot2*100)}%)</span></div><div style="background:var(--surface);border-radius:4px;height:10px"><div style="width:${Math.round(cas/tot2*100)}%;height:100%;border-radius:4px;background:#c0392b;transition:width 1s"></div></div></div>`;
+
+  // Activity
+  document.getElementById('dashActivity').innerHTML=activities.slice(-5).reverse().map(a=>{
+    const ac=a.color==='teal'?'#0d7c6b':a.color==='rose'?'#c0392b':a.color==='gold'?'#d4a843':a.color==='sky'?'#1a6fa8':a.color==='amber'?'#d97706':'#4a5168';
+    return `<div style="display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface);font-size:12px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${ac};flex-shrink:0;margin-top:4px"></div>
+      <div><div>${a.msg}</div><div style="font-size:10px;color:var(--mist)">${a.time}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function updateBadges(){
+  const open=DB.tasks.filter(t=>t.status==='deschis').length;
+  const tb=document.getElementById('taskBadge');
+  tb.textContent=open;tb.style.display=open?'inline':'none';
+  document.getElementById('notifDot').style.display=open?'block':'none';
+  const pending=DB.achizitii.filter(a=>a.status==='Comandat').length;
+  const ab=document.getElementById('achBadge');
+  ab.style.display=pending?'inline':'none';
+}
+
+// ===== SETTINGS =====
+function loadLogo(input){
+  if(!input.files||!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=document.getElementById('logoPreview');
+    img.src=e.target.result;
+    img.style.display='block';
+    document.getElementById('logoPlaceholder').style.display='none';
+    document.getElementById('sidebarLogoBox').innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:contain;border-radius:6px">`;
+    toast('✅ Logo încărcat!');
+  };
+  r.readAsDataURL(input.files[0]);
+}
+function removeLogo(){
+  document.getElementById('logoPreview').style.display='none';
+  document.getElementById('logoPreview').src='';
+  document.getElementById('logoPlaceholder').style.display='block';
+  document.getElementById('sidebarLogoBox').textContent='🏫';
+  toast('Logo eliminat!');
+}
+function saveSettings(){
+  const name=document.getElementById('setNume').value;
+  document.getElementById('sidebarSchoolName').textContent=name.substring(0,40);
+  toast('✅ Date instituție salvate!');
+  addActivity('Date instituție actualizate','gold');
+}
+
+// ===== MODAL HELPERS =====
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ===== TABS =====
+function switchTab(id, el){
+  document.querySelectorAll('#section-mentenanta > div[id^="tasks"]').forEach(d=>d.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== ACTIVITY & TOAST =====
+function addActivity(msg,color){
+  const t=new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+  activities.push({msg,color,time:'Astăzi '+t});
+}
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// Keyboard shortcut for login
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
+</script>
+</body>
+</html>

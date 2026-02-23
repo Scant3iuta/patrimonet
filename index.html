@@ -2788,12 +2788,19 @@ function filterQR(q) {
 
 function showQR(id) {
   const b = DB.inventar.find(x=>x.id===id);
+  if(!b) { toast('⚠️ Bun negăsit!'); return; }
   const cam = DB.camere.find(x=>x.id===b.cameraId);
   const cld = DB.cladiri.find(x=>x.id===b.cladireId);
-  const qrData = JSON.stringify({nrInv:b.nrInv,nume:b.nume,cat:b.cat,cladire:cld?cld.cod:'—',camera:cam?cam.cod:'—',stare:b.stare,val:b.val});
+  // Compact QR data - max ~150 chars to avoid overflow
+  const qrData = [b.nrInv, b.nume.substring(0,25), cld?cld.cod:'?', cam?cam.cod:'?', b.stare.substring(0,3)].join('|');
   const container = document.getElementById('qrCanvas');
   container.innerHTML = '';
-  new QRCode(container, {text:qrData, width:200, height:200, colorDark:'#1a1f2e', colorLight:'#ffffff'});
+  try {
+    new QRCode(container, {text:qrData, width:200, height:200, colorDark:'#1a1f2e', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M});
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--rose);text-align:center;padding:20px">Eroare la generare QR:<br>' + e.message + '</div>';
+    console.error('QR error:', e);
+  }
   document.getElementById('qrInfo').innerHTML = `
     <div class="qr-info-row"><span>Nr. inventar</span><strong>${b.nrInv}</strong></div>
     <div class="qr-info-row"><span>Denumire</span><strong>${b.nume}</strong></div>

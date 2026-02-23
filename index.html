@@ -2147,7 +2147,7 @@ const toSb = {
   personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'' }),
   mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:x.data, de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
   rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:x.elevi||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'' }),
-  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:x.status||'deschisa', camera_id:null, bun_id:null, assign_id:null, user_id:null, description:x.desc||'', termen:x.termen||null }),
+  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:x.status||'Deschisă', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, user_id:x.userId||null, description:x.desc||x.description||'', termen:x.termen||null }),
   prezenta: (x)=> ({ data:x.data, elevi:x.elevi, tip_zi:x.tipZi||'saptamana', obs:x.obs||'', user_id:x.userId||null }),
   mese:     (x)=> ({ data:x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'', user_id:x.userId||null }),
   probleme: (x)=> ({ tip:x.tip||'', locatie:x.locatie||'', desc:x.desc||'', prio:x.prio||'Medie', status:x.status||'Deschisă', user_id:x.userId||null, rezolvat_de:x.rezolvatDe||'' }),
@@ -2916,8 +2916,13 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 
 // ===== TASKS =====
 function renderTasks(data) {
-  const openItems=(data||DB.tasks).filter(t=>['deschis','Deschisă','deschisa'].includes(t.status));
-  const doneItems=(data||DB.tasks).filter(t=>['finalizat','Finalizată','finalizata'].includes(t.status));
+  let allTasks = data || DB.tasks;
+  // Muncitor mentenanta sees only their assigned tasks
+  if(currentUser && currentUser.rol === 'mentenanta') {
+    allTasks = allTasks.filter(t => t.assignId === currentUser.id || (t.assignIds||[]).includes(currentUser.id));
+  }
+  const openItems = allTasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status));
+  const doneItems = allTasks.filter(t=>['finalizat','Finalizată','finalizata'].includes(t.status));
   const pColors={'Înaltă':'tp-high','Medie':'tp-med','Scăzută':'tp-low','High':'tp-high','Medium':'tp-med'};
   const renderList=(items,containerId)=>{
     const c=document.getElementById(containerId);
@@ -2950,7 +2955,8 @@ function renderTasks(data) {
 }
 function filterTasks(q){
   const s=(q||'').toLowerCase();const p=document.getElementById('filterPriority').value;
-  renderTasks(DB.tasks.filter(t=>(!s||(t.titlu||t.title||'').toLowerCase().includes(s))&&(!p||t.prioritate===p||t.prio===p)));
+  const base = (currentUser?.rol==='mentenanta') ? DB.tasks.filter(t=>t.assignId===currentUser.id||(t.assignIds||[]).includes(currentUser.id)) : DB.tasks;
+  renderTasks(base.filter(t=>(!s||(t.titlu||t.title||'').toLowerCase().includes(s))&&(!p||t.prioritate===p||t.prio===p)));
 }
 function openModalTask(){
   populateCladireSelects();
@@ -2969,7 +2975,25 @@ function saveTask(){
   addActivity('Sarcină mentenanță: '+t.title,'amber');
   renderTasks();updateDashboard();
 }
-function finishTask(id){DB.tasks.find(x=>x.id===id).status='finalizat';toast('✅ Sarcină finalizată!');addActivity('Sarcină finalizată','teal');renderTasks();updateDashboard();}
+function finishTask(id) { completeTask(id); }
+function completeTask(id) {
+  const t = DB.tasks.find(x=>x.id===id);
+  if(!t) return;
+  t.status = 'Finalizată';
+  // Force update toSb mapper to use current assignId
+  t._sbId = t._sbId || null; // ensure update path
+  sbAutoSave('tasks', t).then(()=>{
+    // Verify save worked
+    console.log('Task', t.id, 'assigned to', t.assignIds);
+  });
+  toast('✅ Sarcină finalizată!');
+  addActivity('Sarcină finalizată: ' + (t.titlu||t.title||''), 'teal');
+  addIstoricEvent('mentenanta', 'Sarcină finalizată: ' + (t.titlu||t.title||'—'), currentUser);
+  addNotification('Sarcină finalizată', t.titlu||t.title||'—', 'mentenanta', ['admin_pat','admin_app']);
+  renderTasks();
+  updateDashboard();
+  updateBadges();
+}
 function deleteTask(id){if(!confirm('Ștergi sarcina?'))return;DB.tasks=DB.tasks.filter(x=>x.id!==id);toast('🗑️ Sarcină ștearsă!');renderTasks();}
 
 // ===== PERSONAL =====

@@ -2192,9 +2192,13 @@ async function loadFromSupabase() {
         const obj = fromSb[tbl] ? fromSb[tbl](r) : r;
         // Normalize tasks fields
         if(tbl === 'tasks') {
-          obj.titlu = obj.titlu || obj.title || r.titlu || '—';
+          obj.titlu = obj.titlu || obj.title || (r.description ? r.description.substring(0,50) : '') || r.titlu || '—';
           obj.prioritate = obj.prioritate || obj.prio || r.prioritate || 'Medie';
           obj.status = obj.status || 'Deschisă';
+        }
+        if(tbl === 'inventar') {
+          obj.qty = parseInt(obj.qty) || 1;
+          obj.val = parseFloat(obj.val) || 0;
         }
         return obj;
       });
@@ -2876,8 +2880,10 @@ function saveAchizitie(){
   if(!a.produs){toast('⚠️ Completează produsul!');return;}
   if(id){const i=DB.achizitii.findIndex(x=>x.id==id);DB.achizitii[i]=a;}else DB.achizitii.push(a);
   // Dacă valoare > 5000 RON sau marcheat "Necesită aprobare director" → adaugă în aprobări
-  if(a.val > 5000 || a.aprobare === 'director') {
+  if((a.val > 5000 || a.aprobare === 'director') && a.status !== 'Livrat' && a.status !== 'Aprobat') {
     DB.aprobari = DB.aprobari || [];
+    // Avoid duplicates
+    if(!DB.aprobari.find(x=>x.achId===a.id && x.status==='pending')) {
     DB.aprobari.push({
       id: Date.now(), tip: 'achizitie', achId: a.id,
       titlu: 'Achiziție: ' + a.produs,
@@ -2886,6 +2892,7 @@ function saveAchizitie(){
       dataCreare: new Date().toLocaleDateString('ro-RO')
     });
     addNotification('Aprobare necesară', 'Achiziție ' + a.produs + ' — ' + a.val.toLocaleString('ro-RO') + ' RON', 'aprobare', ['director','admin_app','admin_pat']);
+    } // end dedup check
     toast('✅ Achiziție salvată și trimisă spre aprobare director!');
   } else {
     toast('✅ Achiziție salvată!');
@@ -3898,11 +3905,13 @@ function renderAprobariPending() {
   // Achizitii pending
   achPending.forEach(a => {
     const user = DB.personal.find(x=>x.id===a.userId);
+    const ach = DB.achizitii.find(x=>x.id===a.achId);
+    const titluDisplay = a.titlu || (ach ? 'Achiziție: ' + (ach.produs||'—') : 'Achiziție');
     html += `<div class="approval-card pending" style="margin:8px 16px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <div style="font-weight:600">📦 ${a.titlu}</div>
-          <div style="font-size:12px;color:var(--mist)">${a.descriere}</div>
+          <div style="font-weight:600">📦 ${titluDisplay}</div>
+          <div style="font-size:12px;color:var(--mist)">${a.descriere||''}</div>
           <div style="font-size:11px;color:var(--slate)">Solicitat de: ${user?user.prenume+' '+user.nume:'—'} · ${a.dataCreare||''}</div>
         </div>
         <div class="approval-actions">
@@ -4897,40 +4906,67 @@ async function cautaANAF() {
   status.style.color = 'var(--mist)';
   
   try {
-    const today = new Date().toISOString().split('T')[0];
-    const resp = await fetch('https://webservicesp.anaf.ro/api/PlatitorTvaRest/api/v8/ws/tva', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify([{cui: parseInt(cuiRaw), data: today}])
-    });
+    // Try multiple CORS-friendly ANAF proxy services
+    let firma = null;
+    const errors = [];
     
-    if(!resp.ok) throw new Error('ANAF indisponibil');
-    const data = await resp.json();
-    const firma = data?.found?.[0];
+    // Option 1: openapi.ro (Romanian public API aggregator)
+    try {
+      const r1 = await fetch(`https://api.openapi.ro/api/companies/${cuiRaw}`, {
+        headers: { 'x-api-key': 'public', 'Accept': 'application/json' }
+      });
+      if(r1.ok) {
+        const d1 = await r1.json();
+        if(d1 && d1.denumire) {
+          firma = {
+            denumire: d1.denumire,
+            adresa: d1.adresa || d1.sediu_social || '',
+            judet: d1.judet || d1.localitate || '',
+            scpTVA: d1.tva || d1.platitor_tva || false
+          };
+        }
+      }
+    } catch(e1) { errors.push('openapi.ro: ' + e1.message); }
     
+    // Option 2: Direct ANAF with no-cors workaround via allorigins proxy
     if(!firma) {
-      status.textContent = '⚠️ CUI negăsit în ANAF. Completează manual.';
-      status.style.color = 'var(--gold)';
-      return;
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const anafUrl = 'https://webservicesp.anaf.ro/api/PlatitorTvaRest/api/v8/ws/tva';
+        const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(anafUrl);
+        const r2 = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify([{cui: parseInt(cuiRaw), data: today}])
+        });
+        if(r2.ok) {
+          const d2 = await r2.json();
+          const f2 = d2?.found?.[0];
+          if(f2?.denumire) {
+            firma = { denumire: f2.denumire, adresa: f2.adresa||'', judet: f2.judet||'', scpTVA: f2.scpTVA||false };
+          }
+        }
+      } catch(e2) { errors.push('allorigins: ' + e2.message); }
     }
     
-    // Populate form
-    document.getElementById('furnNume').value = firma.denumire || '';
-    document.getElementById('furnCui').value = 'RO' + cuiRaw;
-    document.getElementById('furnAdresa').value = firma.adresa || '';
-    document.getElementById('furnJudet').value = firma.judet || '';
-    document.getElementById('furnTva').value = firma.scpTVA ? '✅ Plătitor TVA' : '❌ Neplătitor TVA';
-    
-    status.textContent = '✅ Date preluate din ANAF pentru: ' + firma.denumire;
-    status.style.color = 'var(--teal)';
-    toast('✅ Date ANAF preluate: ' + firma.denumire);
-    
+    if(firma) {
+      document.getElementById('furnNume').value = firma.denumire || '';
+      document.getElementById('furnCui').value = 'RO' + cuiRaw;
+      document.getElementById('furnAdresa').value = firma.adresa || '';
+      document.getElementById('furnJudet').value = firma.judet || '';
+      document.getElementById('furnTva').value = firma.scpTVA ? '✅ Plătitor TVA' : '❌ Neplătitor TVA';
+      status.textContent = '✅ Date preluate: ' + firma.denumire;
+      status.style.color = 'var(--teal)';
+      toast('✅ Date găsite: ' + firma.denumire);
+    } else {
+      document.getElementById('furnCui').value = 'RO' + cuiRaw;
+      status.innerHTML = '⚠️ Serviciile ANAF nu sunt accesibile din browser. Completează manual sau verifică pe <a href="https://www.anaf.ro/anaf/internet/RO/cautare-date-fiscale" target="_blank" style="color:var(--sky)">anaf.ro</a>.';
+      status.style.color = 'var(--gold)';
+    }
   } catch(e) {
-    // ANAF API might have CORS issues in browser - provide fallback
-    status.innerHTML = '⚠️ API ANAF indisponibil direct din browser (CORS). <strong>Completează manual</strong> sau folosește <a href="https://www.anaf.ro/anaf/internet/RO/cautare-date-fiscale" target="_blank" style="color:var(--sky)">site-ul ANAF</a>.';
-    status.style.color = 'var(--gold)';
-    // Still set CUI in form
     document.getElementById('furnCui').value = 'RO' + cuiRaw;
+    status.innerHTML = '⚠️ Eroare: ' + e.message + '. Completează manual.';
+    status.style.color = 'var(--gold)';
   } finally {
     btn.disabled = false; btn.textContent = '🔍 Caută ANAF';
   }

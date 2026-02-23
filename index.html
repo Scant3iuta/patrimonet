@@ -2018,20 +2018,25 @@ const fromSb = {
 
 // ===== LOAD ALL DATA FROM SUPABASE =====
 async function loadFromSupabase() {
-  if(!SUPABASE_ENABLED) return;
-  toast('⏳ Se încarcă datele din baza de date...');
+  if(!SUPABASE_ENABLED || !sbClient) return;
   
   const tables = ['cladiri','camere','inventar','furnizori','achizitii','personal','mutari','rezervari','tasks','prezenta','mese','probleme','fluxuri'];
-  const dbKeys = ['cladiri','camere','inventar','furnizori','achizitii','personal','mutari','rezervari','tasks','prezenta','mese','probleme','fluxuri'];
   
-  for(let i = 0; i < tables.length; i++) {
-    const rows = await sbFetch(tables[i]);
-    if(rows !== null) {
-      DB[dbKeys[i]] = rows.map(r => fromSb[tables[i]] ? fromSb[tables[i]](r) : r);
+  // Check if Supabase has any data at all first
+  const { data: testData } = await sbClient.from('cladiri').select('id').limit(1);
+  if(!testData || testData.length === 0) {
+    console.log('Supabase este gol — se păstrează datele locale demo. Apasă Sincronizează pentru a urca datele.');
+    return; // Keep local seed data intact
+  }
+  
+  toast('⏳ Se încarcă datele din Supabase...');
+  for(const tbl of tables) {
+    const rows = await sbFetch(tbl);
+    if(rows !== null && rows.length > 0) {
+      DB[tbl] = rows.map(r => fromSb[tbl] ? fromSb[tbl](r) : r);
     }
   }
   toast('✅ Date încărcate din Supabase!');
-  // Re-render current section
   renderCladiri();
   renderInventar();
   updateDashboard();
@@ -4416,57 +4421,77 @@ async function syncToSupabase() {
 
 
 async function syncAllToSupabase() {
-  // Ensure seed data is loaded
-  if(!DB.cladiri || DB.cladiri.length === 0) seedData();
-  
-  // Ensure sbClient is ready
+  // Asigură-te că sbClient există
   if(!sbClient) initSupabase();
-  if(!sbClient) { toast('⚠️ Supabase nu este conectat!'); return; }
+  if(!sbClient) { toast('❌ Supabase nu este conectat!'); return; }
   
-  SUPABASE_ENABLED = true;
+  // Asigură-te că există date locale
+  if(!DB.cladiri || DB.cladiri.length === 0) {
+    seedData();
+    await new Promise(r => setTimeout(r, 200));
+  }
   
-  toast('⬆️ Sincronizare în curs... (poate dura 30-60 sec)');
+  // Log starea DB înainte de sync
+  console.log('=== SYNC START ===');
+  console.log('cladiri:', DB.cladiri.length, '| camere:', DB.camere.length, '| inventar:', DB.inventar.length, '| personal:', DB.personal.length);
   
-  const tableOrder = [
-    {tbl:'cladiri',    items: DB.cladiri},
-    {tbl:'camere',     items: DB.camere},
-    {tbl:'furnizori',  items: DB.furnizori},
-    {tbl:'personal',   items: DB.personal},
-    {tbl:'inventar',   items: DB.inventar},
-    {tbl:'achizitii',  items: DB.achizitii},
-    {tbl:'tasks',      items: DB.tasks},
-  ];
+  toast('⬆️ Sincronizare în curs...');
   
   let total = 0, errors = 0;
   
-  for(const {tbl, items} of tableOrder) {
-    if(!items || !items.length) { console.log('Skip empty:', tbl); continue; }
-    console.log('Syncing', tbl, ':', items.length, 'items');
+  // Sincronizează fiecare tabel în ordine (respectă foreign keys)
+  const jobs = [
+    { tbl: 'cladiri',   src: () => DB.cladiri   },
+    { tbl: 'camere',    src: () => DB.camere    },
+    { tbl: 'furnizori', src: () => DB.furnizori },
+    { tbl: 'personal',  src: () => DB.personal  },
+    { tbl: 'inventar',  src: () => DB.inventar  },
+    { tbl: 'achizitii', src: () => DB.achizitii },
+    { tbl: 'tasks',     src: () => DB.tasks     },
+  ];
+  
+  for(const job of jobs) {
+    const items = job.src();
+    if(!items || !items.length) {
+      console.log('Skip (gol):', job.tbl);
+      continue;
+    }
+    console.log('Inserting', job.tbl, '-', items.length, 'rows...');
+    
     for(const item of items) {
       try {
-        const sbRow = toSb[tbl] ? toSb[tbl](item) : {...item};
-        // Remove undefined values
-        Object.keys(sbRow).forEach(k => sbRow[k] === undefined && delete sbRow[k]);
-        const { data, error } = await sbClient.from(tbl).insert(sbRow).select();
+        const mapper = toSb[job.tbl];
+        const row = mapper ? mapper(item) : {...item};
+        
+        // Elimină câmpuri undefined/null problematice
+        const cleanRow = {};
+        for(const [k, v] of Object.entries(row)) {
+          if(v !== undefined) cleanRow[k] = v;
+        }
+        
+        const { error } = await sbClient.from(job.tbl).insert(cleanRow);
         if(error) {
-          console.warn(tbl, 'insert error:', error.message, 'Row:', JSON.stringify(sbRow).substring(0,100));
+          console.error(job.tbl, 'ERROR:', error.message, '| Row:', JSON.stringify(cleanRow));
           errors++;
         } else {
           total++;
         }
-      } catch(e) {
-        console.warn(tbl, 'exception:', e.message);
+      } catch(ex) {
+        console.error(job.tbl, 'EXCEPTION:', ex.message);
         errors++;
       }
     }
+    console.log(job.tbl, 'done. Total so far:', total);
   }
   
-  const msg = total > 0 
-    ? '✅ ' + total + ' înregistrări în Supabase!' + (errors > 0 ? ' (' + errors + ' erori minore)' : '')
-    : '⚠️ 0 înregistrări — verifică consola (F12) pentru detalii';
-  toast(msg);
-  console.log('Sync complete. Total:', total, 'Errors:', errors);
-  if(total > 0) addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
+  console.log('=== SYNC END === Total:', total, '| Errors:', errors);
+  
+  if(total > 0) {
+    toast('✅ ' + total + ' înregistrări sincronizate în Supabase!' + (errors ? ' (' + errors + ' erori)' : ''));
+    addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
+  } else {
+    toast('⚠️ 0 înregistrări — deschide F12 → Console pentru detalii');
+  }
 }
 
 // Keyboard shortcut for login

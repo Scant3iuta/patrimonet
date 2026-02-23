@@ -3068,7 +3068,7 @@ function renderRapoarte(){
   const achByM={};DB.achizitii.forEach(a=>{const m=(a.data||'').substring(0,7);achByM[m]=(achByM[m]||0)+a.val;});
   document.getElementById('repAch').innerHTML=Object.entries(achByM).sort().map(([m,v])=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${m}</span><span>${v.toLocaleString('ro-RO')} RON</span></div><div style="background:var(--surface);border-radius:4px;height:8px"><div style="width:${Math.round(v/Math.max(...Object.values(achByM))*100)}%;height:100%;border-radius:4px;background:#1a6fa8"></div></div></div>`).join('') || '<p style="color:var(--mist);font-size:13px">Nicio achiziție</p>';
 
-  const open=DB.tasks.filter(t=>t.status==='deschis').length;
+  const open=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status)).length;
   const done=DB.tasks.filter(t=>t.status==='finalizat').length;
   const tot=open+done||1;
   document.getElementById('repTask').innerHTML=`
@@ -3085,7 +3085,7 @@ function updateDashboard(){
   document.getElementById('s-rep').textContent=rep;
   const val=DB.inventar.reduce((s,b)=>s+b.val,0);
   document.getElementById('s-val').textContent=val.toLocaleString('ro-RO');
-  const openTasks=DB.tasks.filter(t=>t.status==='deschis').length;
+  const openTasks=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status)).length;
   document.getElementById('s-tasks').textContent=openTasks;
 
   // Cladiri list
@@ -3099,7 +3099,7 @@ function updateDashboard(){
   }).join('');
 
   // Tasks
-  const taskItems=DB.tasks.filter(t=>t.status==='deschis').slice(0,4);
+  const taskItems=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status)).slice(0,4);
   document.getElementById('dashTasks').innerHTML=taskItems.length?taskItems.map(t=>{
     const per=DB.personal.find(x=>x.id===t.assignId);
     const pc=t.prio==='Înaltă'?'#c0392b':t.prio==='Medie'?'#d97706':'#0d7c6b';
@@ -3131,13 +3131,23 @@ function updateDashboard(){
 }
 
 function updateBadges(){
-  const open=DB.tasks.filter(t=>t.status==='deschis').length;
-  const tb=document.getElementById('taskBadge');
-  tb.textContent=open;tb.style.display=open?'inline':'none';
-  document.getElementById('notifDot').style.display=open?'block':'none';
-  const pending=DB.achizitii.filter(a=>a.status==='Comandat').length;
-  const ab=document.getElementById('achBadge');
-  ab.style.display=pending?'inline':'none';
+  // Open tasks - check all status variants
+  const open = DB.tasks.filter(t => ['deschis','Deschisă','deschisa'].includes(t.status)).length;
+  const tb = document.getElementById('taskBadge');
+  if(tb) { tb.textContent=open; tb.style.display=open?'inline':'none'; }
+  // Notification dot
+  const notifDot = document.getElementById('notifDot');
+  if(notifDot) notifDot.style.display = (notifications||[]).filter(n=>!n.read).length ? 'block' : 'none';
+  // Achizitii pending approval
+  const achPending = DB.achizitii.filter(a => a.status==='Comandat').length;
+  const ab = document.getElementById('achBadge');
+  if(ab) { ab.textContent=achPending; ab.style.display=achPending?'inline':'none'; }
+  // Aprobari count
+  const aprobPending = (DB.aprobari||[]).filter(a=>a.status==='pending').length
+    + DB.mutari.filter(m=>m.status==='În așteptare aprobare').length
+    + DB.rezervari.filter(r=>r.status==='În așteptare aprobare').length;
+  const aprobBadge = document.getElementById('aprobBadge');
+  if(aprobBadge) { aprobBadge.textContent=aprobPending; aprobBadge.style.display=aprobPending?'inline':'none'; }
 }
 
 // ===== SETTINGS =====

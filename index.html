@@ -3389,13 +3389,7 @@ function exportRaportPDF(tip) {
     </div>
     ${continut}
     
-  <script>
-    if('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
-      });
-    }
-  </script>
+
 </body></html>`;
   
   const win = window.open('', '_blank');
@@ -3984,13 +3978,7 @@ function genAudit(tip) {
     <tbody>${items.map(e=>`<tr><td>${e.timestamp}</td><td>${e.tip}</td><td>${e.descriere}</td><td>${e.user}</td><td>${e.rol}</td></tr>`).join('')}</tbody></table>
     <div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: ${items.length} evenimente · PatrimoNet — CN Vasile Goldiș Arad</div>
     
-  <script>
-    if('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
-      });
-    }
-  </script>
+
 </body></html>`;
   const win = window.open('','_blank');
   win.document.write(html); win.document.close();
@@ -4294,13 +4282,7 @@ function genRaportInternat() {
     <div style="text-align:center"><div style="margin-bottom:30px">Director</div><div>Ioja Petronela Angela</div><div>_______________________</div></div>
   </div>
   
-  <script>
-    if('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
-      });
-    }
-  </script>
+
 </body></html>`;
   const win=window.open('','_blank');
   win.document.write(html); win.document.close();
@@ -4741,6 +4723,8 @@ function toastSave() {
 // Keyboard shortcut for login
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
 </script>
+
+
   <script>
     if('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

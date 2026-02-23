@@ -2118,7 +2118,6 @@ function doLogin() {
   currentUser = {...found, rol: r};
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'flex';
-  initSupabase();
   // Reset ALL nav items visibility before applying role permissions
   document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
   // Reset ALL sections
@@ -2159,6 +2158,36 @@ function initApp() {
   });
   updateDashboard();
   updateBadges();
+  // Init extended state
+  DB.mutari = DB.mutari || [];
+  DB.rezervari = DB.rezervari || [];
+  DB.probleme = DB.probleme || [];
+  DB.prezenta = DB.prezenta || [];
+  DB.mese = DB.mese || [];
+  DB.fluxuri = DB.fluxuri || [];
+  istoricLog = [];
+  // Connect Supabase
+  initSupabase();
+  // Load from Supabase if configured, otherwise use demo data
+  if(SUPABASE_ENABLED) {
+    loadFromSupabase();
+  }
+  // Log authentication
+  addIstoricEvent('auth', `Autentificare: ${currentUser.prenume} ${currentUser.nume} (${ROLE_LABELS[currentUser.rol]||currentUser.rol})`, currentUser);
+  // Populate filters
+  setTimeout(() => {
+    const sel = document.getElementById('filterIstoricUser');
+    if(sel) sel.innerHTML = '<option value="">Toți utilizatorii</option>' + DB.personal.map(p=>`<option>${p.prenume} ${p.nume}</option>`).join('');
+    const auditUser = document.getElementById('auditUser');
+    if(auditUser) auditUser.innerHTML = DB.personal.map(p=>`<option>${p.prenume} ${p.nume}</option>`).join('');
+    const rezCam = document.getElementById('filterRezCam');
+    if(rezCam) rezCam.innerHTML = '<option value="">Toate sălile</option>' + DB.camere.map(cam=>`<option value="${cam.id}">${cam.cod} — ${cam.nume}</option>`).join('');
+  }, 100);
+  applyRolePermissions();
+  updateAprobari();
+  updateFluxBadge();
+  // Navigate to dashboard
+  nav('dashboard', document.querySelector('.nav-item'));
 }
 
 // ===== SEED =====
@@ -3854,33 +3883,7 @@ function applyRolePermissions() {
 }
 
 // ===== OVERRIDE initApp to add new init =====
-const _origInitApp = initApp;
-function initApp() {
-  _origInitApp();
-  // Init new state
-  DB.mutari = DB.mutari || [];
-  DB.rezervari = DB.rezervari || [];
-  istoricLog = [];
-  // Load from Supabase if configured
-  if(SUPABASE_ENABLED) { loadFromSupabase(); }
-  // Seed some demo istoric
-  addIstoricEvent('auth', `Autentificare: ${currentUser.prenume} ${currentUser.nume} (${ROLE_LABELS[currentUser.rol]||currentUser.rol})`, currentUser);
-  addIstoricEvent('inventar', 'Inventar inițializat cu date demo CN Vasile Goldiș Arad', {prenume:'Sistem',nume:'',rol:'admin_app',id:0});
-  // Populate user filter in istoric
-  setTimeout(() => {
-    const sel = document.getElementById('filterIstoricUser');
-    if(sel) sel.innerHTML = '<option value="">Toți utilizatorii</option>' + DB.personal.map(p=>`<option>${p.prenume} ${p.nume}</option>`).join('');
-    const auditUser = document.getElementById('auditUser');
-    if(auditUser) auditUser.innerHTML = DB.personal.map(p=>`<option>${p.prenume} ${p.nume}</option>`).join('');
-    // Populate rezervare camera filter
-    const rezCam = document.getElementById('filterRezCam');
-    if(rezCam) rezCam.innerHTML = '<option value="">Toate sălile</option>' + DB.camere.map(c=>`<option value="${c.id}">${c.cod} — ${c.nume}</option>`).join('');
-  }, 100);
-  applyRolePermissions();
-  updateAprobari();
-  // Navigate to dashboard on login
-  nav('dashboard', document.querySelector('.nav-item'));
-}
+
 
 
 

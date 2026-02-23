@@ -895,9 +895,9 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       <div class="user-name" id="userName">Administrator</div>
       <div class="user-role" id="userRoleLabel">Admin Aplicație</div>
     </div>
-    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);margin-top:auto">
-    <button onclick="logout()" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;transition:all 0.15s" onmouseover="this.style.background='rgba(239,68,68,0.15)';this.style.color='#f87171'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.7)'">
-      <span style="font-size:16px">⏻</span> Deconectare
+    <div style="padding:8px 12px;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0">
+    <button onclick="logout()" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:12px;transition:all 0.15s;white-space:nowrap;overflow:hidden" onmouseover="this.style.background='rgba(239,68,68,0.15)';this.style.color='#f87171'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.6)'">
+      <span style="font-size:14px;flex-shrink:0">⏻</span><span style="overflow:hidden;text-overflow:ellipsis">Deconectare</span>
     </button>
   </div>
   </div>
@@ -2928,7 +2928,7 @@ function renderTasks(data) {
           <div style="font-size:11px;color:var(--mist);margin-top:3px">${t.desc}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-          <span class="task-assign">👤 ${per?per.prenume+' '+per.nume:'Neatribuit'}</span>
+          <span class="task-assign">👤 ${t.assignIds&&t.assignIds.length>1?t.assignIds.map(id=>{const p=DB.personal.find(x=>x.id===id);return p?p.prenume+' '+p.nume:'';}).filter(Boolean).join(', '):(per?per.prenume+' '+per.nume:'Neatribuit')}</span>
           <span class="badge ${(t.prioritate||t.prio)==='Înaltă'?'b-red':(t.prioritate||t.prio)==='Medie'?'b-yellow':'b-green'}">${t.prioritate||t.prio||'—'}</span>
           ${canAssign ? `<button class="btn btn-outline btn-sm" onclick="assignTask(${t.id})" style="font-size:11px;padding:4px 8px">${per ? "🔄 Realocă" : "👤 Alocă"}</button>` : ''}
           ${['deschis','Deschisă','deschisa'].includes(t.status)?`<button class="btn btn-teal btn-sm" onclick="completeTask(${t.id})">✓ Finalizat</button>`:''}
@@ -3952,15 +3952,25 @@ function renderAprobariPending() {
   if (!doneList) return;
   const mutDone = DB.mutari.filter(m => ['Finalizată','Respinsă'].includes(m.status));
   const rezDone = DB.rezervari.filter(r => ['Aprobată','Respinsă'].includes(r.status));
-  if (!mutDone.length && !rezDone.length) { doneList.innerHTML='<div class="empty" style="padding:24px"><p>Nicio aprobare procesată.</p></div>'; return; }
-  doneList.innerHTML = [...mutDone.slice(0,5), ...rezDone.slice(0,5)].map(item => {
+  const achDone = (DB.aprobari||[]).filter(a => ['aprobat','respins'].includes(a.status));
+  if (!mutDone.length && !rezDone.length && !achDone.length) { doneList.innerHTML='<div class="empty" style="padding:24px"><p>Nicio aprobare procesată.</p></div>'; return; }
+  let doneHtml = '';
+  achDone.slice(0,5).forEach(a => {
+    const aprobat = a.status==='aprobat';
+    doneHtml += `<div class="approval-card ${aprobat?'approved':'rejected'}" style="margin:8px 16px">
+      <div style="font-weight:600">📦 ${a.titlu} — <span class="badge ${aprobat?'b-green':'b-red'}">${aprobat?'Aprobat':'Respins'}</span></div>
+      <div style="font-size:11px;color:var(--mist);margin-top:4px">${a.descriere||''} ${a.aprobatDe?'· Procesat de: '+a.aprobatDe:''}</div>
+    </div>`;
+  });
+  [...mutDone.slice(0,5), ...rezDone.slice(0,5)].forEach(item => {
     const isM = !!item.bunId;
     const statusCls = item.status==='Finalizată'||item.status==='Aprobată' ? 'approved' : 'rejected';
-    return `<div class="approval-card ${statusCls}" style="margin:8px 16px">
+    doneHtml += `<div class="approval-card ${statusCls}" style="margin:8px 16px">
       <div style="font-weight:600">${isM?'🔀 Mutare':'📅 Rezervare'} — <span class="badge ${item.status==='Finalizată'||item.status==='Aprobată'?'b-green':'b-red'}">${item.status}</span></div>
       <div style="font-size:11px;color:var(--mist);margin-top:4px">${isM?(item.deCamera+' → '+item.laCamera):(item.data+' '+item.oraStart)} ${item.aprobatDe?'· Procesat de: '+item.aprobatDe:''}</div>
     </div>`;
-  }).join('');
+  });
+  doneList.innerHTML = doneHtml;
 }
 
 function switchTabAprob(id, el) {
@@ -4065,7 +4075,7 @@ function genAudit(tip) {
 const ROLE_PERMISSIONS = {
   admin_app:   {sections:['dashboard','cladiri','camere','inventar','import','qr','furnizori','achizitii','mutari','rezervari','aprobari','mentenanta','fluxuri','personal','setari','rapoarte','istoric','audit'], canEdit:true, canApprove:true},
   admin_pat:   {sections:['dashboard','cladiri','camere','inventar','import','qr','furnizori','achizitii','mutari','rezervari','aprobari','mentenanta','internat','fluxuri','rapoarte','istoric','audit'], canEdit:true, canApprove:true},
-  director:    {sections:['dashboard','cladiri','camere','inventar','achizitii','mutari','rezervari','aprobari','rapoarte','istoric','audit'], canEdit:false, canApprove:true},
+  director:    {sections:['dashboard','cladiri','camere','inventar','furnizori','achizitii','mutari','rezervari','aprobari','rapoarte','istoric','audit'], canEdit:false, canApprove:true},
   dir_adj:     {sections:['dashboard','cladiri','camere','inventar','rezervari','aprobari','rapoarte','istoric'], canEdit:false, canApprove:true},
   contabil:    {sections:['dashboard','inventar','import','furnizori','achizitii','rapoarte','audit'], canEdit:false, canApprove:false},
   contabil_sec:{sections:['dashboard','inventar','furnizori','achizitii'], canEdit:false, canApprove:false},
@@ -4813,16 +4823,19 @@ function assignTask(taskId) {
   if(!t) return;
   const mentenanta = DB.personal.filter(p=>p.rol==='mentenanta');
   if(!mentenanta.length) { toast('⚠️ Nu există personal de mentenanță!'); return; }
-  const options = mentenanta.map(p=>`<option value="${p.id}">${p.prenume} ${p.nume}</option>`).join('');
-  const sel = `<select id="assignSelect" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:8px">
-    <option value="">— Selectează persoana —</option>${options}
-  </select>`;
+  const options = mentenanta.map(p=>`
+    <label style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid var(--border);margin-bottom:6px">
+      <input type="checkbox" value="${p.id}" style="width:16px;height:16px;accent-color:var(--teal)"
+        ${(t.assignIds||[t.assignId]).filter(Boolean).includes(p.id)?'checked':''}>
+      <span style="font-size:13px">${p.prenume} ${p.nume}</span>
+    </label>`).join('');
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
-  modal.innerHTML = `<div style="background:var(--white);border-radius:16px;padding:24px;width:360px;box-shadow:var(--shadow-lg)">
+  modal.innerHTML = `<div style="background:var(--white);border-radius:16px;padding:24px;width:380px;box-shadow:var(--shadow-lg)">
     <div style="font-weight:700;font-size:15px;margin-bottom:4px">👤 Alocă sarcină</div>
-    <div style="font-size:13px;color:var(--mist);margin-bottom:12px">${t.titlu}</div>
-    ${sel}
+    <div style="font-size:13px;color:var(--mist);margin-bottom:12px">${t.titlu||t.title||'—'}</div>
+    <div style="font-size:11px;color:var(--mist);margin-bottom:8px">Selectează una sau mai multe persoane:</div>
+    <div id="assignCheckboxes">${options}</div>
     <div style="display:flex;gap:8px;margin-top:16px">
       <button class="btn btn-outline" style="flex:1" onclick="this.closest('[style*=fixed]').remove()">Anulează</button>
       <button class="btn btn-primary" style="flex:1" onclick="doAssignTask(${taskId},this)">✅ Alocă</button>
@@ -4832,18 +4845,19 @@ function assignTask(taskId) {
 }
 
 function doAssignTask(taskId, btn) {
-  const sel = document.getElementById('assignSelect');
-  const personId = parseInt(sel.value);
-  if(!personId) { toast('⚠️ Selectează o persoană!'); return; }
+  const checkboxes = document.querySelectorAll('#assignCheckboxes input[type=checkbox]:checked');
+  if(!checkboxes.length) { toast('⚠️ Selectează cel puțin o persoană!'); return; }
   const t = DB.tasks.find(x=>x.id===taskId);
   if(!t) return;
-  t.assignId = personId;
+  const ids = Array.from(checkboxes).map(cb=>parseInt(cb.value));
+  t.assignId = ids[0]; // primary
+  t.assignIds = ids;   // all assigned
   t.status = 'Deschisă';
-  const per = DB.personal.find(x=>x.id===personId);
+  const names = ids.map(id=>{ const p=DB.personal.find(x=>x.id===id); return p?p.prenume+' '+p.nume:''; }).filter(Boolean);
   sbAutoSave('tasks', t).then(()=>{});
-  addNotification('Sarcină alocată', t.titlu + ' → ' + (per?per.prenume+' '+per.nume:''), 'mentenanta', ['mentenanta','admin_pat']);
-  toast('✅ Sarcină alocată: ' + (per?per.prenume+' '+per.nume:''));
-  addIstoricEvent('mentenanta', 'Sarcină alocată: ' + t.titlu + ' → ' + (per?per.prenume+' '+per.nume:''), currentUser);
+  addNotification('Sarcină alocată', (t.titlu||'—') + ' → ' + names.join(', '), 'mentenanta', ['mentenanta','admin_pat']);
+  toast('✅ Alocată: ' + names.join(' & '));
+  addIstoricEvent('mentenanta', 'Sarcină alocată: ' + (t.titlu||'—') + ' → ' + names.join(', '), currentUser);
   btn.closest('[style*=fixed]').remove();
   renderTasks();
   updateBadges();
@@ -4860,10 +4874,12 @@ function aprobaAchizitie(id, aprobat) {
     ach.status = aprobat ? 'Aprobat' : 'Respins';
     sbAutoSave('achizitii', ach).then(()=>{});
   }
+  a.aprobatDe = currentUser ? currentUser.prenume + ' ' + currentUser.nume : '—';
+  a.dataAprobare = new Date().toLocaleDateString('ro-RO');
   const msg = aprobat ? '✅ Achiziție aprobată!' : '❌ Achiziție respinsă!';
   toast(msg);
-  addNotification(msg, a.titlu, 'aprobare', ['admin_pat','contabil']);
-  addIstoricEvent('aprobare', (aprobat?'Aprobat':'Respins') + ': ' + a.titlu, currentUser);
+  addNotification(msg, a.titlu + ' — ' + a.dataAprobare, 'aprobare', ['admin_pat','contabil','admin_app']);
+  addIstoricEvent('aprobare', (aprobat?'Aprobată':'Respinsă') + ': ' + a.titlu + ' de ' + a.aprobatDe, currentUser);
   updateAprobari();
   renderAchizitii();
 }
@@ -5017,6 +5033,21 @@ function showLocatii(bunId) {
     <button class="btn btn-outline" style="width:100%;margin-top:16px" onclick="this.closest('[style*=fixed]').remove()">Închide</button>
   </div>`;
   document.body.appendChild(m);
+}
+
+
+// One-time migration: fix tasks with empty titlu in Supabase
+async function fixTaskTitluInSupabase() {
+  if(!SUPABASE_ENABLED || !sbClient) return;
+  const tasksToFix = DB.tasks.filter(t => !t.titlu || t.titlu === '—');
+  for(const t of tasksToFix) {
+    const titlu = t.title || (t.desc ? t.desc.substring(0,50) : '—');
+    t.titlu = titlu;
+    if(t._sbId) {
+      await sbClient.from('tasks').update({titlu}).eq('id', t._sbId);
+    }
+  }
+  if(tasksToFix.length) renderTasks();
 }
 
 // Keyboard shortcut for login

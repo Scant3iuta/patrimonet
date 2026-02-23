@@ -2214,6 +2214,17 @@ async function loadFromSupabase() {
   updateBadges();
   updateAprobari ? updateAprobari() : null;
   renderAprobariPending ? renderAprobariPending() : null;
+  // Deduplicate cladiri by cod (keep lowest id)
+  const cldSeen = {}; 
+  DB.cladiri = DB.cladiri.filter(c => { if(cldSeen[c.cod]) return false; cldSeen[c.cod]=true; return true; });
+  // Deduplicate personal by email
+  const perSeen = {};
+  DB.personal = DB.personal.filter(p => { if(perSeen[p.email]) return false; perSeen[p.email]=true; return true; });
+  // Deduplicate inventar by nrInv
+  const invSeen = {};
+  DB.inventar = DB.inventar.filter(b => { if(invSeen[b.nrInv]) return false; invSeen[b.nrInv]=true; return true; });
+  // Normalize all inventar qty/val
+  DB.inventar.forEach(b => { b.qty = parseInt(b.qty)||1; b.val = parseFloat(b.val)||0; });
   _supabaseLoaded = true;
   console.log('✅ Toate datele din Supabase încărcate și afișate');
 }
@@ -3087,11 +3098,11 @@ function renderRapoarte(){
 // ===== DASHBOARD =====
 function updateDashboard(){
   document.getElementById('s-cladiri').textContent=DB.cladiri.length;
-  const totBun=DB.inventar.reduce((s,b)=>s+b.qty,0);
+  const totBun=DB.inventar.reduce((s,b)=>s+(parseInt(b.qty)||1),0);
   document.getElementById('s-bunuri').textContent=totBun;
-  const rep=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+b.qty,0);
+  const rep=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+(parseInt(b.qty)||1),0);
   document.getElementById('s-rep').textContent=rep;
-  const val=DB.inventar.reduce((s,b)=>s+b.val,0);
+  const val=DB.inventar.reduce((s,b)=>s+(parseFloat(b.val)||0),0);
   document.getElementById('s-val').textContent=val.toLocaleString('ro-RO');
   const openTasks=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status)).length;
   document.getElementById('s-tasks').textContent=openTasks;
@@ -3113,15 +3124,15 @@ function updateDashboard(){
     const pc=t.prio==='Înaltă'?'#c0392b':t.prio==='Medie'?'#d97706':'#0d7c6b';
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
       <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.title}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?per.prenume+' '+per.nume:'—'}</div></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu||t.title||"—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?per.prenume+' '+per.nume:'—'}</div></div>
       <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prio}</span>
     </div>`;
   }).join(''):'<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';
 
   // Bars
-  const f=DB.inventar.filter(b=>b.stare==='Funcțional').reduce((s,b)=>s+b.qty,0);
-  const r=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+b.qty,0);
-  const cas=DB.inventar.filter(b=>b.stare==='Casat').reduce((s,b)=>s+b.qty,0);
+  const f=DB.inventar.filter(b=>b.stare==='Funcțional').reduce((s,b)=>s+(parseInt(b.qty)||1),0);
+  const r=DB.inventar.filter(b=>b.stare==='Necesită reparații').reduce((s,b)=>s+(parseInt(b.qty)||1),0);
+  const cas=DB.inventar.filter(b=>b.stare==='Casat').reduce((s,b)=>s+(parseInt(b.qty)||1),0);
   const tot2=f+r+cas||1;
   document.getElementById('dashBars').innerHTML=`
     <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Funcțional</span><span>${f} (${Math.round(f/tot2*100)}%)</span></div><div style="background:var(--surface);border-radius:4px;height:10px"><div style="width:${Math.round(f/tot2*100)}%;height:100%;border-radius:4px;background:#0d7c6b;transition:width 1s"></div></div></div>

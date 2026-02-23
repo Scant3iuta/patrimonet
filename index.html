@@ -2201,18 +2201,54 @@ async function loadFromSupabase() {
     }
   }
   // 1. Dedup + normalize FIRST
+  // For tasks: keep only Supabase records, remove seed duplicates
+  const tasksSeen = {};
+  DB.tasks = DB.tasks.filter(t => {
+    const key = t.titlu || t.title || t.id;
+    if(tasksSeen[key]) {
+      // Keep the _loaded (Supabase) version
+      if(t._loaded) { tasksSeen[key] = t; return true; }
+      return false;
+    }
+    tasksSeen[key] = t;
+    return true;
+  });
+  // Second pass: remove non-loaded if loaded version exists
+  const tasksLoaded = DB.tasks.filter(t => t._loaded);
+  if(tasksLoaded.length > 0) DB.tasks = tasksLoaded; // Use only Supabase tasks
+  
   const cldSeen = {}; 
   DB.cladiri = DB.cladiri.filter(c => { if(cldSeen[c.cod]) return false; cldSeen[c.cod]=true; return true; });
-  const perSeen = {};
-  DB.personal = DB.personal.filter(p => { if(perSeen[p.email]) return false; perSeen[p.email]=true; return true; });
+  // For personal: keep Supabase records (with _loaded=true) over seed records
+  // Group by email, prefer _loaded records
+  const perByEmail = {};
+  DB.personal.forEach(p => {
+    if(!perByEmail[p.email] || p._loaded) perByEmail[p.email] = p;
+  });
+  DB.personal = Object.values(perByEmail);
   const invSeen = {};
   DB.inventar = DB.inventar.filter(b => { if(invSeen[b.nrInv]) return false; invSeen[b.nrInv]=true; return true; });
   DB.inventar.forEach(b => { b.qty = parseInt(b.qty)||1; b.val = parseFloat(b.val)||0; });
-  // Normalize task status
+  // Normalize task status and remap assignId to local personal id
   DB.tasks.forEach(t => {
-    t.titlu = t.titlu || t.title || (t.desc ? t.desc.substring(0,50) : '') || '—';
+    t.titlu = t.titlu || t.title || (t.desc || t.description ? (t.desc||t.description).substring(0,50) : '') || '—';
+    t.desc = t.desc || t.description || '';
     t.status = {'deschis':'Deschisă','deschisa':'Deschisă','finalizat':'Finalizată','finalizata':'Finalizată'}[t.status] || t.status || 'Deschisă';
     t.prioritate = t.prioritate || t.prio || 'Medie';
+    // assignId from Supabase is the Supabase personal.id (large number)
+    // Find the matching person in DB.personal by Supabase id
+    if(t.assignId) {
+      const per = DB.personal.find(p => p.id === t.assignId || p._sbId === t.assignId);
+      if(!per) {
+        // Try to find by _sbId stored on personal records
+        const perBySb = DB.personal.find(p => p._loaded && p.id === t.assignId);
+        if(!perBySb) {
+          // assignId is a Supabase id - personal loaded from Supabase also has Supabase ids
+          // They should match since both come from Supabase
+          console.log('Task assignId', t.assignId, 'not found in personal', DB.personal.map(p=>p.id));
+        }
+      }
+    }
   });
   _supabaseLoaded = true;
   
@@ -2979,7 +3015,7 @@ function renderTasks(data) {
         <div class="task-info">
           <div class="task-title">${t.titlu||t.title||t.descriere||"(fără titlu)"}</div>
           <div class="task-meta">📍 ${cld?cld.cod:'—'} / ${cam?cam.cod:'—'} &nbsp;|&nbsp; ⏰ Termen: ${t.termen||'—'}</div>
-          <div style="font-size:11px;color:var(--mist);margin-top:3px">${t.desc}</div>
+          <div style="font-size:11px;color:var(--mist);margin-top:3px">${t.desc||t.description||''}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
           <span class="task-assign">👤 ${t.assignIds&&t.assignIds.length>1?t.assignIds.map(id=>{const p=DB.personal.find(x=>x.id===id);return p?p.prenume+' '+p.nume:'';}).filter(Boolean).join(', '):(per?per.prenume+' '+per.nume:'Neatribuit')}</span>

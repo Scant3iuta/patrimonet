@@ -180,7 +180,8 @@ body { font-family: 'Sora', sans-serif; background: var(--surface); color: var(-
 .sidebar {
   width: 256px;
   background: var(--ink);
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   position: fixed;
   top: 0; left: 0;
   z-index: 100;
@@ -599,6 +600,27 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 .rz-confirmed { background: #d1fae5; border-color: var(--teal); }
 .rz-pending { background: #fef9c3; border-color: var(--amber); }
 .rz-rejected { background: #fee2e2; border-color: var(--rose); }
+
+/* ===== FLUXURI ===== */
+.flux-card { border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; background:var(--white); transition:box-shadow 0.15s; }
+.flux-card:hover { box-shadow:var(--shadow-sm); }
+.flux-card-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.flux-card-title { font-weight:700; font-size:13px; }
+.flux-card-meta { font-size:11px; color:var(--mist); margin-top:3px; }
+.flux-steps { display:flex; flex-direction:column; gap:4px; margin-top:10px; }
+.flux-step { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; font-size:12px; }
+.flux-step.done { background:#d1fae5; color:#065f46; }
+.flux-step.current { background:#fef9c3; color:#854d0e; border:1px solid #fbbf24; font-weight:600; }
+.flux-step.pending { background:var(--surface); color:var(--mist); }
+.flux-step.blocat { background:#fee2e2; color:#991b1b; }
+.flux-step-icon { font-size:14px; flex-shrink:0; }
+.flux-progress { height:6px; background:var(--surface); border-radius:3px; margin-top:10px; overflow:hidden; }
+.flux-progress-bar { height:100%; background:var(--teal); border-radius:3px; transition:width 0.3s; }
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 </style>
 </head>
 <body>
@@ -1183,52 +1205,124 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 
     <!-- FLUXURI -->
     <div class="section" id="section-fluxuri">
-      <div class="alert alert-info">ℹ️ Fluxurile de lucru descriu procesele standard și etapele de aprobare pentru operațiunile principale.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="card">
-          <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span></div>
-          <div style="padding:16px 20px">
-            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Inițiere</strong> — Administrator Patrimoniu completează formularul de necesitate</div></div>
-            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare bugetară</strong> — Contabilul verifică disponibilul bugetar</div></div>
-            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă achiziția (peste 5.000 RON)</div></div>
-            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Comandă furnizor</strong> — Admin Patrimoniu emite comanda</div></div>
-            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Recepție</strong> — Comisia de recepție confirmă livrarea</div></div>
-            <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Inventariere</strong> — Se atribuie număr de inventar și se generează QR</div></div>
-            <div class="workflow-step"><div class="ws-num">7</div><div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează în evidențele contabile</div></div>
-          </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTabFlux('flux-activ',this)">▶️ Fluxuri active <span id="fluxActivCount" class="notif-count" style="margin-left:4px">0</span></div>
+        <div class="tab" onclick="switchTabFlux('flux-definite',this)">📋 Proceduri standard</div>
+        <div class="tab" onclick="switchTabFlux('flux-istoric',this)">✅ Finalizate</div>
+      </div>
+
+      <!-- FLUXURI ACTIVE -->
+      <div id="flux-activ">
+        <div class="filters">
+          <select id="filterFluxTip" onchange="renderFluxuri()"><option value="">Toate tipurile</option><option>Achiziție</option><option>Reparație</option><option>Casare</option><option>Transfer</option><option>Comandă alimente</option></select>
+          <select id="filterFluxStatus" onchange="renderFluxuri()"><option value="">Toate statusurile</option><option>În așteptare</option><option>În lucru</option><option>Blocat</option></select>
+          <button class="btn btn-primary" onclick="openModalFlux()">+ Flux nou</button>
         </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">🔧 Flux: Reparație bun defect</span></div>
-          <div style="padding:16px 20px">
-            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Sesizare defect</strong> — Profesorul/utilizatorul raportează defecțiunea</div></div>
-            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Înregistrare sarcină</strong> — Admin Patrimoniu creează sarcina de mentenanță</div></div>
-            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Evaluare</strong> — Personalul mentenanță evaluează defecțiunea</div></div>
-            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Decizie reparație/casare</strong> — Admin Patrimoniu decide</div></div>
-            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Reparație</strong> — Mentenanță intern SAU service extern</div></div>
-            <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Confirmare remediere</strong> — Actualizare stare bun în inventar</div></div>
+        <div id="fluxuriList" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px"></div>
+      </div>
+
+      <!-- PROCEDURI STANDARD -->
+      <div id="flux-definite" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span><button class="btn btn-primary btn-sm" onclick="startFlux('Achiziție')">▶️ Pornește</button></div>
+            <div style="padding:16px 20px">
+              <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Inițiere</strong> — Admin Patrimoniu completează formularul de necesitate</div></div>
+              <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare bugetară</strong> — Contabilul verifică disponibilul bugetar</div></div>
+              <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă achiziția (peste 5.000 RON)</div></div>
+              <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Comandă furnizor</strong> — Admin Patrimoniu emite comanda</div></div>
+              <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Recepție</strong> — Comisia de recepție confirmă livrarea</div></div>
+              <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Inventariere</strong> — Se atribuie nr. inventar și se generează QR</div></div>
+              <div class="workflow-step"><div class="ws-num">7</div><div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează în evidențele contabile</div></div>
+            </div>
           </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">🔧 Flux: Reparație bun defect</span><button class="btn btn-primary btn-sm" onclick="startFlux('Reparație')">▶️ Pornește</button></div>
+            <div style="padding:16px 20px">
+              <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Sesizare defect</strong> — Profesorul/utilizatorul raportează defecțiunea</div></div>
+              <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Înregistrare sarcină</strong> — Admin Patrimoniu creează sarcina de mentenanță</div></div>
+              <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Evaluare tehnică</strong> — Personalul mentenanță evaluează defecțiunea</div></div>
+              <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Decizie reparație/casare</strong> — Admin Patrimoniu decide</div></div>
+              <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Reparație</strong> — Mentenanță intern SAU service extern</div></div>
+              <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Confirmare remediere</strong> — Actualizare stare bun în inventar</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">🗑️ Flux: Casare bun</span><button class="btn btn-primary btn-sm" onclick="startFlux('Casare')">▶️ Pornește</button></div>
+            <div style="padding:16px 20px">
+              <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Propunere casare</strong> — Admin Patrimoniu identifică bunul propus pentru casare</div></div>
+              <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Evaluare comisie</strong> — Comisia de inventariere verifică starea bunului</div></div>
+              <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul semnează procesul verbal de casare</div></div>
+              <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Aprobare contabil</strong> — Contabilul șef aprobă scoaterea din evidențe</div></div>
+              <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Scoatere din gestiune</strong> — Bunul este marcat casat în sistem</div></div>
+              <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Valorificare/distrugere</strong> — Conform deciziei comisiei</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">🔀 Flux: Transfer bun între clădiri</span><button class="btn btn-primary btn-sm" onclick="startFlux('Transfer')">▶️ Pornește</button></div>
+            <div style="padding:16px 20px">
+              <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Solicitare transfer</strong> — Inițiator completează motivul și destinația</div></div>
+              <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Verificare disponibilitate</strong> — Admin Patrimoniu confirmă că spațiul destinație e disponibil</div></div>
+              <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Necesară pentru transferuri între clădiri</div></div>
+              <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Mutare fizică</strong> — Transportul bunului cu procesul verbal de predare-primire</div></div>
+              <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Actualizare inventar</strong> — Noua locație înregistrată în sistem</div></div>
+            </div>
+          </div>
+
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-header"><span class="card-title">🍽️ Flux: Comandă alimente cantină</span><button class="btn btn-primary btn-sm" onclick="startFlux('Comandă alimente')">▶️ Pornește</button></div>
+            <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:0">
+              <div>
+                <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Estimare pedagog</strong> — Pedagogul înregistrează nr. elevi prezenți pentru zilele următoare (5 zile în avans)</div></div>
+                <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Calcul necesar</strong> — Admin Patrimoniu calculează cantitățile necesare pe baza estimărilor</div></div>
+                <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă comanda (valoare estimată)</div></div>
+              </div>
+              <div>
+                <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Transmitere furnizor</strong> — Admin Patrimoniu trimite comanda la furnizorul de alimente</div></div>
+                <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Recepție alimente</strong> — Comisia verifică cantitatea și calitatea la livrare</div></div>
+                <div class="workflow-step"><div class="ws-num">6</div><div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează cheltuielile cu hrana</div></div>
+              </div>
+            </div>
+          </div>
+
         </div>
+      </div>
+
+      <!-- FINALIZATE -->
+      <div id="flux-istoric" style="display:none">
         <div class="card">
-          <div class="card-header"><span class="card-title">🗑️ Flux: Casare bun</span></div>
-          <div style="padding:16px 20px">
-            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Propunere casare</strong> — Admin Patrimoniu propune bunul pentru casare</div></div>
-            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă casarea</div></div>
-            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Comisie evaluare</strong> — Comisia de casare evaluează bunul</div></div>
-            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Proces verbal</strong> — Se întocmește PV de casare</div></div>
-            <div class="workflow-step"><div class="ws-num">5</div><div class="ws-text"><strong>Scoatere din evidență</strong> — Bunul se marchează "Casat" în sistem</div></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><span class="card-title">🔄 Flux: Transfer bun între camere</span></div>
-          <div style="padding:16px 20px">
-            <div class="workflow-step"><div class="ws-num">1</div><div class="ws-text"><strong>Cerere transfer</strong> — Profesorul responsabil solicită transferul</div></div>
-            <div class="workflow-step"><div class="ws-num">2</div><div class="ws-text"><strong>Aprobare Admin Pat.</strong> — Administratorul aprobă mutarea</div></div>
-            <div class="workflow-step"><div class="ws-num">3</div><div class="ws-text"><strong>Actualizare sistem</strong> — Se modifică locația bunului în inventar</div></div>
-            <div class="workflow-step"><div class="ws-num">4</div><div class="ws-text"><strong>Scanare QR</strong> — Noul responsabil scanează QR-ul pentru confirmare</div></div>
-          </div>
+          <div class="card-header"><span class="card-title">✅ Fluxuri finalizate</span></div>
+          <table><thead><tr><th>Tip</th><th>Titlu</th><th>Pornit de</th><th>Data start</th><th>Data final</th><th>Pași completați</th></tr></thead>
+          <tbody id="fluxFinalizateTable"></tbody></table>
         </div>
       </div>
     </div>
+
+    <!-- MODAL FLUX NOU -->
+    <div class="modal-overlay" id="modalFlux">
+      <div class="modal" style="width:560px">
+        <div class="modal-head"><span class="modal-title" id="modalFluxTitle">▶️ Flux nou</span><span class="modal-close" onclick="closeModal('modalFlux')">✕</span></div>
+        <div class="modal-body">
+          <div class="form-row"><label>Tip flux</label><select id="fluxTip" onchange="updateFluxSteps()" style="width:100%">
+            <option>Achiziție</option><option>Reparație</option><option>Casare</option><option>Transfer</option><option>Comandă alimente</option>
+          </select></div>
+          <div class="form-row"><label>Titlu / descriere scurtă</label><input type="text" id="fluxTitlu" placeholder="ex: Achiziție 5 scaune laborator chimie"></div>
+          <div class="form-row"><label>Responsabil principal</label><select id="fluxResponsabil" style="width:100%"></select></div>
+          <div class="form-row"><label>Termen estimat</label><input type="date" id="fluxTermen" style="width:100%"></div>
+          <div class="form-row"><label>Observații</label><textarea id="fluxObs" placeholder="Detalii suplimentare..."></textarea></div>
+          <div class="alert alert-info" id="fluxStepsPreview" style="margin-top:8px;font-size:12px"></div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn btn-outline" onclick="closeModal('modalFlux')">Anulează</button>
+          <button class="btn btn-primary" onclick="saveFlux()">▶️ Pornește fluxul</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- PERSONAL -->
     <div class="section" id="section-personal">
@@ -1311,6 +1405,36 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
           <button class="btn btn-primary" onclick="toast('✅ Setări prefix salvate!')">💾 Salvează prefix</button>
         </div>
       </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header">
+            <span class="card-title">🔗 Conexiune Supabase (bază de date permanentă)</span>
+            <span id="sbStatusBadge" class="badge b-gray">Neconectat</span>
+          </div>
+          <div style="padding:16px">
+            <div class="alert alert-info" style="margin-bottom:14px">
+              ℹ️ Supabase salvează toate datele permanent în cloud. Fără Supabase, datele se pierd la închiderea browserului.
+              <br>Pași: <strong>1)</strong> Creează cont gratuit pe <a href="https://supabase.com" target="_blank">supabase.com</a> → 
+              <strong>2)</strong> Creează proiect <em>patrimonet</em> → 
+              <strong>3)</strong> Rulează schema SQL → 
+              <strong>4)</strong> Completează URL și cheie de mai jos
+            </div>
+            <div class="form-row">
+              <label>Supabase Project URL</label>
+              <input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co" style="font-family:monospace;font-size:12px">
+            </div>
+            <div class="form-row">
+              <label>Supabase Anon Key (public)</label>
+              <textarea id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="font-family:monospace;font-size:11px;height:70px"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Salvează și conectează</button>
+              <button class="btn btn-teal" onclick="testSupabaseConnection()">🔌 Testează conexiunea</button>
+              <button class="btn btn-outline" onclick="syncToSupabase()">⬆️ Sincronizează datele locale → Supabase</button>
+            </div>
+            <div id="sbTestResult" style="margin-top:10px;font-size:12px"></div>
+          </div>
+        </div>
+
     </div>
 
     <!-- MUTARI BUNURI -->
@@ -1799,7 +1923,140 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 
 <div class="toast" id="toastEl"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+
+// ===== SUPABASE CONFIG =====
+// Înlocuiește cu valorile tale din Supabase Dashboard → Settings → API
+const SUPABASE_URL = 'https://pztgawexnbuuwygidppm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6dGdhd2V4bmJ1dXd5Z2lkcHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3ODg5MzAsImV4cCI6MjA4NzM2NDkzMH0.tLW1Fwg3KFnwa9IOA9DunLuSrIrUvQkxCArsr4PeRoI';
+
+let sbClient = null;
+let SUPABASE_ENABLED = false;
+
+function initSupabase() {
+  try {
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    SUPABASE_ENABLED = true;
+    console.log('✅ Supabase conectat la patrimonet!');
+    // Update badge in settings if visible
+    const badge = document.getElementById('sbStatusBadge');
+    if(badge) { badge.textContent = '✅ Conectat'; badge.className = 'badge b-green'; }
+  } catch(e) {
+    console.error('Supabase init failed:', e);
+    SUPABASE_ENABLED = false;
+  }
+}
+
+// ===== SYNC HELPERS =====
+// Generic fetch all rows from a table
+async function sbFetch(table) {
+  if(!SUPABASE_ENABLED) return null;
+  const { data, error } = await sbClient.from(table).select('*');
+  if(error) { console.error('Supabase fetch error:', table, error); return null; }
+  return data;
+}
+
+// Generic insert
+async function sbInsert(table, row) {
+  if(!SUPABASE_ENABLED) return null;
+  const { data, error } = await sbClient.from(table).insert(row).select().single();
+  if(error) { console.error('Supabase insert error:', table, error); return null; }
+  return data;
+}
+
+// Generic update
+async function sbUpdate(table, id, updates) {
+  if(!SUPABASE_ENABLED) return null;
+  const { data, error } = await sbClient.from(table).update(updates).eq('id', id).select().single();
+  if(error) { console.error('Supabase update error:', table, error); return null; }
+  return data;
+}
+
+// Generic delete
+async function sbDelete(table, id) {
+  if(!SUPABASE_ENABLED) return null;
+  const { error } = await sbClient.from(table).delete().eq('id', id);
+  if(error) { console.error('Supabase delete error:', table, error); return null; }
+  return true;
+}
+
+// ===== MAP DB ↔ SUPABASE =====
+// Convert local object → supabase row
+const toSb = {
+  cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||null }),
+  camere:  (x) => ({ cladire_id:x.cladireId, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj||0, suprafata:x.sup||null, responsabil:x.resp||'', capacitate:x.cap||null }),
+  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat, cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:x.val||0, data_pif:x.dataPIF||null, furnizor_id:x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:x.amortizare||0, obs:x.obs||'' }),
+  furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
+  achizitii:(x)=> ({ nr_doc:x.nrDoc||'', tip_doc:x.tipDoc||'', data_doc:x.dataDoc||null, furnizor_id:x.furnizorId||null, descriere:x.descriere||'', val:x.val||0, status:x.status||'Recepționat', user_id:x.userId||null }),
+  personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'' }),
+  mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:x.data, de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
+  rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:x.elevi||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'' }),
+  tasks:    (x)=> ({ titlu:x.titlu||'', prioritate:x.prioritate||'Medie', status:x.status||'Deschisă', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, user_id:x.userId||null, desc:x.desc||'', termen:x.termen||null }),
+  prezenta: (x)=> ({ data:x.data, elevi:x.elevi, tip_zi:x.tipZi||'saptamana', obs:x.obs||'', user_id:x.userId||null }),
+  mese:     (x)=> ({ data:x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'', user_id:x.userId||null }),
+  probleme: (x)=> ({ tip:x.tip||'', locatie:x.locatie||'', desc:x.desc||'', prio:x.prio||'Medie', status:x.status||'Deschisă', user_id:x.userId||null, rezolvat_de:x.rezolvatDe||'' }),
+  fluxuri:  (x)=> ({ tip:x.tip||'', titlu:x.titlu||'', responsabil_id:x.responsabilId||null, user_id:x.userId||null, termen:x.termen||null, obs:x.obs||'', step_curent:x.stepCurent||0, status:x.status||'În așteptare', data_start:x.dataStart||null, data_final:x.dataFinal||null, istoric_pasi:JSON.stringify(x.istoricPasi||[]) }),
+};
+
+// Convert supabase row → local object
+const fromSb = {
+  cladiri: (x) => ({ id:x.id, cod:x.cod, nume:x.nume, adresa:x.adresa, etaje:x.etaje, an:x.an_constructie, sup:x.suprafata }),
+  camere:  (x) => ({ id:x.id, cladireId:x.cladire_id, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj, sup:x.suprafata, resp:x.responsabil, cap:x.capacitate }),
+  inventar:(x) => ({ id:x.id, nrInv:x.nr_inv, nume:x.nume, cat:x.cat, cladireId:x.cladire_id, cameraId:x.camera_id, stare:x.stare, val:parseFloat(x.val)||0, dataPIF:x.data_pif, furnizorId:x.furnizor_id, cont:x.cont, durata:x.durata, amortizare:parseFloat(x.amortizare)||0, obs:x.obs }),
+  furnizori:(x)=> ({ id:x.id, nume:x.nume, cui:x.cui, adresa:x.adresa, tel:x.tel, email:x.email, persoana:x.persoana }),
+  achizitii:(x)=> ({ id:x.id, nrDoc:x.nr_doc, tipDoc:x.tip_doc, dataDoc:x.data_doc, furnizorId:x.furnizor_id, descriere:x.descriere, val:parseFloat(x.val)||0, status:x.status, userId:x.user_id }),
+  personal: (x)=> ({ id:x.id, prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel }),
+  mutari:   (x)=> ({ id:x.id, bunId:x.bun_id, userId:x.user_id, data:x.data, deCladire:x.de_cladire, deCamera:x.de_camera, laCladire:x.la_cladire, laCamera:x.la_camera, laCladireId:x.la_cladire_id, laCameraId:x.la_camera_id, motiv:x.motiv, obs:x.obs, status:x.status, aprobatDe:x.aprobat_de }),
+  rezervari:(x)=> ({ id:x.id, cameraId:x.camera_id, userId:x.user_id, data:x.data, oraStart:x.ora_start, oraEnd:x.ora_end, materie:x.materie, elevi:x.elevi, echipamente:x.echipamente, status:x.status, aprobatDe:x.aprobat_de }),
+  tasks:    (x)=> ({ id:x.id, titlu:x.titlu, prioritate:x.prioritate, status:x.status, cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, userId:x.user_id, desc:x.desc, termen:x.termen }),
+  prezenta: (x)=> ({ id:x.id, data:x.data, elevi:x.elevi, tipZi:x.tip_zi, obs:x.obs, userId:x.user_id }),
+  mese:     (x)=> ({ id:x.id, data:x.data, micDejun:x.mic_dejun, pranz:x.pranz, cina:x.cina, obs:x.obs, userId:x.user_id }),
+  probleme: (x)=> ({ id:x.id, tip:x.tip, locatie:x.locatie, desc:x.desc, prio:x.prio, status:x.status, userId:x.user_id, rezolvatDe:x.rezolvat_de, creat:x.creat }),
+  fluxuri:  (x)=> ({ id:x.id, tip:x.tip, titlu:x.titlu, responsabilId:x.responsabil_id, userId:x.user_id, termen:x.termen, obs:x.obs, stepCurent:x.step_curent, status:x.status, dataStart:x.data_start, dataFinal:x.data_final, istoricPasi:typeof x.istoric_pasi==='string'?JSON.parse(x.istoric_pasi||'[]'):x.istoric_pasi||[] }),
+};
+
+// ===== LOAD ALL DATA FROM SUPABASE =====
+async function loadFromSupabase() {
+  if(!SUPABASE_ENABLED) return;
+  toast('⏳ Se încarcă datele din baza de date...');
+  
+  const tables = ['cladiri','camere','inventar','furnizori','achizitii','personal','mutari','rezervari','tasks','prezenta','mese','probleme','fluxuri'];
+  const dbKeys = ['cladiri','camere','inventar','furnizori','achizitii','personal','mutari','rezervari','tasks','prezenta','mese','probleme','fluxuri'];
+  
+  for(let i = 0; i < tables.length; i++) {
+    const rows = await sbFetch(tables[i]);
+    if(rows !== null) {
+      DB[dbKeys[i]] = rows.map(r => fromSb[tables[i]] ? fromSb[tables[i]](r) : r);
+    }
+  }
+  toast('✅ Date încărcate din Supabase!');
+  // Re-render current section
+  renderCladiri();
+  renderInventar();
+  updateDashboard();
+}
+
+// ===== SUPABASE SAVE WRAPPER =====
+// Call after any local DB change to sync to Supabase
+async function sbSave(table, localObj, isUpdate = false, localId = null) {
+  if(!SUPABASE_ENABLED) return localObj;
+  const sbRow = toSb[table] ? toSb[table](localObj) : localObj;
+  let result;
+  if(isUpdate && localId) {
+    result = await sbUpdate(table, localId, sbRow);
+  } else {
+    result = await sbInsert(table, sbRow);
+    if(result) localObj.id = result.id; // Use Supabase auto-increment ID
+  }
+  return result;
+}
+
+async function sbSaveIstoric(tip, descriere, user) {
+  if(!SUPABASE_ENABLED) return;
+  await sbInsert('istoric_log', { tip, descriere, user_name: user?.prenume+' '+user?.nume, user_rol: user?.rol });
+}
+
 // ===== STATE =====
 let DB = { cladiri:[], camere:[], inventar:[], furnizori:[], achizitii:[], personal:[], tasks:[] };
 let currentUser = null;
@@ -1861,6 +2118,7 @@ function doLogin() {
   currentUser = {...found, rol: r};
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'flex';
+  initSupabase();
   // Reset ALL nav items visibility before applying role permissions
   document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
   // Reset ALL sections
@@ -2011,6 +2269,7 @@ function nav(id, el) {
   if (id==='aprobari') renderAprobariPending();
   if (id==='istoric') renderIstoric();
   if (id==='internat') { updateIntStatBox(); renderPrezenta(); updateIntBadges(); }
+  if (id==='fluxuri') { renderFluxuri(); updateFluxBadge(); }
   // Close notif panel and sidebar on mobile
   const np = document.getElementById('notifPanel');
   if(np) np.classList.remove('open');
@@ -3602,6 +3861,8 @@ function initApp() {
   DB.mutari = DB.mutari || [];
   DB.rezervari = DB.rezervari || [];
   istoricLog = [];
+  // Load from Supabase if configured
+  if(SUPABASE_ENABLED) { loadFromSupabase(); }
   // Seed some demo istoric
   addIstoricEvent('auth', `Autentificare: ${currentUser.prenume} ${currentUser.nume} (${ROLE_LABELS[currentUser.rol]||currentUser.rol})`, currentUser);
   addIstoricEvent('inventar', 'Inventar inițializat cu date demo CN Vasile Goldiș Arad', {prenume:'Sistem',nume:'',rol:'admin_app',id:0});
@@ -3876,6 +4137,257 @@ function genRaportInternat() {
   win.document.write(html); win.document.close();
   setTimeout(()=>win.print(),500);
   toast('📄 Raport internat generat!');
+}
+
+
+// ===== FLUXURI DE LUCRU =====
+DB.fluxuri = DB.fluxuri || [];
+
+const FLUX_STEPS = {
+  'Achiziție': ['Inițiere cerere','Aprobare bugetară (Contabil)','Aprobare director','Comandă furnizor','Recepție marfă','Inventariere + QR','Înregistrare contabilă'],
+  'Reparație': ['Sesizare defect','Înregistrare sarcină mentenanță','Evaluare tehnică','Decizie reparație/casare','Execuție reparație','Confirmare remediere + actualizare inventar'],
+  'Casare': ['Propunere casare','Evaluare comisie','Aprobare director','Aprobare contabil șef','Scoatere din gestiune','Valorificare / distrugere'],
+  'Transfer': ['Solicitare transfer','Verificare disponibilitate spațiu','Aprobare director','Mutare fizică + PV predare-primire','Actualizare inventar'],
+  'Comandă alimente': ['Estimare pedagog (nr. elevi 5 zile)','Calcul necesar alimente','Aprobare director','Transmitere comandă furnizor','Recepție alimente','Înregistrare cheltuieli contabil']
+};
+
+const FLUX_ICONS = {
+  'Achiziție':'📦','Reparație':'🔧','Casare':'🗑️','Transfer':'🔀','Comandă alimente':'🍽️'
+};
+
+function switchTabFlux(id, el) {
+  ['flux-activ','flux-definite','flux-istoric'].forEach(d => {
+    const el2 = document.getElementById(d);
+    if(el2) el2.style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'block';
+  document.querySelectorAll('#section-fluxuri .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if(id === 'flux-activ') renderFluxuri();
+  if(id === 'flux-istoric') renderFluxFinalizate();
+}
+
+function renderFluxuri() {
+  const tip = document.getElementById('filterFluxTip')?.value || '';
+  const status = document.getElementById('filterFluxStatus')?.value || '';
+  const active = DB.fluxuri.filter(f =>
+    f.status !== 'Finalizat' && f.status !== 'Anulat' &&
+    (!tip || f.tip === tip) &&
+    (!status || f.status === status)
+  );
+  const badge = document.getElementById('fluxActivCount');
+  if(badge) badge.textContent = active.length;
+
+  const list = document.getElementById('fluxuriList');
+  if(!active.length) {
+    list.innerHTML = '<div class="empty" style="padding:40px;grid-column:1/-1"><div class="empty-icon">▶️</div><p>Niciun flux activ. Pornește un flux din tab-ul <strong>Proceduri standard</strong>.</p></div>';
+    return;
+  }
+  list.innerHTML = active.map(f => renderFluxCard(f)).join('');
+}
+
+function renderFluxCard(f) {
+  const steps = FLUX_STEPS[f.tip] || [];
+  const curent = f.stepCurent || 0;
+  const progres = Math.round((curent / steps.length) * 100);
+  const user = DB.personal.find(x=>x.id===f.userId);
+  const resp = DB.personal.find(x=>x.id===f.responsabilId);
+  const statusColors = {'În așteptare':'b-yellow','În lucru':'b-green','Blocat':'b-red'};
+  
+  const stepsHtml = steps.map((s, i) => {
+    let cls = 'pending', icon = '○';
+    if(i < curent) { cls='done'; icon='✓'; }
+    else if(i === curent) { cls='current'; icon='▶'; }
+    return `<div class="flux-step ${cls}"><span class="flux-step-icon">${icon}</span>${s}</div>`;
+  }).join('');
+
+  return `<div class="flux-card">
+    <div class="flux-card-head">
+      <div>
+        <div class="flux-card-title">${FLUX_ICONS[f.tip]||'▶️'} ${f.titlu}</div>
+        <div class="flux-card-meta">${f.tip} · Pornit: ${f.dataStart} · <span class="badge ${statusColors[f.status]||'b-gray'}">${f.status}</span></div>
+        ${resp ? `<div class="flux-card-meta" style="margin-top:2px">👤 Responsabil: ${resp.prenume} ${resp.nume}</div>` : ''}
+        ${f.termen ? `<div class="flux-card-meta">📅 Termen: ${f.termen}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px">
+        ${curent < steps.length && ['admin_app','admin_pat','director','contabil'].includes(currentUser?.rol) ?
+          `<button class="btn btn-teal btn-sm" onclick="avanseazaFlux(${f.id})" title="Avansează la pasul următor">→ Pasul următor</button>` : ''}
+        <button class="btn btn-outline btn-sm" onclick="anuleazaFlux(${f.id})">✕</button>
+      </div>
+    </div>
+    <div class="flux-steps">${stepsHtml}</div>
+    <div class="flux-progress"><div class="flux-progress-bar" style="width:${progres}%"></div></div>
+    <div style="font-size:10px;color:var(--mist);margin-top:4px;text-align:right">Progres: ${curent}/${steps.length} pași (${progres}%)</div>
+    ${f.obs ? `<div style="font-size:11px;color:var(--slate);margin-top:6px;padding:6px 10px;background:var(--surface);border-radius:6px">💬 ${f.obs}</div>` : ''}
+  </div>`;
+}
+
+function renderFluxFinalizate() {
+  const done = DB.fluxuri.filter(f => f.status === 'Finalizat' || f.status === 'Anulat');
+  const t = document.getElementById('fluxFinalizateTable');
+  if(!done.length) { t.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">✅</div><p>Niciun flux finalizat.</p></div></td></tr>'; return; }
+  t.innerHTML = done.map(f => {
+    const user = DB.personal.find(x=>x.id===f.userId);
+    const steps = FLUX_STEPS[f.tip] || [];
+    return `<tr>
+      <td>${FLUX_ICONS[f.tip]||''} ${f.tip}</td>
+      <td>${f.titlu}</td>
+      <td style="font-size:11px">${user?user.prenume+' '+user.nume:'—'}</td>
+      <td>${f.dataStart}</td>
+      <td>${f.dataFinal||'—'}</td>
+      <td style="text-align:center"><span class="badge ${f.status==='Finalizat'?'b-green':'b-red'}">${f.stepCurent||0}/${steps.length}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function openModalFlux(tip) {
+  if(tip) document.getElementById('fluxTip').value = tip;
+  document.getElementById('fluxTitlu').value = '';
+  document.getElementById('fluxObs').value = '';
+  document.getElementById('fluxTermen').value = '';
+  document.getElementById('fluxResponsabil').innerHTML = DB.personal.map(p =>
+    `<option value="${p.id}">${p.prenume} ${p.nume} (${ROLE_LABELS[p.rol]||p.rol})</option>`
+  ).join('');
+  // Default responsabil = admin_pat
+  const ap = DB.personal.find(p=>p.rol==='admin_pat');
+  if(ap) document.getElementById('fluxResponsabil').value = ap.id;
+  updateFluxSteps();
+  openModal('modalFlux');
+}
+
+function startFlux(tip) {
+  openModalFlux(tip);
+}
+
+function updateFluxSteps() {
+  const tip = document.getElementById('fluxTip').value;
+  const steps = FLUX_STEPS[tip] || [];
+  const preview = document.getElementById('fluxStepsPreview');
+  if(preview) preview.innerHTML = '<strong>' + steps.length + ' pași:</strong> ' + steps.map((s,i) => `<span style="color:var(--mist)">${i+1}.</span> ${s}`).join(' → ');
+}
+
+function saveFlux() {
+  const titlu = document.getElementById('fluxTitlu').value;
+  if(!titlu) { toast('⚠️ Completează titlul fluxului!'); return; }
+  const f = {
+    id: Date.now(),
+    tip: document.getElementById('fluxTip').value,
+    titlu,
+    responsabilId: parseInt(document.getElementById('fluxResponsabil').value),
+    termen: document.getElementById('fluxTermen').value,
+    obs: document.getElementById('fluxObs').value,
+    userId: currentUser.id,
+    dataStart: new Date().toLocaleDateString('ro-RO'),
+    stepCurent: 0,
+    status: 'În așteptare',
+    istoricPasi: []
+  };
+  DB.fluxuri.push(f);
+  toast('▶️ Flux pornit: ' + f.titlu);
+  addIstoricEvent('aprobare', 'Flux pornit: ' + f.tip + ' — ' + f.titlu, currentUser);
+  addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat','director','admin_app']);
+  closeModal('modalFlux');
+  // Switch to active tab
+  const tab = document.querySelector('#section-fluxuri .tab');
+  if(tab) switchTabFlux('flux-activ', tab);
+  renderFluxuri();
+  updateFluxBadge();
+}
+
+function avanseazaFlux(id) {
+  const f = DB.fluxuri.find(x=>x.id===id);
+  if(!f) return;
+  const steps = FLUX_STEPS[f.tip] || [];
+  f.stepCurent = (f.stepCurent || 0) + 1;
+  f.status = 'În lucru';
+  const stepName = steps[f.stepCurent - 1] || '';
+  f.istoricPasi = f.istoricPasi || [];
+  f.istoricPasi.push({ pas: f.stepCurent, nume: stepName, data: new Date().toLocaleDateString('ro-RO'), user: currentUser.prenume + ' ' + currentUser.nume });
+  if(f.stepCurent >= steps.length) {
+    f.status = 'Finalizat';
+    f.dataFinal = new Date().toLocaleDateString('ro-RO');
+    toast('✅ Flux finalizat: ' + f.titlu);
+    addNotification('Flux finalizat', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat','director','contabil']);
+  } else {
+    toast('→ Pas ' + f.stepCurent + '/' + steps.length + ' completat: ' + stepName);
+    addNotification('Flux avansat', f.tip + ' — pas ' + f.stepCurent + ': ' + stepName, 'aprobare', ['admin_pat','director']);
+  }
+  addIstoricEvent('aprobare', 'Flux avansat: ' + f.tip + ' — ' + stepName, currentUser);
+  renderFluxuri();
+  updateFluxBadge();
+}
+
+function anuleazaFlux(id) {
+  if(!confirm('Anulezi acest flux?')) return;
+  const f = DB.fluxuri.find(x=>x.id===id);
+  if(!f) return;
+  f.status = 'Anulat';
+  f.dataFinal = new Date().toLocaleDateString('ro-RO');
+  toast('❌ Flux anulat.');
+  addIstoricEvent('aprobare', 'Flux anulat: ' + f.tip + ' — ' + f.titlu, currentUser);
+  renderFluxuri();
+  updateFluxBadge();
+}
+
+function updateFluxBadge() {
+  const active = DB.fluxuri.filter(f => f.status !== 'Finalizat' && f.status !== 'Anulat').length;
+  const b = document.getElementById('fluxActivCount');
+  if(b) b.textContent = active;
+}
+
+
+function saveSupabaseConfig() {
+  const url = document.getElementById('sbUrl').value.trim();
+  const key = document.getElementById('sbKey').value.trim();
+  if(!url || !key) { toast('⚠️ Completează URL-ul și cheia!'); return; }
+  // Update config in code (runtime)
+  window._sbUrl = url;
+  window._sbKey = key;
+  try {
+    sbClient = window.supabase.createClient(url, key);
+    SUPABASE_ENABLED = true;
+    document.getElementById('sbStatusBadge').textContent = '✅ Conectat';
+    document.getElementById('sbStatusBadge').className = 'badge b-green';
+    toast('✅ Supabase conectat! Apasă Sincronizează pentru a urca datele.');
+    document.getElementById('sbTestResult').innerHTML = '<span style="color:var(--teal)">✅ Conexiune stabilită cu succes!</span>';
+  } catch(e) {
+    toast('❌ Eroare conexiune: ' + e.message);
+    document.getElementById('sbTestResult').innerHTML = '<span style="color:var(--rose)">❌ ' + e.message + '</span>';
+  }
+}
+
+async function testSupabaseConnection() {
+  const url = document.getElementById('sbUrl').value.trim();
+  const key = document.getElementById('sbKey').value.trim();
+  if(!url || !key) { toast('⚠️ Completează mai întâi URL și cheia!'); return; }
+  document.getElementById('sbTestResult').innerHTML = '⏳ Se testează conexiunea...';
+  try {
+    const testClient = window.supabase.createClient(url, key);
+    const { data, error } = await testClient.from('cladiri').select('count', {count:'exact',head:true});
+    if(error) throw error;
+    document.getElementById('sbTestResult').innerHTML = '<span style="color:var(--teal)">✅ Conexiune OK! Baza de date este accesibilă.</span>';
+    toast('✅ Conexiune Supabase funcțională!');
+  } catch(e) {
+    document.getElementById('sbTestResult').innerHTML = '<span style="color:var(--rose)">❌ Eroare: ' + e.message + '. Verifică URL, cheia și că ai rulat schema SQL.</span>';
+    toast('❌ Conexiune eșuată!');
+  }
+}
+
+async function syncToSupabase() {
+  if(!SUPABASE_ENABLED) { toast('⚠️ Conectează-te mai întâi la Supabase!'); return; }
+  toast('⬆️ Sincronizare în curs...');
+  const tables = ['cladiri','camere','furnizori','personal','inventar','achizitii','tasks','mutari','rezervari','prezenta','mese','probleme','fluxuri'];
+  let total = 0;
+  for(const tbl of tables) {
+    if(!DB[tbl] || !DB[tbl].length) continue;
+    for(const item of DB[tbl]) {
+      const sbRow = toSb[tbl] ? toSb[tbl](item) : item;
+      const { error } = await sbClient.from(tbl).upsert(sbRow, {onConflict: tbl==='inventar'?'nr_inv':tbl==='personal'?'email':undefined});
+      if(!error) total++;
+    }
+  }
+  toast('✅ ' + total + ' înregistrări sincronizate în Supabase!');
+  addIstoricEvent('import', 'Sincronizare date locale → Supabase: ' + total + ' înregistrări', currentUser);
 }
 
 // Keyboard shortcut for login

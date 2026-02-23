@@ -511,50 +511,167 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 }
 
 /* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE — TOATE DISPOZITIVELE ===== */
+
+/* Tabletă mare (1024px) */
 @media (max-width: 1024px) {
   .sidebar { width: 220px; }
   .main { margin-left: 220px; }
   .stats-row { grid-template-columns: repeat(3,1fr); }
+  .flux-card, #fluxuriList { grid-template-columns: 1fr !important; }
 }
+
+/* Tabletă mică + telefon landscape (768px) */
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); width: 256px; z-index: 200; }
-  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+  /* Sidebar slide-in */
+  .sidebar { 
+    transform: translateX(-100%); 
+    width: 280px; 
+    z-index: 200; 
+    transition: transform 0.25s ease;
+  }
+  .sidebar.open { 
+    transform: translateX(0); 
+    box-shadow: 6px 0 24px rgba(0,0,0,0.4); 
+  }
   .main { margin-left: 0; }
-  .topbar { padding: 12px 16px; }
-  .content { padding: 16px; }
-  .stats-row { grid-template-columns: repeat(2,1fr); gap: 10px; }
-  .form-grid2, .form-grid3 { grid-template-columns: 1fr; }
-  .settings-grid { grid-template-columns: 1fr; }
-  .modal { width: 96vw !important; }
-  .login-left { display: none; }
-  .login-right { width: 100%; padding: 32px 24px; }
-  table { font-size: 12px; }
-  th, td { padding: 8px 10px; }
-  .hamburger { display: flex !important; }
-  #section-import > div { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 480px) {
-  .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-val { font-size: 20px; }
+  
+  /* Topbar */
+  .topbar { padding: 10px 14px; gap: 8px; }
   .topbar-title { font-size: 15px; }
-  .btn { padding: 7px 12px; font-size: 12px; }
-  .filters { gap: 6px; }
-  td:nth-child(n+5) { display: none; }
-  th:nth-child(n+5) { display: none; }
+  .hamburger { display: flex !important; }
+  
+  /* Content */
+  .content { padding: 12px; }
+  
+  /* Stats grid */
+  .stats-row { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .stat-card { padding: 14px; }
+  .stat-val { font-size: 22px; }
+  .stat-label { font-size: 11px; }
+  
+  /* Grids formulare */
+  .form-grid2, .form-grid3, .settings-grid { grid-template-columns: 1fr !important; }
+  
+  /* Modals */
+  .modal { 
+    width: 96vw !important; 
+    max-height: 92vh;
+    overflow-y: auto;
+    margin: 4vh auto;
+  }
+  .modal-overlay { align-items: flex-start; padding-top: 4vh; }
+  
+  /* Login */
+  .login-left { display: none; }
+  .login-right { width: 100%; padding: 28px 20px; border-radius: 0; }
+  .login-screen { min-height: 100vh; }
+  
+  /* Tabele */
+  table { font-size: 12px; }
+  th, td { padding: 7px 8px; }
+  
+  /* Import/Export */
+  #section-import > div { grid-template-columns: 1fr !important; }
+  
+  /* Fluxuri grid */
+  #fluxuriList { grid-template-columns: 1fr !important; }
+  #flux-definite > div { grid-template-columns: 1fr !important; }
+  
+  /* Tabs scroll */
+  .tabs { overflow-x: auto; white-space: nowrap; }
+  
+  /* Filters stack */
+  .filters { flex-wrap: wrap; gap: 6px; }
+  .filters input, .filters select { font-size: 13px; }
+  
+  /* Cards full width */
+  .card-grid-2 { grid-template-columns: 1fr !important; }
+  
+  /* Notificari panel */
+  .notif-panel { width: calc(100vw - 32px); right: 16px; }
+  
+  /* Workflow steps */
+  .flux-card { padding: 12px; }
+  
+  /* Conturi demo login */
+  .login-hint { font-size: 11px; }
+  .login-hint-row { flex-direction: column; gap: 1px; }
 }
+
+/* Telefon portrait (480px) */
+@media (max-width: 480px) {
+  /* Stats 2 coloane */
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .stat-val { font-size: 18px; }
+  
+  /* Butoane mai mici */
+  .btn { padding: 7px 10px; font-size: 12px; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+  
+  /* Topbar compact */
+  .topbar-title { font-size: 13px; }
+  .topbar-right { gap: 6px; }
+  #autosaveIndicator { display: none; }
+  
+  /* Tabele — ascunde coloane de la 5 în sus */
+  td:nth-child(n+5), th:nth-child(n+5) { display: none; }
+  
+  /* Content padding mai mic */
+  .content { padding: 8px; }
+  
+  /* Card header flex wrap */
+  .card-header { flex-wrap: wrap; gap: 6px; }
+  
+  /* Workflow steps font */
+  .workflow-step { padding: 8px 10px; font-size: 12px; }
+  .ws-num { width: 22px; height: 22px; font-size: 11px; flex-shrink: 0; }
+  
+  /* Tabs scroll cu font mai mic */
+  .tab { font-size: 12px; padding: 8px 12px; }
+  
+  /* Approval cards */
+  .approval-card { padding: 12px; }
+  
+  /* Modals full screen pe telefon mic */
+  .modal { 
+    width: 100vw !important; 
+    min-height: 100vh;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+  .modal-overlay { padding: 0; align-items: flex-start; }
+}
+
+/* Hamburger button */
 .hamburger {
   display: none;
   flex-direction: column;
   gap: 5px;
   cursor: pointer;
-  padding: 6px;
+  padding: 6px 8px;
   border-radius: 8px;
   background: var(--surface);
   border: 1px solid var(--border);
-  margin-right: 10px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
-.hamburger span { width: 20px; height: 2px; background: var(--ink); border-radius: 2px; display: block; transition: all 0.2s; }
-.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 150; }
+.hamburger span { 
+  width: 20px; height: 2px; 
+  background: var(--ink); 
+  border-radius: 2px; 
+  display: block; 
+  transition: all 0.2s; 
+}
+
+/* Sidebar overlay */
+.sidebar-overlay { 
+  display: none; 
+  position: fixed; inset: 0; 
+  background: rgba(0,0,0,0.5); 
+  z-index: 150; 
+  backdrop-filter: blur(2px);
+}
 .sidebar-overlay.open { display: block; }
 
 /* ===== NOTIFICARI ===== */
@@ -621,7 +738,17 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 .sidebar::-webkit-scrollbar-track { background: transparent; }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
 .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+#autosaveIndicator { pointer-events:none; }
 </style>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PatrimoNet">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d1117'/><text y='.9em' font-size='80'>🏛️</text></svg>">
 </head>
 <body>
 
@@ -768,7 +895,11 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       <div class="user-name" id="userName">Administrator</div>
       <div class="user-role" id="userRoleLabel">Admin Aplicație</div>
     </div>
-    <div class="logout-btn" onclick="logout()" title="Deconectare">⏻</div>
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);margin-top:auto">
+    <button onclick="logout()" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;transition:all 0.15s" onmouseover="this.style.background='rgba(239,68,68,0.15)';this.style.color='#f87171'" onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.color='rgba(255,255,255,0.7)'">
+      <span style="font-size:16px">⏻</span> Deconectare
+    </button>
+  </div>
   </div>
 </aside>
 
@@ -784,6 +915,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       </div>
     </div>
     <div class="topbar-right">
+    <div id="autosaveIndicator" style="font-size:11px;color:var(--teal);opacity:0;transition:opacity 0.5s;margin-right:8px">✓ Salvat</div>
       <div class="topbar-notif" onclick="toggleNotifPanel()" id="notifBell" style="position:relative;cursor:pointer;font-size:18px;padding:4px">
         🔔<div class="notif-dot" id="notifDot" style="display:none"></div>
         <span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-6px;background:var(--rose);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px">0</span>
@@ -2372,6 +2504,7 @@ function saveCladire() {
   if (id) { const i = DB.cladiri.findIndex(x=>x.id==id); DB.cladiri[i]=c; }
   else DB.cladiri.push(c);
   toast('✅ Clădire salvată!');
+  sbAutoSave('cladiri', DB.cladiri[DB.cladiri.length-1]).then(toastSave);
   closeModal('modalCladire');
   addActivity('Clădire salvată: '+c.cod+' — '+c.nume,'gold');
   renderCladiri();
@@ -2453,6 +2586,7 @@ function saveCamera() {
   if (id) { const i=DB.camere.findIndex(x=>x.id==id); DB.camere[i]=c; }
   else DB.camere.push(c);
   toast('✅ Cameră salvată!');
+  sbAutoSave('camere', DB.camere[DB.camere.length-1]).then(toastSave);
   closeModal('modalCamera');
   renderCamere();
 }
@@ -3254,7 +3388,15 @@ function exportRaportPDF(tip) {
       <div style="font-size:11px;color:#666">Data: ${new Date().toLocaleDateString('ro-RO')} · Total bunuri: ${DB.inventar.length} · Valoare totală: ${valTot.toLocaleString('ro-RO')} RON</div>
     </div>
     ${continut}
-    </body></html>`;
+    
+  <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body></html>`;
   
   const win = window.open('', '_blank');
   win.document.write(html);
@@ -3841,7 +3983,15 @@ function genAudit(tip) {
     <table><thead><tr><th>Data/Ora</th><th>Tip</th><th>Descriere</th><th>Utilizator</th><th>Rol</th></tr></thead>
     <tbody>${items.map(e=>`<tr><td>${e.timestamp}</td><td>${e.tip}</td><td>${e.descriere}</td><td>${e.user}</td><td>${e.rol}</td></tr>`).join('')}</tbody></table>
     <div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: ${items.length} evenimente · PatrimoNet — CN Vasile Goldiș Arad</div>
-    </body></html>`;
+    
+  <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body></html>`;
   const win = window.open('','_blank');
   win.document.write(html); win.document.close();
   setTimeout(()=>win.print(),500);
@@ -3926,6 +4076,7 @@ function savePrezenta() {
     DB.prezenta.push({id:Date.now(), data, elevi:nr, tipZi, obs, userId:currentUser.id, creat:new Date().toLocaleString('ro-RO')});
   }
   toast('✅ Prezența salvată!');
+  sbAutoSave('prezenta', DB.prezenta[DB.prezenta.length-1]).then(toastSave);
   addIstoricEvent('internat', 'Prezență internat: ' + nr + ' elevi pe ' + data + ' (' + tipZi + ')', currentUser);
   updateIntStatBox();
   renderPrezenta();
@@ -3974,6 +4125,7 @@ function saveMese() {
     DB.mese.push({id:Date.now(),data,micDejun:md,pranz:pr,cina:ci,obs,userId:currentUser.id,creat:new Date().toLocaleString('ro-RO')});
   }
   toast('✅ Mese salvate!');
+  sbAutoSave('mese', DB.mese[DB.mese.length-1]).then(toastSave);
   addIstoricEvent('internat','Mese cantină: MicDejun='+md+' Prânz='+pr+' Cină='+ci+' pe '+data, currentUser);
   updateMeseStat();
   renderMese();
@@ -4035,7 +4187,8 @@ function saveProblema() {
     creat:new Date().toLocaleDateString('ro-RO'),
     creatTime:new Date().toLocaleString('ro-RO')
   });
-  toast('✅ Sesizare trimisă! Admin patrimoniu și mentenanța au fost notificate.');
+  toast('✅ Sesizare trimisă!');
+  sbAutoSave('probleme', DB.probleme[DB.probleme.length-1]).then(toastSave);
   addNotification('Sesizare nouă internat', prio+' · '+tip+' · '+locatie, 'mentenanta', ['admin_pat','mentenanta','admin_app']);
   addIstoricEvent('mentenanta','Sesizare internat: '+tip+' la '+locatie+' ('+prio+')', currentUser);
   closeModal('modalProblema');
@@ -4140,7 +4293,15 @@ function genRaportInternat() {
     <div style="text-align:center"><div style="margin-bottom:30px">Administrator patrimoniu</div><div>Oance Carmen Mihaela</div><div>_______________________</div></div>
     <div style="text-align:center"><div style="margin-bottom:30px">Director</div><div>Ioja Petronela Angela</div><div>_______________________</div></div>
   </div>
-  </body></html>`;
+  
+  <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body></html>`;
   const win=window.open('','_blank');
   win.document.write(html); win.document.close();
   setTimeout(()=>win.print(),500);
@@ -4292,6 +4453,7 @@ function saveFlux() {
   };
   DB.fluxuri.push(f);
   toast('▶️ Flux pornit: ' + f.titlu);
+  sbAutoSave('fluxuri', DB.fluxuri[DB.fluxuri.length-1]).then(toastSave);
   addIstoricEvent('aprobare', 'Flux pornit: ' + f.tip + ' — ' + f.titlu, currentUser);
   addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat','director','admin_app']);
   closeModal('modalFlux');
@@ -4533,8 +4695,59 @@ async function syncAllToSupabase() {
   if(total > 0) addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
 }
 
+
+// ===== AUTOSAVE SUPABASE =====
+// Salvează automat orice modificare în Supabase fără să fie nevoie de sync manual
+
+async function sbAutoSave(tbl, localObj) {
+  if(!SUPABASE_ENABLED || !sbClient) return;
+  try {
+    const mapper = toSb[tbl];
+    const row = mapper ? mapper(localObj) : {...localObj};
+    // Curăță undefined
+    Object.keys(row).forEach(k => row[k] === undefined && delete row[k]);
+    
+    if(localObj._sbId) {
+      // Update existent
+      await sbClient.from(tbl).update(row).eq('id', localObj._sbId);
+    } else {
+      // Insert nou
+      const { data, error } = await sbClient.from(tbl).insert(row).select('id').single();
+      if(!error && data) localObj._sbId = data.id;
+    }
+  } catch(e) {
+    console.warn('AutoSave error:', tbl, e.message);
+  }
+}
+
+async function sbAutoDelete(tbl, sbId) {
+  if(!SUPABASE_ENABLED || !sbClient || !sbId) return;
+  try {
+    await sbClient.from(tbl).delete().eq('id', sbId);
+  } catch(e) {
+    console.warn('AutoDelete error:', tbl, e.message);
+  }
+}
+
+// Toast discret pentru autosave (nu întrerupe utilizatorul)
+function toastSave() {
+  const el = document.getElementById('autosaveIndicator');
+  if(!el) return;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
 // Keyboard shortcut for login
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
 </script>
+
+  <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

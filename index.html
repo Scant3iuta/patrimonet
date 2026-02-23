@@ -2902,7 +2902,7 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 function renderTasks(data) {
   const openItems=(data||DB.tasks).filter(t=>['deschis','Deschisă','deschisa'].includes(t.status));
   const doneItems=(data||DB.tasks).filter(t=>['finalizat','Finalizată','finalizata'].includes(t.status));
-  const pColors={Înaltă:'tp-high',Medie:'tp-med',Scăzută:'tp-low'};
+  const pColors={'Înaltă':'tp-high','Medie':'tp-med','Scăzută':'tp-low','High':'tp-high','Medium':'tp-med'};
   const renderList=(items,containerId)=>{
     const c=document.getElementById(containerId);
     if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
@@ -2912,16 +2912,16 @@ function renderTasks(data) {
       const cam=DB.camere.find(x=>x.id===t.cameraId);
       const cld=DB.cladiri.find(x=>x.id===t.cladireId);
       return `<div class="task-row">
-        <div class="task-priority ${pColors[t.prio]||'tp-low'}"></div>
+        <div class="task-priority ${pColors[t.prioritate||t.prio]||'tp-low'}"></div>
         <div class="task-info">
-          <div class="task-title">${t.title}</div>
+          <div class="task-title">${t.titlu||t.title||"—"}</div>
           <div class="task-meta">📍 ${cld?cld.cod:'—'} / ${cam?cam.cod:'—'} &nbsp;|&nbsp; ⏰ Termen: ${t.termen||'—'}</div>
           <div style="font-size:11px;color:var(--mist);margin-top:3px">${t.desc}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
           <span class="task-assign">👤 ${per?per.prenume+' '+per.nume:'Neatribuit'}</span>
-          <span class="badge ${t.prio==='Înaltă'?'b-red':t.prio==='Medie'?'b-yellow':'b-green'}">${t.prio}</span>
-          ${t.status==='deschis'?`<button class="btn btn-teal btn-sm" onclick="finishTask(${t.id})">✓ Finalizat</button>`:''}
+          <span class="badge ${(t.prioritate||t.prio)==='Înaltă'?'b-red':(t.prioritate||t.prio)==='Medie'?'b-yellow':'b-green'}">${t.prioritate||t.prio||'—'}</span>
+          ${['deschis','Deschisă','deschisa'].includes(t.status)?`<button class="btn btn-teal btn-sm" onclick="completeTask(${t.id})">✓ Finalizat</button>`:''}
           <button class="btn btn-danger btn-sm" onclick="deleteTask(${t.id})">🗑️</button>
         </div>
       </div>`;
@@ -2933,7 +2933,7 @@ function renderTasks(data) {
 }
 function filterTasks(q){
   const s=(q||'').toLowerCase();const p=document.getElementById('filterPriority').value;
-  renderTasks(DB.tasks.filter(t=>(!s||t.title.toLowerCase().includes(s))&&(!p||t.prio===p)));
+  renderTasks(DB.tasks.filter(t=>(!s||(t.titlu||t.title||'').toLowerCase().includes(s))&&(!p||t.prioritate===p||t.prio===p)));
 }
 function openModalTask(){
   populateCladireSelects();

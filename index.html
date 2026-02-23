@@ -2200,33 +2200,36 @@ async function loadFromSupabase() {
       console.log('Supabase table empty, keeping local:', tbl);
     }
   }
+  // 1. Dedup + normalize FIRST
+  const cldSeen = {}; 
+  DB.cladiri = DB.cladiri.filter(c => { if(cldSeen[c.cod]) return false; cldSeen[c.cod]=true; return true; });
+  const perSeen = {};
+  DB.personal = DB.personal.filter(p => { if(perSeen[p.email]) return false; perSeen[p.email]=true; return true; });
+  const invSeen = {};
+  DB.inventar = DB.inventar.filter(b => { if(invSeen[b.nrInv]) return false; invSeen[b.nrInv]=true; return true; });
+  DB.inventar.forEach(b => { b.qty = parseInt(b.qty)||1; b.val = parseFloat(b.val)||0; });
+  // Normalize task status
+  DB.tasks.forEach(t => {
+    t.titlu = t.titlu || t.title || (t.desc ? t.desc.substring(0,50) : '') || '—';
+    t.status = {'deschis':'Deschisă','deschisa':'Deschisă','finalizat':'Finalizată','finalizata':'Finalizată'}[t.status] || t.status || 'Deschisă';
+    t.prioritate = t.prioritate || t.prio || 'Medie';
+  });
+  _supabaseLoaded = true;
+  
+  // 2. Then render everything
   toast('✅ Date încărcate din Supabase!');
-  // Render all active UI sections
   renderCladiri();
   renderInventar();
   renderTasks();
   renderFurnizori();
   renderAchizitii();
-  renderMutari ? renderMutari() : null;
-  renderRezervari ? renderRezervari() : null;
+  typeof renderMutari === 'function' && renderMutari();
+  typeof renderRezervari === 'function' && renderRezervari();
   renderPersonal();
   updateDashboard();
   updateBadges();
-  updateAprobari ? updateAprobari() : null;
-  renderAprobariPending ? renderAprobariPending() : null;
-  // Deduplicate cladiri by cod (keep lowest id)
-  const cldSeen = {}; 
-  DB.cladiri = DB.cladiri.filter(c => { if(cldSeen[c.cod]) return false; cldSeen[c.cod]=true; return true; });
-  // Deduplicate personal by email
-  const perSeen = {};
-  DB.personal = DB.personal.filter(p => { if(perSeen[p.email]) return false; perSeen[p.email]=true; return true; });
-  // Deduplicate inventar by nrInv
-  const invSeen = {};
-  DB.inventar = DB.inventar.filter(b => { if(invSeen[b.nrInv]) return false; invSeen[b.nrInv]=true; return true; });
-  // Normalize all inventar qty/val
-  DB.inventar.forEach(b => { b.qty = parseInt(b.qty)||1; b.val = parseFloat(b.val)||0; });
-  _supabaseLoaded = true;
-  console.log('✅ Toate datele din Supabase încărcate și afișate');
+  typeof renderAprobariPending === 'function' && renderAprobariPending();
+  console.log('✅ Toate datele din Supabase încărcate și afișate. Tasks:', DB.tasks.length);
 }
 
 // ===== SUPABASE SAVE WRAPPER =====

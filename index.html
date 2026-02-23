@@ -1985,7 +1985,7 @@ async function sbDelete(table, id) {
 // Convert local object → supabase row
 const toSb = {
   cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||null }),
-  camere:  (x) => ({ cladire_id:x.cladireId, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj||0, suprafata:x.sup||null, responsabil:x.resp||'', capacitate:x.cap||null }),
+  camere:  (x) => ({ cladire_id:x.cladireId||null, cod:x.cod, nume:x.nume, tip:x.tip||'', etaj:parseInt(x.etaj)||0, suprafata:parseFloat(x.sup)||null, responsabil:x.responsabil||x.resp||'', capacitate:parseInt(x.cap)||null }),
   inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:null, camera_id:null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, data_pif:x.dataPIF||null, furnizor_id:null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.obs||'' }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
   achizitii:(x)=> ({ nr_doc:x.nrDoc||'', tip_doc:x.tipDoc||'', data_doc:x.dataDoc||null, furnizor_id:x.furnizorId||null, descriere:x.descriere||'', val:x.val||0, status:x.status||'Recepționat', user_id:x.userId||null }),
@@ -2202,18 +2202,18 @@ function seedData() {
     {id:2,cod:'CLD-B',nume:'Clădirea B — Ioan Slavici',adresa:'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)',etaje:3,an:1965,resp:'Admin. patrimoniu'},
   ];
   DB.camere = [
-    {id:1,cod:'A-P01',nr:'P01',tip:'Birou',nume:'Birou Director',cladireId:1,etaj:'Parter',resp:'Dir. Ioja Petronela Angela',sup:24},
-    {id:2,cod:'A-P02',nr:'P02',tip:'Birou',nume:'Secretariat',cladireId:1,etaj:'Parter',resp:'Secretar șef',sup:30},
-    {id:3,cod:'A-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101',cladireId:1,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
-    {id:4,cod:'A-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102',cladireId:1,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
-    {id:5,cod:'A-LAB-I',nr:'301',tip:'Laborator',nume:'Laborator Informatică',cladireId:1,etaj:'Etaj 3',resp:'Prof. informatică',sup:40},
-    {id:6,cod:'A-LAB-F',nr:'201',tip:'Laborator',nume:'Laborator Fizică',cladireId:1,etaj:'Etaj 2',resp:'Prof. fizică',sup:52},
-    {id:7,cod:'A-CAN',nr:'SS1',tip:'Auxiliar',nume:'Cantină',cladireId:1,etaj:'Subsol',resp:'Admin. patrimoniu',sup:120},
-    {id:8,cod:'B-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101 — Clăd. B',cladireId:2,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
-    {id:9,cod:'B-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102 — Clăd. B',cladireId:2,etaj:'Etaj 1',resp:'Prof. diriginte',sup:54},
-    {id:10,cod:'B-SPORT',nr:'S1',tip:'Sală sport',nume:'Sală de Sport',cladireId:2,etaj:'Parter',resp:'Prof. sport',sup:400},
-    {id:11,cod:'B-INT',nr:'INT',tip:'Auxiliar',nume:'Internat',cladireId:2,etaj:'Etaj 2',resp:'Admin. patrimoniu',sup:600},
-    {id:12,cod:'A-BIB',nr:'BIB',tip:'Auxiliar',nume:'Bibliotecă',cladireId:1,etaj:'Etaj 1',resp:'Bibliotecar',sup:80},
+    {id:1,cod:'A-P01',nr:'P01',tip:'Birou',nume:'Birou Director',cladireId:1,etaj:0,resp:'Dir. Ioja Petronela Angela',sup:24},
+    {id:2,cod:'A-P02',nr:'P02',tip:'Birou',nume:'Secretariat',cladireId:1,etaj:0,resp:'Secretar șef',sup:30},
+    {id:3,cod:'A-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101',cladireId:1,etaj:1,resp:'Prof. diriginte',sup:54},
+    {id:4,cod:'A-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102',cladireId:1,etaj:1,resp:'Prof. diriginte',sup:54},
+    {id:5,cod:'A-LAB-I',nr:'301',tip:'Laborator',nume:'Laborator Informatică',cladireId:1,etaj:3,resp:'Prof. informatică',sup:40},
+    {id:6,cod:'A-LAB-F',nr:'201',tip:'Laborator',nume:'Laborator Fizică',cladireId:1,etaj:2,resp:'Prof. fizică',sup:52},
+    {id:7,cod:'A-CAN',nr:'SS1',tip:'Auxiliar',nume:'Cantină',cladireId:1,etaj:-1,resp:'Admin. patrimoniu',sup:120},
+    {id:8,cod:'B-101',nr:'101',tip:'Sală de clasă',nume:'Sala 101 — Clăd. B',cladireId:2,etaj:1,resp:'Prof. diriginte',sup:54},
+    {id:9,cod:'B-102',nr:'102',tip:'Sală de clasă',nume:'Sala 102 — Clăd. B',cladireId:2,etaj:1,resp:'Prof. diriginte',sup:54},
+    {id:10,cod:'B-SPORT',nr:'S1',tip:'Sală sport',nume:'Sală de Sport',cladireId:2,etaj:0,resp:'Prof. sport',sup:400},
+    {id:11,cod:'B-INT',nr:'INT',tip:'Auxiliar',nume:'Internat',cladireId:2,etaj:2,resp:'Admin. patrimoniu',sup:600},
+    {id:12,cod:'A-BIB',nr:'BIB',tip:'Auxiliar',nume:'Bibliotecă',cladireId:1,etaj:1,resp:'Bibliotecar',sup:80},
   ];
   DB.inventar = [
     {id:1,nrInv:'CNVG-A-1001',nume:'Tablă interactivă SMART 86"',cat:'Tehnologie IT',cladireId:1,cameraId:5,qty:8,val:56000,stare:'Funcțional',data:'2023-09-01',furnId:1,desc:'SMART Board MX286'},

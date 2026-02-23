@@ -2195,8 +2195,9 @@ async function loadFromSupabase() {
         const obj = fromSb[tbl] ? fromSb[tbl](r) : {...r, _loaded:true};
         return obj;
       });
+      if(tbl === 'tasks') console.log('TASKS from SB:', DB.tasks.map(t=>({id:t.id,titlu:t.titlu,assignId:t.assignId,status:t.status})));
+      if(tbl === 'personal') console.log('PERSONAL from SB:', DB.personal.map(p=>({id:p.id,email:p.email,loaded:p._loaded})));
     } else if(rows !== null && rows.length === 0) {
-      // Table is empty in Supabase - keep local data
       console.log('Supabase table empty, keeping local:', tbl);
     }
   }

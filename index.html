@@ -1293,7 +1293,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
     <div class="section" id="section-furnizori">
       <div class="filters">
         <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută furnizor..." oninput="filterFurnizori(this.value)"></div>
-        <button class="btn btn-primary" onclick="openModal('modalFurnizor')">+ Adaugă furnizor</button>
+        <button class="btn btn-primary" onclick="document.getElementById('furnEditId').value='';document.getElementById('furnCuiSearch').value='';document.getElementById('anafStatus').textContent='Introdu CUI-ul și apasă Caută pentru completare automată';openModal('modalFurnizor')">+ Adaugă furnizor</button>
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">🤝 Furnizori</span><span style="font-size:11px;color:var(--mist)" id="furnCount">0</span></div>
@@ -1792,11 +1792,20 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
         <div class="form-row"><label>Cameră</label><select id="bunCamera"></select></div>
       </div>
       <div class="form-grid3">
-        <div class="form-row"><label>Cantitate</label><input type="number" id="bunQty" value="1" min="1"></div>
+        <div class="form-row"><label>Cantitate totală</label><input type="number" id="bunQty" value="1" min="1" onchange="toggleLocatiiMultiple()"></div>
         <div class="form-row"><label>Valoare unitară (RON)</label><input type="number" id="bunVal" placeholder="0.00" min="0" step="0.01"></div>
         <div class="form-row"><label>Stare</label>
           <select id="bunStare"><option>Funcțional</option><option>Necesită reparații</option><option>Casat</option></select>
         </div>
+      </div>
+      <!-- Distribuire locații multiple -->
+      <div id="locatiiMultipleSection" style="display:none;background:var(--surface);border-radius:10px;padding:14px;margin-top:4px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:600;color:var(--mist)">📍 DISTRIBUIRE PE LOCAȚII</div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="adaugaLocatie()">+ Adaugă locație</button>
+        </div>
+        <div id="locatiiList"></div>
+        <div id="locatiiSumar" style="font-size:11px;color:var(--mist);margin-top:8px"></div>
       </div>
       <div class="form-grid2">
         <div class="form-row"><label>Data achiziției</label><input type="date" id="bunData"></div>
@@ -1817,20 +1826,34 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
     <div class="modal-head"><span class="modal-title">Furnizor</span><span class="modal-close" onclick="closeModal('modalFurnizor')">✕</span></div>
     <div class="modal-body">
       <input type="hidden" id="furnEditId">
+      <!-- ANAF Lookup -->
+      <div style="background:var(--surface);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;color:var(--mist);margin-bottom:8px">🔍 CAUTĂ AUTOMAT DIN ANAF</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="furnCuiSearch" placeholder="Introdu CUI / CIF (ex: 12345678)" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font-size:13px" onkeydown="if(event.key==='Enter')cautaANAF()">
+          <button class="btn btn-primary" onclick="cautaANAF()" id="btnAnaf" style="white-space:nowrap">🔍 Caută ANAF</button>
+        </div>
+        <div id="anafStatus" style="font-size:11px;margin-top:6px;color:var(--mist)">Introdu CUI-ul și apasă Caută pentru completare automată</div>
+      </div>
       <div class="form-grid2">
         <div class="form-row"><label>Denumire companie</label><input type="text" id="furnNume" placeholder="S.C. ..."></div>
         <div class="form-row"><label>CUI / CIF</label><input type="text" id="furnCui" placeholder="RO12345678"></div>
       </div>
       <div class="form-grid2">
-        <div class="form-row"><label>Categorie produse</label>
-          <select id="furnCat"><option>Mobilier</option><option>Tehnologie IT</option><option>Papetărie</option><option>Curățenie</option><option>Laborator</option><option>Diverse</option></select>
-        </div>
-        <div class="form-row"><label>Persoană contact</label><input type="text" id="furnContact" placeholder="Nume prenume"></div>
+        <div class="form-row"><label>Adresă</label><input type="text" id="furnAdresa" placeholder="Str. ..., nr. ..."></div>
+        <div class="form-row"><label>Județ / Localitate</label><input type="text" id="furnJudet" placeholder="Arad"></div>
       </div>
       <div class="form-grid2">
-        <div class="form-row"><label>Telefon</label><input type="text" id="furnTel" placeholder="07xx xxx xxx"></div>
-        <div class="form-row"><label>Email</label><input type="text" id="furnEmail" placeholder="email@firma.ro"></div>
+        <div class="form-row"><label>Categorie produse</label>
+          <select id="furnCat"><option>Mobilier</option><option>Tehnologie IT</option><option>Papetărie</option><option>Curățenie</option><option>Laborator</option><option>Alimente</option><option>Diverse</option></select>
+        </div>
+        <div class="form-row"><label>Stare TVA</label><input type="text" id="furnTva" placeholder="—" readonly style="background:var(--surface)"></div>
       </div>
+      <div class="form-grid2">
+        <div class="form-row"><label>Persoană contact</label><input type="text" id="furnContact" placeholder="Nume prenume"></div>
+        <div class="form-row"><label>Telefon</label><input type="text" id="furnTel" placeholder="07xx xxx xxx"></div>
+      </div>
+      <div class="form-row"><label>Email</label><input type="text" id="furnEmail" placeholder="email@firma.ro"></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('modalFurnizor')">Anulează</button>
@@ -2627,6 +2650,11 @@ function renderInventar(data) {
       <td><code style="background:var(--surface);padding:2px 6px;border-radius:5px;font-size:11px;font-weight:700">${b.nrInv}</code></td>
       <td><strong>${b.nume}</strong><div style="font-size:11px;color:var(--mist)">${b.desc||''}</div></td>
       <td><span class="badge b-blue">${b.cat}</span></td>
+      <td style="text-align:center">
+        <span style="font-weight:700;font-size:14px">${parseInt(b.qty)||1}</span>
+        <span style="font-size:10px;color:var(--mist)"> buc</span>
+        ${b.locatii&&b.locatii.length>1?`<div style="font-size:10px;color:var(--teal);cursor:pointer" onclick="showLocatii(${b.id})">📍 ${b.locatii.length} locații</div>`:''}
+      </td>
       <td style="font-size:12px">${cld?cld.cod:'—'} / ${cam?cam.cod:'—'}<div style="font-size:10px;color:var(--mist)">${cam?cam.etaj:'—'}</div></td>
       <td>${b.qty}</td>
       <td>${Number(b.val).toLocaleString('ro-RO')} RON</td>
@@ -2838,9 +2866,25 @@ function saveAchizitie(){
   const a={id:id?parseInt(id):Date.now(),produs:document.getElementById('achProdus').value,furnId:parseInt(document.getElementById('achFurn').value),qty:parseInt(document.getElementById('achQty').value)||1,val:parseFloat(document.getElementById('achVal').value)||0,data:document.getElementById('achData').value,status:document.getElementById('achStatus').value,aprobare:document.getElementById('achAprobare').value,note:document.getElementById('achNote').value};
   if(!a.produs){toast('⚠️ Completează produsul!');return;}
   if(id){const i=DB.achizitii.findIndex(x=>x.id==id);DB.achizitii[i]=a;}else DB.achizitii.push(a);
-  toast('✅ Achiziție salvată!');closeModal('modalAchizitie');
+  // Dacă valoare > 5000 RON sau marcheat "Necesită aprobare director" → adaugă în aprobări
+  if(a.val > 5000 || a.aprobare === 'director') {
+    DB.aprobari = DB.aprobari || [];
+    DB.aprobari.push({
+      id: Date.now(), tip: 'achizitie', achId: a.id,
+      titlu: 'Achiziție: ' + a.produs,
+      descriere: 'Valoare: ' + a.val.toLocaleString('ro-RO') + ' RON — necesită aprobare director',
+      status: 'pending', userId: currentUser?.id,
+      dataCreare: new Date().toLocaleDateString('ro-RO')
+    });
+    addNotification('Aprobare necesară', 'Achiziție ' + a.produs + ' — ' + a.val.toLocaleString('ro-RO') + ' RON', 'aprobare', ['director','admin_app','admin_pat']);
+    toast('✅ Achiziție salvată și trimisă spre aprobare director!');
+  } else {
+    toast('✅ Achiziție salvată!');
+  }
+  closeModal('modalAchizitie');
   document.getElementById('achEditId').value='';addActivity('Achiziție: '+a.produs,'sky');
-  renderAchizitii();updateBadges();
+  sbAutoSave('achizitii', a).then(()=>{});
+  renderAchizitii();updateBadges();updateAprobari();
 }
 function editAch(id){
   const a=DB.achizitii.find(x=>x.id===id);
@@ -2856,14 +2900,15 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 
 // ===== TASKS =====
 function renderTasks(data) {
-  const openItems=(data||DB.tasks).filter(t=>t.status==='deschis');
-  const doneItems=(data||DB.tasks).filter(t=>t.status==='finalizat');
+  const openItems=(data||DB.tasks).filter(t=>['deschis','Deschisă','deschisa'].includes(t.status));
+  const doneItems=(data||DB.tasks).filter(t=>['finalizat','Finalizată','finalizata'].includes(t.status));
   const pColors={Înaltă:'tp-high',Medie:'tp-med',Scăzută:'tp-low'};
   const renderList=(items,containerId)=>{
     const c=document.getElementById(containerId);
     if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
     c.innerHTML=items.map(t=>{
       const per=DB.personal.find(x=>x.id===t.assignId);
+      const canAssign = currentUser && ['admin_app','admin_pat','director'].includes(currentUser.rol);
       const cam=DB.camere.find(x=>x.id===t.cameraId);
       const cld=DB.cladiri.find(x=>x.id===t.cladireId);
       return `<div class="task-row">
@@ -3815,9 +3860,11 @@ function renderRezAprobari() {
 
 // ===== APROBARI GENERALE =====
 function updateAprobari() {
+  DB.aprobari = DB.aprobari || [];
   const mutPending = DB.mutari.filter(m => m.status==='În așteptare aprobare').length;
   const rezPending = DB.rezervari.filter(r => r.status==='În așteptare aprobare').length;
-  const total = mutPending + rezPending;
+  const achPending = DB.aprobari.filter(a => a.status==='pending').length;
+  const total = mutPending + rezPending + achPending;
   const ab = document.getElementById('aprobariBadge');
   ab.textContent = total; ab.style.display = total > 0 ? 'inline' : 'none';
   document.getElementById('rezAprobCount').textContent = rezPending;
@@ -3832,11 +3879,29 @@ function renderAprobariPending() {
   if (!list) return;
   const mutPending = DB.mutari.filter(m => m.status==='În așteptare aprobare');
   const rezPending = DB.rezervari.filter(r => r.status==='În așteptare aprobare');
-  if (!mutPending.length && !rezPending.length) {
+  const achPending = (DB.aprobari||[]).filter(a => a.status==='pending');
+  if (!mutPending.length && !rezPending.length && !achPending.length) {
     list.innerHTML = '<div class="empty" style="padding:40px"><div class="empty-icon">✅</div><p>Nicio aprobare în așteptare!</p></div>';
     return;
   }
   let html = '';
+  // Achizitii pending
+  achPending.forEach(a => {
+    const user = DB.personal.find(x=>x.id===a.userId);
+    html += `<div class="approval-card pending" style="margin:8px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:600">📦 ${a.titlu}</div>
+          <div style="font-size:12px;color:var(--mist)">${a.descriere}</div>
+          <div style="font-size:11px;color:var(--slate)">Solicitat de: ${user?user.prenume+' '+user.nume:'—'} · ${a.dataCreare||''}</div>
+        </div>
+        <div class="approval-actions">
+          <button class="btn btn-teal btn-sm" onclick="aprobaAchizitie(${a.id},true)">✓ Aprobă</button>
+          <button class="btn btn-danger btn-sm" onclick="aprobaAchizitie(${a.id},false)">✗ Respinge</button>
+        </div>
+      </div>
+    </div>`;
+  });
   mutPending.forEach(m => {
     const b = DB.inventar.find(x=>x.id===m.bunId);
     const user = DB.personal.find(x=>x.id===m.userId);
@@ -4175,8 +4240,20 @@ function saveProblema() {
     creat:new Date().toLocaleDateString('ro-RO'),
     creatTime:new Date().toLocaleString('ro-RO')
   });
-  toast('✅ Sesizare trimisă!');
-  sbAutoSave('probleme', DB.probleme[DB.probleme.length-1]).then(toastSave);
+  const newProblema = DB.probleme[DB.probleme.length-1];
+  sbAutoSave('probleme', newProblema).then(()=>{});
+  // Creează automat task de mentenanță din sesizare
+  const autoTask = {
+    id: Date.now()+1, titlu: 'Sesizare: ' + newProblema.desc.substring(0,50),
+    prioritate: newProblema.prio||'Medie', status: 'Deschisă',
+    cameraId: null, bunId: null, assignId: null, userId: currentUser?.id,
+    desc: newProblema.desc + ' (locație: ' + (newProblema.locatie||'—') + ')',
+    termen: null, dinSesizare: true
+  };
+  DB.tasks = DB.tasks || [];
+  DB.tasks.push(autoTask);
+  sbAutoSave('tasks', autoTask).then(()=>{});
+  toast('✅ Sesizare trimisă și task de mentenanță creat automat!');
   addNotification('Sesizare nouă internat', prio+' · '+tip+' · '+locatie, 'mentenanta', ['admin_pat','mentenanta','admin_app']);
   addIstoricEvent('mentenanta','Sesizare internat: '+tip+' la '+locatie+' ('+prio+')', currentUser);
   closeModal('modalProblema');
@@ -4720,13 +4797,225 @@ function toastSave() {
   el._t = setTimeout(() => { el.style.opacity = '0'; }, 2000);
 }
 
+
+function assignTask(taskId) {
+  const t = DB.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  const mentenanta = DB.personal.filter(p=>p.rol==='mentenanta');
+  if(!mentenanta.length) { toast('⚠️ Nu există personal de mentenanță!'); return; }
+  const options = mentenanta.map(p=>`<option value="${p.id}">${p.prenume} ${p.nume}</option>`).join('');
+  const sel = `<select id="assignSelect" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:8px">
+    <option value="">— Selectează persoana —</option>${options}
+  </select>`;
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `<div style="background:var(--white);border-radius:16px;padding:24px;width:360px;box-shadow:var(--shadow-lg)">
+    <div style="font-weight:700;font-size:15px;margin-bottom:4px">👤 Alocă sarcină</div>
+    <div style="font-size:13px;color:var(--mist);margin-bottom:12px">${t.titlu}</div>
+    ${sel}
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-outline" style="flex:1" onclick="this.closest('[style*=fixed]').remove()">Anulează</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doAssignTask(${taskId},this)">✅ Alocă</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function doAssignTask(taskId, btn) {
+  const sel = document.getElementById('assignSelect');
+  const personId = parseInt(sel.value);
+  if(!personId) { toast('⚠️ Selectează o persoană!'); return; }
+  const t = DB.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  t.assignId = personId;
+  t.status = 'Deschisă';
+  const per = DB.personal.find(x=>x.id===personId);
+  sbAutoSave('tasks', t).then(()=>{});
+  addNotification('Sarcină alocată', t.titlu + ' → ' + (per?per.prenume+' '+per.nume:''), 'mentenanta', ['mentenanta','admin_pat']);
+  toast('✅ Sarcină alocată: ' + (per?per.prenume+' '+per.nume:''));
+  addIstoricEvent('mentenanta', 'Sarcină alocată: ' + t.titlu + ' → ' + (per?per.prenume+' '+per.nume:''), currentUser);
+  btn.closest('[style*=fixed]').remove();
+  renderTasks();
+  updateBadges();
+}
+
+
+function aprobaAchizitie(id, aprobat) {
+  const a = (DB.aprobari||[]).find(x=>x.id===id);
+  if(!a) return;
+  a.status = aprobat ? 'aprobat' : 'respins';
+  // Update the actual achizitie status
+  const ach = DB.achizitii.find(x=>x.id===a.achId);
+  if(ach) {
+    ach.status = aprobat ? 'Aprobat' : 'Respins';
+    sbAutoSave('achizitii', ach).then(()=>{});
+  }
+  const msg = aprobat ? '✅ Achiziție aprobată!' : '❌ Achiziție respinsă!';
+  toast(msg);
+  addNotification(msg, a.titlu, 'aprobare', ['admin_pat','contabil']);
+  addIstoricEvent('aprobare', (aprobat?'Aprobat':'Respins') + ': ' + a.titlu, currentUser);
+  updateAprobari();
+  renderAchizitii();
+}
+
+
+// ===== ANAF LOOKUP =====
+async function cautaANAF() {
+  const cuiRaw = document.getElementById('furnCuiSearch').value.trim().replace(/^RO/i,'');
+  if(!cuiRaw || isNaN(cuiRaw)) { toast('⚠️ Introdu un CUI valid (doar cifre)'); return; }
+  
+  const btn = document.getElementById('btnAnaf');
+  const status = document.getElementById('anafStatus');
+  btn.disabled = true; btn.textContent = '⏳ Caută...';
+  status.textContent = 'Se interoghează ANAF...';
+  status.style.color = 'var(--mist)';
+  
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const resp = await fetch('https://webservicesp.anaf.ro/api/PlatitorTvaRest/api/v8/ws/tva', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify([{cui: parseInt(cuiRaw), data: today}])
+    });
+    
+    if(!resp.ok) throw new Error('ANAF indisponibil');
+    const data = await resp.json();
+    const firma = data?.found?.[0];
+    
+    if(!firma) {
+      status.textContent = '⚠️ CUI negăsit în ANAF. Completează manual.';
+      status.style.color = 'var(--gold)';
+      return;
+    }
+    
+    // Populate form
+    document.getElementById('furnNume').value = firma.denumire || '';
+    document.getElementById('furnCui').value = 'RO' + cuiRaw;
+    document.getElementById('furnAdresa').value = firma.adresa || '';
+    document.getElementById('furnJudet').value = firma.judet || '';
+    document.getElementById('furnTva').value = firma.scpTVA ? '✅ Plătitor TVA' : '❌ Neplătitor TVA';
+    
+    status.textContent = '✅ Date preluate din ANAF pentru: ' + firma.denumire;
+    status.style.color = 'var(--teal)';
+    toast('✅ Date ANAF preluate: ' + firma.denumire);
+    
+  } catch(e) {
+    // ANAF API might have CORS issues in browser - provide fallback
+    status.innerHTML = '⚠️ API ANAF indisponibil direct din browser (CORS). <strong>Completează manual</strong> sau folosește <a href="https://www.anaf.ro/anaf/internet/RO/cautare-date-fiscale" target="_blank" style="color:var(--sky)">site-ul ANAF</a>.';
+    status.style.color = 'var(--gold)';
+    // Still set CUI in form
+    document.getElementById('furnCui').value = 'RO' + cuiRaw;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 Caută ANAF';
+  }
+}
+
+
+// ===== BUNURI CU CANTITATE + LOCATII MULTIPLE =====
+function toggleLocatiiMultiple() {
+  const qty = parseInt(document.getElementById('bunQty').value) || 1;
+  const section = document.getElementById('locatiiMultipleSection');
+  if(qty > 1) {
+    section.style.display = 'block';
+    if(!document.querySelector('.locatie-row')) adaugaLocatie();
+    updateLocatiiSumar();
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+function adaugaLocatie() {
+  const list = document.getElementById('locatiiList');
+  const idx = list.querySelectorAll('.locatie-row').length;
+  
+  // Build camera options
+  const cameraOpts = DB.camere.map(cam => {
+    const cld = DB.cladiri.find(x=>x.id===cam.cladireId);
+    return `<option value="${cam.id}">${cld?cld.cod+'-':''} ${cam.cod} — ${cam.nume||''}</option>`;
+  }).join('');
+  
+  const row = document.createElement('div');
+  row.className = 'locatie-row';
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
+  row.innerHTML = `
+    <select style="flex:2;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font-size:12px" onchange="updateLocatiiSumar()">
+      <option value="">— Selectează camera —</option>${cameraOpts}
+    </select>
+    <input type="number" min="1" value="1" placeholder="Cant." 
+      style="width:70px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font-size:12px;text-align:center"
+      onchange="updateLocatiiSumar()">
+    <button type="button" onclick="this.parentElement.remove();updateLocatiiSumar()" 
+      style="width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--mist);cursor:pointer;flex-shrink:0">✕</button>
+  `;
+  list.appendChild(row);
+  updateLocatiiSumar();
+}
+
+function updateLocatiiSumar() {
+  const qty = parseInt(document.getElementById('bunQty').value) || 1;
+  const rows = document.querySelectorAll('.locatie-row');
+  let total = 0;
+  rows.forEach(row => {
+    const qtyInput = row.querySelector('input[type=number]');
+    total += parseInt(qtyInput?.value) || 0;
+  });
+  const sumar = document.getElementById('locatiiSumar');
+  if(sumar) {
+    const diff = qty - total;
+    if(diff === 0) {
+      sumar.innerHTML = `<span style="color:var(--teal)">✅ Distribuire completă: ${total}/${qty} bucăți alocate</span>`;
+    } else if(diff > 0) {
+      sumar.innerHTML = `<span style="color:var(--gold)">⚠️ Mai sunt ${diff} bucăți nealocate (${total}/${qty})</span>`;
+    } else {
+      sumar.innerHTML = `<span style="color:var(--rose)">❌ Depășit cu ${Math.abs(diff)} bucăți! (${total}/${qty})</span>`;
+    }
+  }
+}
+
+function getLocatiiFromModal() {
+  const rows = document.querySelectorAll('.locatie-row');
+  const locatii = [];
+  rows.forEach(row => {
+    const sel = row.querySelector('select');
+    const qtyInput = row.querySelector('input[type=number]');
+    if(sel?.value) {
+      locatii.push({ cameraId: parseInt(sel.value), qty: parseInt(qtyInput?.value)||1 });
+    }
+  });
+  return locatii;
+}
+
+
+function showLocatii(bunId) {
+  const b = DB.inventar.find(x=>x.id===bunId);
+  if(!b || !b.locatii) return;
+  let html = `<div style="font-weight:700;font-size:15px;margin-bottom:12px">📍 Distribuție locații: ${b.nume}</div>`;
+  html += '<table style="width:100%;border-collapse:collapse">';
+  html += '<thead><tr><th style="text-align:left;padding:6px;font-size:12px;border-bottom:1px solid var(--border)">Locație</th><th style="text-align:center;padding:6px;font-size:12px;border-bottom:1px solid var(--border)">Cantitate</th></tr></thead><tbody>';
+  b.locatii.forEach(loc => {
+    const cam = DB.camere.find(x=>x.id===loc.cameraId);
+    const cld = cam ? DB.cladiri.find(x=>x.id===cam.cladireId) : null;
+    html += `<tr><td style="padding:8px 6px;font-size:13px;border-bottom:1px solid var(--surface)">${cld?cld.cod+' / ':''}${cam?cam.cod+' — '+(cam.nume||''):'—'}</td><td style="text-align:center;padding:8px 6px;font-weight:700;border-bottom:1px solid var(--surface)">${loc.qty} buc</td></tr>`;
+  });
+  const total = b.locatii.reduce((s,l)=>s+(l.qty||0),0);
+  html += `<tr style="background:var(--surface)"><td style="padding:8px 6px;font-weight:600">TOTAL</td><td style="text-align:center;padding:8px 6px;font-weight:700;color:var(--teal)">${total} buc</td></tr>`;
+  html += '</tbody></table>';
+  
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  m.innerHTML = `<div style="background:var(--white);border-radius:16px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-lg)">${html}
+    <button class="btn btn-outline" style="width:100%;margin-top:16px" onclick="this.closest('[style*=fixed]').remove()">Închide</button>
+  </div>`;
+  document.body.appendChild(m);
+}
+
 // Keyboard shortcut for login
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
 </script>
 
 
   <script>
-    if('serviceWorker' in navigator) {
+    if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com' && !location.hostname.includes('claude')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });

@@ -3392,7 +3392,7 @@ function exportRaportPDF(tip) {
   <script>
     if('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });
     }
   </script>
@@ -3987,7 +3987,7 @@ function genAudit(tip) {
   <script>
     if('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });
     }
   </script>
@@ -4297,7 +4297,7 @@ function genRaportInternat() {
   <script>
     if('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });
     }
   </script>
@@ -4741,11 +4741,10 @@ function toastSave() {
 // Keyboard shortcut for login
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
 </script>
-
   <script>
     if('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });
     }
   </script>

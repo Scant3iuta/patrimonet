@@ -2791,15 +2791,23 @@ function showQR(id) {
   if(!b) { toast('⚠️ Bun negăsit!'); return; }
   const cam = DB.camere.find(x=>x.id===b.cameraId);
   const cld = DB.cladiri.find(x=>x.id===b.cladireId);
-  // Compact QR data - max ~150 chars to avoid overflow
-  const qrData = [b.nrInv, b.nume.substring(0,25), cld?cld.cod:'?', cam?cam.cod:'?', b.stare.substring(0,3)].join('|');
+  // Ultra-compact QR: just inventory number + short hash
+  // QR Level L supports ~41 chars alphanumeric, or ~25 bytes binary
+  // Use only the inventory number as primary data (always unique)
+  const qrShort = b.nrInv; // e.g. "CNVG-A-1001" - max ~15 chars
   const container = document.getElementById('qrCanvas');
   container.innerHTML = '';
   try {
-    new QRCode(container, {text:qrData, width:200, height:200, colorDark:'#1a1f2e', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M});
+    new QRCode(container, {
+      text: qrShort,
+      width: 200, height: 200,
+      colorDark: '#1a1f2e', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.L
+    });
   } catch(e) {
-    container.innerHTML = '<div style="color:var(--rose);text-align:center;padding:20px">Eroare la generare QR:<br>' + e.message + '</div>';
-    console.error('QR error:', e);
+    // Last resort: use canvas-based simple text QR
+    container.innerHTML = '<div style="background:#1a1f2e;color:#fff;padding:20px;border-radius:8px;text-align:center;font-family:monospace;font-size:13px;word-break:break-all">' + qrShort + '</div>';
+    console.warn('QR fallback for:', qrShort, e.message);
   }
   document.getElementById('qrInfo').innerHTML = `
     <div class="qr-info-row"><span>Nr. inventar</span><strong>${b.nrInv}</strong></div>

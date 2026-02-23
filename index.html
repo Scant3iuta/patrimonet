@@ -3017,6 +3017,7 @@ function renderTasks(data) {
     if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
     c.innerHTML=items.map(t=>{
       const per=DB.personal.find(x=>x.id===t.assignId);
+      if(!per && t.assignId) console.log('NO MATCH: task assignId='+t.assignId+' personal ids='+DB.personal.map(p=>p.id).join(','));
       const canAssign = currentUser && ['admin_app','admin_pat','director'].includes(currentUser.rol);
       const cam=DB.camere.find(x=>x.id===t.cameraId);
       const cld=DB.cladiri.find(x=>x.id===t.cladireId);

@@ -2141,13 +2141,13 @@ async function sbDelete(table, id) {
 const toSb = {
   cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||null }),
   camere:  (x) => ({ cladire_id:x.cladireId||null, cod:x.cod, nume:x.nume, tip:x.tip||'', etaj:parseInt(x.etaj)||0, suprafata:parseFloat(x.sup)||null, responsabil:x.responsabil||x.resp||'', capacitate:parseInt(x.cap)||null }),
-  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:null, camera_id:null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, data_pif:x.dataPIF||null, furnizor_id:null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.obs||'' }),
+  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, qty:parseInt(x.qty)||1, data_pif:x.dataPIF||null, furnizor_id:x.furnId||x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.desc||x.obs||'', locatii:x.locatii?JSON.stringify(x.locatii):null }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
-  achizitii:(x)=> ({ nr_doc:x.nrDoc||'', tip_doc:x.tipDoc||'', data_doc:x.dataDoc||null, furnizor_id:x.furnizorId||null, descriere:x.descriere||'', val:x.val||0, status:x.status||'Recepționat', user_id:x.userId||null }),
-  personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'' }),
+  achizitii:(x)=> ({ descriere:x.produs||x.descriere||'', furnizor_id:x.furnId||x.furnizorId||null, cantitate:x.qty||1, val:parseFloat(x.val)||0, data_doc:x.data||x.dataDoc||null, status:x.status||'Comandat', aprobare_necesara:x.aprobare||'nu', note:x.note||'', user_id:x.userId||null }),
+  personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'', functie:x.functie||'', categorie:x.categorie||'' }),
   mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:x.data, de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
-  rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:x.elevi||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'' }),
-  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:x.status||'Deschisă', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, user_id:x.userId||null, description:x.desc||x.description||'', termen:x.termen||null }),
+  rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:parseInt(x.elevi)||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'', obs:x.obs||'' }),
+  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:({'Deschisă':'deschisa','Finalizată':'finalizata'}[x.status])||x.status||'deschisa', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, assign_ids:x.assignIds?JSON.stringify(x.assignIds):null, user_id:x.userId||null, description:x.desc||x.description||'', termen:x.termen||null }),
   prezenta: (x)=> ({ data:x.data, elevi:x.elevi, tip_zi:x.tipZi||'saptamana', obs:x.obs||'', user_id:x.userId||null }),
   mese:     (x)=> ({ data:x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'', user_id:x.userId||null }),
   probleme: (x)=> ({ tip:x.tip||'', locatie:x.locatie||'', desc:x.desc||'', prio:x.prio||'Medie', status:x.status||'Deschisă', user_id:x.userId||null, rezolvat_de:x.rezolvatDe||'' }),
@@ -2156,24 +2156,27 @@ const toSb = {
 
 // Convert supabase row → local object
 const fromSb = {
-  cladiri: (x) => ({ id:x.id, cod:x.cod, nume:x.nume, adresa:x.adresa, etaje:x.etaje, an:x.an_constructie, sup:x.suprafata }),
-  camere:  (x) => ({ id:x.id, cladireId:x.cladire_id, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj, sup:x.suprafata, resp:x.responsabil, cap:x.capacitate }),
-  inventar:(x) => ({ id:x.id, nrInv:x.nr_inv, nume:x.nume, cat:x.cat, cladireId:x.cladire_id, cameraId:x.camera_id, stare:x.stare, val:parseFloat(x.val)||0, dataPIF:x.data_pif, furnizorId:x.furnizor_id, cont:x.cont, durata:x.durata, amortizare:parseFloat(x.amortizare)||0, obs:x.obs }),
-  furnizori:(x)=> ({ id:x.id, nume:x.nume, cui:x.cui, adresa:x.adresa, tel:x.tel, email:x.email, persoana:x.persoana }),
-  achizitii:(x)=> ({ id:x.id, nrDoc:x.nr_doc, tipDoc:x.tip_doc, dataDoc:x.data_doc, furnizorId:x.furnizor_id, descriere:x.descriere, val:parseFloat(x.val)||0, status:x.status, userId:x.user_id }),
-  personal: (x)=> ({ id:x.id, prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel }),
-  mutari:   (x)=> ({ id:x.id, bunId:x.bun_id, userId:x.user_id, data:x.data, deCladire:x.de_cladire, deCamera:x.de_camera, laCladire:x.la_cladire, laCamera:x.la_camera, laCladireId:x.la_cladire_id, laCameraId:x.la_camera_id, motiv:x.motiv, obs:x.obs, status:x.status, aprobatDe:x.aprobat_de }),
-  rezervari:(x)=> ({ id:x.id, cameraId:x.camera_id, userId:x.user_id, data:x.data, oraStart:x.ora_start, oraEnd:x.ora_end, materie:x.materie, elevi:x.elevi, echipamente:x.echipamente, status:x.status, aprobatDe:x.aprobat_de }),
-  tasks:    (x)=> ({ id:x.id, titlu:x.titlu||x.title||'—', prioritate:x.prioritate||x.prio||'Medie', status:x.status||'Deschisă', cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, userId:x.user_id, desc:x.description||x.desc||'', termen:x.termen }),
-  prezenta: (x)=> ({ id:x.id, data:x.data, elevi:x.elevi, tipZi:x.tip_zi, obs:x.obs, userId:x.user_id }),
-  mese:     (x)=> ({ id:x.id, data:x.data, micDejun:x.mic_dejun, pranz:x.pranz, cina:x.cina, obs:x.obs, userId:x.user_id }),
-  probleme: (x)=> ({ id:x.id, tip:x.tip, locatie:x.locatie, desc:x.desc, prio:x.prio, status:x.status, userId:x.user_id, rezolvatDe:x.rezolvat_de, creat:x.creat }),
-  fluxuri:  (x)=> ({ id:x.id, tip:x.tip, titlu:x.titlu, responsabilId:x.responsabil_id, userId:x.user_id, termen:x.termen, obs:x.obs, stepCurent:x.step_curent, status:x.status, dataStart:x.data_start, dataFinal:x.data_final, istoricPasi:typeof x.istoric_pasi==='string'?JSON.parse(x.istoric_pasi||'[]'):x.istoric_pasi||[] }),
+  cladiri: (x) => ({ _loaded:true, id:x.id, cod:x.cod, nume:x.nume, adresa:x.adresa, etaje:x.etaje, an:x.an_constructie, sup:x.suprafata }),
+  camere:  (x) => ({ _loaded:true, id:x.id, cladireId:x.cladire_id, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj, sup:x.suprafata, resp:x.responsabil, cap:x.capacitate }),
+  inventar:(x) => ({ _loaded:true, id:x.id, nrInv:x.nr_inv, nume:x.nume, cat:x.cat, cladireId:x.cladire_id, cameraId:x.camera_id, stare:x.stare, val:parseFloat(x.val)||0, dataPIF:x.data_pif, furnizorId:x.furnizor_id, cont:x.cont, durata:x.durata, amortizare:parseFloat(x.amortizare)||0, obs:x.obs }),
+  furnizori:(x)=> ({ _loaded:true, id:x.id, nume:x.nume, cui:x.cui, adresa:x.adresa, tel:x.tel, email:x.email, persoana:x.persoana }),
+  achizitii:(x)=> ({ _loaded:true, id:x.id, nrDoc:x.nr_doc, tipDoc:x.tip_doc, dataDoc:x.data_doc, furnizorId:x.furnizor_id, descriere:x.descriere, val:parseFloat(x.val)||0, status:x.status, userId:x.user_id }),
+  personal: (x)=> ({ _loaded:true, id:x.id, prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel }),
+  mutari:   (x)=> ({ _loaded:true, id:x.id, bunId:x.bun_id, userId:x.user_id, data:x.data, deCladire:x.de_cladire, deCamera:x.de_camera, laCladire:x.la_cladire, laCamera:x.la_camera, laCladireId:x.la_cladire_id, laCameraId:x.la_camera_id, motiv:x.motiv, obs:x.obs, status:x.status, aprobatDe:x.aprobat_de }),
+  rezervari:(x)=> ({ _loaded:true, id:x.id, cameraId:x.camera_id, userId:x.user_id, data:x.data, oraStart:x.ora_start, oraEnd:x.ora_end, materie:x.materie, elevi:x.elevi, echipamente:x.echipamente, status:x.status, aprobatDe:x.aprobat_de }),
+  tasks:    (x)=> ({ _loaded:true, id:x.id, titlu:x.titlu||x.title||(x.description?x.description.substring(0,50):'')||'—', prioritate:x.prioritate||x.prio||'Medie', status:({'deschis':'Deschisă','deschisa':'Deschisă','finalizat':'Finalizată','finalizata':'Finalizată'}[x.status])||x.status||'Deschisă', cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, assignIds:x.assign_ids||[], userId:x.user_id, desc:x.description||x.desc||'', termen:x.termen }),
+  prezenta: (x)=> ({ _loaded:true, id:x.id, data:x.data, elevi:x.elevi, tipZi:x.tip_zi, obs:x.obs, userId:x.user_id }),
+  mese:     (x)=> ({ _loaded:true, id:x.id, data:x.data, micDejun:x.mic_dejun, pranz:x.pranz, cina:x.cina, obs:x.obs, userId:x.user_id }),
+  probleme: (x)=> ({ _loaded:true, id:x.id, tip:x.tip, locatie:x.locatie, desc:x.desc, prio:x.prio, status:x.status, userId:x.user_id, rezolvatDe:x.rezolvat_de, creat:x.creat }),
+  fluxuri:  (x)=> ({ _loaded:true, id:x.id, tip:x.tip, titlu:x.titlu, responsabilId:x.responsabil_id, userId:x.user_id, termen:x.termen, obs:x.obs, stepCurent:x.step_curent, status:x.status, dataStart:x.data_start, dataFinal:x.data_final, istoricPasi:typeof x.istoric_pasi==='string'?JSON.parse(x.istoric_pasi||'[]'):x.istoric_pasi||[] }),
 };
 
 // ===== LOAD ALL DATA FROM SUPABASE =====
+let _supabaseLoaded = false;
+
 async function loadFromSupabase() {
   if(!SUPABASE_ENABLED || !sbClient) return;
+  if(_supabaseLoaded) { console.log('Supabase already loaded this session'); return; }
   
   const tables = ['cladiri','camere','inventar','furnizori','achizitii','personal','mutari','rezervari','tasks','prezenta','mese','probleme','fluxuri'];
   
@@ -2189,25 +2192,30 @@ async function loadFromSupabase() {
     const rows = await sbFetch(tbl);
     if(rows !== null && rows.length > 0) {
       DB[tbl] = rows.map(r => {
-        const obj = fromSb[tbl] ? fromSb[tbl](r) : r;
-        // Normalize tasks fields
-        if(tbl === 'tasks') {
-          obj.titlu = obj.titlu || obj.title || (r.description ? r.description.substring(0,50) : '') || r.titlu || '—';
-          obj.prioritate = obj.prioritate || obj.prio || r.prioritate || 'Medie';
-          obj.status = obj.status || 'Deschisă';
-        }
-        if(tbl === 'inventar') {
-          obj.qty = parseInt(obj.qty) || 1;
-          obj.val = parseFloat(obj.val) || 0;
-        }
+        const obj = fromSb[tbl] ? fromSb[tbl](r) : {...r, _loaded:true};
         return obj;
       });
+    } else if(rows !== null && rows.length === 0) {
+      // Table is empty in Supabase - keep local data
+      console.log('Supabase table empty, keeping local:', tbl);
     }
   }
   toast('✅ Date încărcate din Supabase!');
+  // Render all active UI sections
   renderCladiri();
   renderInventar();
+  renderTasks();
+  renderFurnizori();
+  renderAchizitii();
+  renderMutari ? renderMutari() : null;
+  renderRezervari ? renderRezervari() : null;
+  renderPersonal();
   updateDashboard();
+  updateBadges();
+  updateAprobari ? updateAprobari() : null;
+  renderAprobariPending ? renderAprobariPending() : null;
+  _supabaseLoaded = true;
+  console.log('✅ Toate datele din Supabase încărcate și afișate');
 }
 
 // ===== SUPABASE SAVE WRAPPER =====
@@ -4699,8 +4707,9 @@ async function syncToSupabase() {
     for(const item of DB[tbl]) {
       try {
         const sbRow = toSb[tbl] ? toSb[tbl](item) : {...item};
-        // Use INSERT (not upsert) since local IDs don't match Supabase BIGSERIAL
-        const { error } = await sbClient.from(tbl).insert(sbRow);
+        // Add local id as reference for dedup
+        if(item._sbId) sbRow.id = item._sbId;
+        const { error } = await sbClient.from(tbl).upsert(sbRow, {ignoreDuplicates: false, onConflict: item._sbId ? 'id' : undefined});
         if(error) { 
           console.warn('Sync error on ' + tbl + ':', error.message); 
           errors++; 
@@ -4844,13 +4853,18 @@ async function sbAutoSave(tbl, localObj) {
     // Curăță undefined
     Object.keys(row).forEach(k => row[k] === undefined && delete row[k]);
     
+    const sbId = localObj._sbId || (typeof localObj.id === 'number' && localObj.id > 1000000 ? null : localObj._sbId);
+    // Use _sbId for updates, or check if this is a Supabase row (has _sbId)
     if(localObj._sbId) {
-      // Update existent
       await sbClient.from(tbl).update(row).eq('id', localObj._sbId);
+    } else if(localObj.id && localObj._loaded) {
+      // Loaded from Supabase - update by id
+      await sbClient.from(tbl).update(row).eq('id', localObj.id);
     } else {
-      // Insert nou
+      // New local object - insert
       const { data, error } = await sbClient.from(tbl).insert(row).select('id').single();
-      if(!error && data) localObj._sbId = data.id;
+      if(!error && data) { localObj._sbId = data.id; localObj._loaded = true; }
+      if(error) console.warn('Insert error:', tbl, error.message);
     }
   } catch(e) {
     console.warn('AutoSave error:', tbl, e.message);

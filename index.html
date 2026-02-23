@@ -2164,7 +2164,7 @@ const fromSb = {
   personal: (x)=> ({ _loaded:true, id:x.id, prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel }),
   mutari:   (x)=> ({ _loaded:true, id:x.id, bunId:x.bun_id, userId:x.user_id, data:x.data, deCladire:x.de_cladire, deCamera:x.de_camera, laCladire:x.la_cladire, laCamera:x.la_camera, laCladireId:x.la_cladire_id, laCameraId:x.la_camera_id, motiv:x.motiv, obs:x.obs, status:x.status, aprobatDe:x.aprobat_de }),
   rezervari:(x)=> ({ _loaded:true, id:x.id, cameraId:x.camera_id, userId:x.user_id, data:x.data, oraStart:x.ora_start, oraEnd:x.ora_end, materie:x.materie, elevi:x.elevi, echipamente:x.echipamente, status:x.status, aprobatDe:x.aprobat_de }),
-  tasks:    (x)=> ({ _loaded:true, id:x.id, titlu:x.titlu||x.title||(x.description?x.description.substring(0,50):'')||'—', prioritate:x.prioritate||x.prio||'Medie', status:({'deschis':'Deschisă','deschisa':'Deschisă','finalizat':'Finalizată','finalizata':'Finalizată'}[x.status])||x.status||'Deschisă', cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, assignIds:x.assign_ids||[], userId:x.user_id, desc:x.description||x.desc||'', termen:x.termen }),
+  tasks:    (x)=> ({ _loaded:true, id:x.id, titlu:x.titlu||x.title||(x.description?x.description.substring(0,50):'')||'—', prioritate:x.prioritate||x.prio||'Medie', status:({'deschis':'Deschisă','deschisa':'Deschisă','finalizat':'Finalizată','finalizata':'Finalizată'}[x.status])||x.status||'Deschisă', cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, assignIds:(typeof x.assign_ids==='string'?JSON.parse(x.assign_ids||'[]'):(x.assign_ids||[])), userId:x.user_id, desc:x.description||x.desc||'', termen:x.termen }),
   prezenta: (x)=> ({ _loaded:true, id:x.id, data:x.data, elevi:x.elevi, tipZi:x.tip_zi, obs:x.obs, userId:x.user_id }),
   mese:     (x)=> ({ _loaded:true, id:x.id, data:x.data, micDejun:x.mic_dejun, pranz:x.pranz, cina:x.cina, obs:x.obs, userId:x.user_id }),
   probleme: (x)=> ({ _loaded:true, id:x.id, tip:x.tip, locatie:x.locatie, desc:x.desc, prio:x.prio, status:x.status, userId:x.user_id, rezolvatDe:x.rezolvat_de, creat:x.creat }),
@@ -2195,8 +2195,7 @@ async function loadFromSupabase() {
         const obj = fromSb[tbl] ? fromSb[tbl](r) : {...r, _loaded:true};
         return obj;
       });
-      if(tbl === 'tasks') console.log('TASKS from SB:', DB.tasks.map(t=>({id:t.id,titlu:t.titlu,assignId:t.assignId,status:t.status})));
-      if(tbl === 'personal') console.log('PERSONAL from SB:', DB.personal.map(p=>({id:p.id,email:p.email,loaded:p._loaded})));
+
     } else if(rows !== null && rows.length === 0) {
       console.log('Supabase table empty, keeping local:', tbl);
     }
@@ -2214,9 +2213,19 @@ async function loadFromSupabase() {
     tasksSeen[key] = t;
     return true;
   });
-  // Second pass: remove non-loaded if loaded version exists
+  // Use only Supabase tasks when available (ignore seed data)
   const tasksLoaded = DB.tasks.filter(t => t._loaded);
-  if(tasksLoaded.length > 0) DB.tasks = tasksLoaded; // Use only Supabase tasks
+  if(tasksLoaded.length > 0) {
+    DB.tasks = tasksLoaded;
+    // Dedup Supabase tasks by titlu
+    const sbTaskSeen = {};
+    DB.tasks = DB.tasks.filter(t => {
+      const key = (t.titlu||t.title||'').trim();
+      if(sbTaskSeen[key]) return false;
+      sbTaskSeen[key] = true;
+      return true;
+    });
+  }
   
   const cldSeen = {}; 
   DB.cladiri = DB.cladiri.filter(c => { if(cldSeen[c.cod]) return false; cldSeen[c.cod]=true; return true; });

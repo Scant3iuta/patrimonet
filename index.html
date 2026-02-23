@@ -2322,6 +2322,9 @@ function doLogin() {
 
 function logout() {
   currentUser = null;
+  _supabaseLoaded = false; // Reset so next user gets fresh data from Supabase
+  // Reset DB to empty so no previous user's view leaks
+  DB.tasks = []; DB.rezervari = []; DB.mutari = []; DB.aprobari = [];
   // Reset nav items
   document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
   // Reset sections
@@ -2955,9 +2958,11 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 function renderTasks(data) {
   let allTasks = data || DB.tasks;
   // Muncitor mentenanta sees only their assigned tasks
+  // Admins and admin_pat see ALL tasks
   if(currentUser && currentUser.rol === 'mentenanta') {
     allTasks = allTasks.filter(t => t.assignId === currentUser.id || (t.assignIds||[]).includes(currentUser.id));
   }
+  // admin_pat, admin_app, director, informatician see all tasks
   const openItems = allTasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status));
   const doneItems = allTasks.filter(t=>['finalizat','Finalizată','finalizata'].includes(t.status));
   const pColors={'Înaltă':'tp-high','Medie':'tp-med','Scăzută':'tp-low','High':'tp-high','Medium':'tp-med'};
@@ -2992,7 +2997,8 @@ function renderTasks(data) {
 }
 function filterTasks(q){
   const s=(q||'').toLowerCase();const p=document.getElementById('filterPriority').value;
-  const base = (currentUser?.rol==='mentenanta') ? DB.tasks.filter(t=>t.assignId===currentUser.id||(t.assignIds||[]).includes(currentUser.id)) : DB.tasks;
+  const isWorker = currentUser?.rol === 'mentenanta';
+  const base = isWorker ? DB.tasks.filter(t=>t.assignId===currentUser.id||(t.assignIds||[]).includes(currentUser.id)) : DB.tasks;
   renderTasks(base.filter(t=>(!s||(t.titlu||t.title||'').toLowerCase().includes(s))&&(!p||t.prioritate===p||t.prio===p)));
 }
 function openModalTask(){
@@ -3049,7 +3055,7 @@ function renderPersonal(data){
       </div>
       <div class="person-actions">
         <span class="badge" style="background:${bg};color:white;font-size:10px">${ROLE_LABELS[p.rol]}</span>
-        ${currentUser.rol==='admin_app'?`<button class="btn btn-outline btn-sm" onclick="editPersonal(${p.id})">✏️</button><button class="btn btn-danger btn-sm" onclick="deletePersonal(${p.id})">🗑️</button>`:''}
+        ${(currentUser.rol==='admin_app'||currentUser.rol==='admin_pat')?`<button class="btn btn-outline btn-sm" onclick="editPersonal(${p.id})">✏️</button><button class="btn btn-danger btn-sm" onclick="deletePersonal(${p.id})">🗑️</button>`:''}
       </div>
     </div>`;
   }).join('');

@@ -4421,86 +4421,116 @@ async function syncToSupabase() {
 
 
 async function syncAllToSupabase() {
-  // Asigură-te că sbClient există
   if(!sbClient) initSupabase();
   if(!sbClient) { toast('❌ Supabase nu este conectat!'); return; }
+  if(!DB.cladiri || DB.cladiri.length === 0) { seedData(); await new Promise(r => setTimeout(r, 200)); }
   
-  // Asigură-te că există date locale
-  if(!DB.cladiri || DB.cladiri.length === 0) {
-    seedData();
-    await new Promise(r => setTimeout(r, 200));
+  toast('⬆️ Curățare date vechi...');
+  // Clear in reverse FK order
+  const clearOrder = ['tasks','achizitii','inventar','personal','furnizori','camere','cladiri'];
+  for(const tbl of clearOrder) {
+    try { await sbClient.from(tbl).delete().neq('id', 0); } catch(e) {}
   }
-  
-  // Log starea DB înainte de sync
-  console.log('=== SYNC START ===');
-  console.log('cladiri:', DB.cladiri.length, '| camere:', DB.camere.length, '| inventar:', DB.inventar.length, '| personal:', DB.personal.length);
+  await new Promise(r => setTimeout(r, 500));
   
   toast('⬆️ Sincronizare în curs...');
-  
   let total = 0, errors = 0;
   
-  // Șterge datele existente din Supabase înainte de re-sync (evită duplicate)
-  console.log('Curățare date existente...');
-  const tablesToClear = ['tasks','achizitii','inventar','personal','furnizori','camere','cladiri'];
-  for(const tbl of tablesToClear) {
+  // 1. Insert CLADIRI and capture new IDs
+  const cladiriIdMap = {}; // localId -> supabaseId
+  for(const item of DB.cladiri) {
     try {
-      await sbClient.from(tbl).delete().neq('id', 0);
-    } catch(e) { /* ignore */ }
+      const row = toSb.cladiri(item);
+      const { data, error } = await sbClient.from('cladiri').insert(row).select('id').single();
+      if(error) { console.error('cladiri:', error.message); errors++; }
+      else { cladiriIdMap[item.id] = data.id; total++; }
+    } catch(e) { errors++; }
   }
+  console.log('cladiri done. Map:', cladiriIdMap);
   
-  // Sincronizează fiecare tabel în ordine (respectă foreign keys)
-  const jobs = [
-    { tbl: 'cladiri',   src: () => DB.cladiri   },
-    { tbl: 'camere',    src: () => DB.camere    },
-    { tbl: 'furnizori', src: () => DB.furnizori },
-    { tbl: 'personal',  src: () => DB.personal  },
-    { tbl: 'inventar',  src: () => DB.inventar  },
-    { tbl: 'achizitii', src: () => DB.achizitii },
-    { tbl: 'tasks',     src: () => DB.tasks     },
-  ];
-  
-  for(const job of jobs) {
-    const items = job.src();
-    if(!items || !items.length) {
-      console.log('Skip (gol):', job.tbl);
-      continue;
-    }
-    console.log('Inserting', job.tbl, '-', items.length, 'rows...');
-    
-    for(const item of items) {
-      try {
-        const mapper = toSb[job.tbl];
-        const row = mapper ? mapper(item) : {...item};
-        
-        // Elimină câmpuri undefined/null problematice
-        const cleanRow = {};
-        for(const [k, v] of Object.entries(row)) {
-          if(v !== undefined) cleanRow[k] = v;
-        }
-        
-        const { error } = await sbClient.from(job.tbl).insert(cleanRow);
-        if(error) {
-          console.error(job.tbl, 'ERROR:', error.message, '| Row:', JSON.stringify(cleanRow));
-          errors++;
-        } else {
-          total++;
-        }
-      } catch(ex) {
-        console.error(job.tbl, 'EXCEPTION:', ex.message);
-        errors++;
-      }
-    }
-    console.log(job.tbl, 'done. Total so far:', total);
+  // 2. Insert CAMERE using remapped cladire_id
+  const camereIdMap = {};
+  for(const item of DB.camere) {
+    try {
+      const row = toSb.camere(item);
+      row.cladire_id = cladiriIdMap[item.cladireId] || null;
+      const { data, error } = await sbClient.from('camere').insert(row).select('id').single();
+      if(error) { console.error('camere:', error.message); errors++; }
+      else { camereIdMap[item.id] = data.id; total++; }
+    } catch(e) { errors++; }
   }
+  console.log('camere done. Total:', total);
+  
+  // 3. Insert FURNIZORI and capture IDs
+  const furnizoriIdMap = {};
+  for(const item of DB.furnizori) {
+    try {
+      const row = toSb.furnizori(item);
+      const { data, error } = await sbClient.from('furnizori').insert(row).select('id').single();
+      if(error) { console.error('furnizori:', error.message); errors++; }
+      else { furnizoriIdMap[item.id] = data.id; total++; }
+    } catch(e) { errors++; }
+  }
+  console.log('furnizori done. Total:', total);
+  
+  // 4. Insert PERSONAL and capture IDs
+  const personalIdMap = {};
+  for(const item of DB.personal) {
+    try {
+      const row = toSb.personal(item);
+      const { data, error } = await sbClient.from('personal').insert(row).select('id').single();
+      if(error) { console.error('personal:', error.message); errors++; }
+      else { personalIdMap[item.id] = data.id; total++; }
+    } catch(e) { errors++; }
+  }
+  console.log('personal done. Total:', total);
+  
+  // 5. Insert INVENTAR with remapped IDs
+  for(const item of DB.inventar) {
+    try {
+      const row = toSb.inventar(item);
+      row.cladire_id = cladiriIdMap[item.cladireId] || null;
+      row.camera_id  = camereIdMap[item.cameraId]   || null;
+      row.furnizor_id = furnizoriIdMap[item.furnizorId] || null;
+      const { error } = await sbClient.from('inventar').insert(row);
+      if(error) { console.error('inventar:', error.message); errors++; }
+      else total++;
+    } catch(e) { errors++; }
+  }
+  console.log('inventar done. Total:', total);
+  
+  // 6. Insert ACHIZITII
+  for(const item of DB.achizitii) {
+    try {
+      const row = toSb.achizitii(item);
+      row.furnizor_id = furnizoriIdMap[item.furnizorId] || null;
+      row.user_id = personalIdMap[item.userId] || null;
+      const { error } = await sbClient.from('achizitii').insert(row);
+      if(error) { console.error('achizitii:', error.message); errors++; }
+      else total++;
+    } catch(e) { errors++; }
+  }
+  console.log('achizitii done. Total:', total);
+  
+  // 7. Insert TASKS
+  for(const item of DB.tasks) {
+    try {
+      const row = toSb.tasks(item);
+      row.camera_id  = camereIdMap[item.cameraId]   || null;
+      row.assign_id  = personalIdMap[item.assignId] || null;
+      row.user_id    = personalIdMap[item.userId]   || null;
+      const { error } = await sbClient.from('tasks').insert(row);
+      if(error) { console.error('tasks:', error.message); errors++; }
+      else total++;
+    } catch(e) { errors++; }
+  }
+  console.log('tasks done. Total:', total);
   
   console.log('=== SYNC END === Total:', total, '| Errors:', errors);
-  
-  if(total > 0) {
-    toast('✅ ' + total + ' înregistrări sincronizate în Supabase!' + (errors ? ' (' + errors + ' erori)' : ''));
-    addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
-  } else {
-    toast('⚠️ 0 înregistrări — deschide F12 → Console pentru detalii');
-  }
+  toast(total > 0 
+    ? '✅ ' + total + ' înregistrări sincronizate!' + (errors ? ' (' + errors + ' erori)' : ' Fără erori! 🎉')
+    : '⚠️ 0 înregistrări — verifică consola');
+  if(total > 0) addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
 }
 
 // Keyboard shortcut for login

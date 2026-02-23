@@ -1986,13 +1986,13 @@ async function sbDelete(table, id) {
 const toSb = {
   cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||null }),
   camere:  (x) => ({ cladire_id:x.cladireId, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj||0, suprafata:x.sup||null, responsabil:x.resp||'', capacitate:x.cap||null }),
-  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat, cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:x.val||0, data_pif:x.dataPIF||null, furnizor_id:x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:x.amortizare||0, obs:x.obs||'' }),
+  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:null, camera_id:null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, data_pif:x.dataPIF||null, furnizor_id:null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.obs||'' }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
   achizitii:(x)=> ({ nr_doc:x.nrDoc||'', tip_doc:x.tipDoc||'', data_doc:x.dataDoc||null, furnizor_id:x.furnizorId||null, descriere:x.descriere||'', val:x.val||0, status:x.status||'Recepționat', user_id:x.userId||null }),
   personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'' }),
   mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:x.data, de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
   rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:x.elevi||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'' }),
-  tasks:    (x)=> ({ titlu:x.titlu||'', prioritate:x.prioritate||'Medie', status:x.status||'Deschisă', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, user_id:x.userId||null, desc:x.desc||'', termen:x.termen||null }),
+  tasks:    (x)=> ({ titlu:x.titlu||'', prioritate:x.prioritate||'Medie', status:x.status||'deschisa', camera_id:null, bun_id:null, assign_id:null, user_id:null, description:x.desc||'', termen:x.termen||null }),
   prezenta: (x)=> ({ data:x.data, elevi:x.elevi, tip_zi:x.tipZi||'saptamana', obs:x.obs||'', user_id:x.userId||null }),
   mese:     (x)=> ({ data:x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'', user_id:x.userId||null }),
   probleme: (x)=> ({ tip:x.tip||'', locatie:x.locatie||'', desc:x.desc||'', prio:x.prio||'Medie', status:x.status||'Deschisă', user_id:x.userId||null, rezolvat_de:x.rezolvatDe||'' }),
@@ -2009,7 +2009,7 @@ const fromSb = {
   personal: (x)=> ({ id:x.id, prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel }),
   mutari:   (x)=> ({ id:x.id, bunId:x.bun_id, userId:x.user_id, data:x.data, deCladire:x.de_cladire, deCamera:x.de_camera, laCladire:x.la_cladire, laCamera:x.la_camera, laCladireId:x.la_cladire_id, laCameraId:x.la_camera_id, motiv:x.motiv, obs:x.obs, status:x.status, aprobatDe:x.aprobat_de }),
   rezervari:(x)=> ({ id:x.id, cameraId:x.camera_id, userId:x.user_id, data:x.data, oraStart:x.ora_start, oraEnd:x.ora_end, materie:x.materie, elevi:x.elevi, echipamente:x.echipamente, status:x.status, aprobatDe:x.aprobat_de }),
-  tasks:    (x)=> ({ id:x.id, titlu:x.titlu, prioritate:x.prioritate, status:x.status, cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, userId:x.user_id, desc:x.desc, termen:x.termen }),
+  tasks:    (x)=> ({ id:x.id, titlu:x.titlu, prioritate:x.prioritate, status:x.status, cameraId:x.camera_id, bunId:x.bun_id, assignId:x.assign_id, userId:x.user_id, desc:x.description||x.desc||'', termen:x.termen }),
   prezenta: (x)=> ({ id:x.id, data:x.data, elevi:x.elevi, tipZi:x.tip_zi, obs:x.obs, userId:x.user_id }),
   mese:     (x)=> ({ id:x.id, data:x.data, micDejun:x.mic_dejun, pranz:x.pranz, cina:x.cina, obs:x.obs, userId:x.user_id }),
   probleme: (x)=> ({ id:x.id, tip:x.tip, locatie:x.locatie, desc:x.desc, prio:x.prio, status:x.status, userId:x.user_id, rezolvatDe:x.rezolvat_de, creat:x.creat }),
@@ -4438,6 +4438,15 @@ async function syncAllToSupabase() {
   toast('⬆️ Sincronizare în curs...');
   
   let total = 0, errors = 0;
+  
+  // Șterge datele existente din Supabase înainte de re-sync (evită duplicate)
+  console.log('Curățare date existente...');
+  const tablesToClear = ['tasks','achizitii','inventar','personal','furnizori','camere','cladiri'];
+  for(const tbl of tablesToClear) {
+    try {
+      await sbClient.from(tbl).delete().neq('id', 0);
+    } catch(e) { /* ignore */ }
+  }
   
   // Sincronizează fiecare tabel în ordine (respectă foreign keys)
   const jobs = [

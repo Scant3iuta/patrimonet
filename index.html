@@ -1429,7 +1429,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
             <div style="display:flex;gap:10px;flex-wrap:wrap">
               <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Salvează și conectează</button>
               <button class="btn btn-teal" onclick="testSupabaseConnection()">🔌 Testează conexiunea</button>
-              <button class="btn btn-outline" onclick="syncToSupabase()">⬆️ Sincronizează datele locale → Supabase</button>
+              <button class="btn btn-outline" onclick="syncAllToSupabase()">⬆️ Sincronizează datele locale → Supabase</button>
             </div>
             <div id="sbTestResult" style="margin-top:10px;font-size:12px"></div>
           </div>
@@ -4377,20 +4377,96 @@ async function testSupabaseConnection() {
 }
 
 async function syncToSupabase() {
-  if(!SUPABASE_ENABLED) { toast('⚠️ Conectează-te mai întâi la Supabase!'); return; }
+  // Re-init Supabase if needed
+  if(!SUPABASE_ENABLED || !sbClient) {
+    initSupabase();
+    await new Promise(r => setTimeout(r, 500));
+  }
+  if(!SUPABASE_ENABLED || !sbClient) { 
+    toast('⚠️ Supabase nu este conectat!'); 
+    return; 
+  }
   toast('⬆️ Sincronizare în curs...');
   const tables = ['cladiri','camere','furnizori','personal','inventar','achizitii','tasks','mutari','rezervari','prezenta','mese','probleme','fluxuri'];
   let total = 0;
+  let errors = 0;
   for(const tbl of tables) {
     if(!DB[tbl] || !DB[tbl].length) continue;
     for(const item of DB[tbl]) {
-      const sbRow = toSb[tbl] ? toSb[tbl](item) : item;
-      const { error } = await sbClient.from(tbl).upsert(sbRow, {onConflict: tbl==='inventar'?'nr_inv':tbl==='personal'?'email':undefined});
-      if(!error) total++;
+      try {
+        const sbRow = toSb[tbl] ? toSb[tbl](item) : {...item};
+        // Use INSERT (not upsert) since local IDs don't match Supabase BIGSERIAL
+        const { error } = await sbClient.from(tbl).insert(sbRow);
+        if(error) { 
+          console.warn('Sync error on ' + tbl + ':', error.message); 
+          errors++; 
+        } else { 
+          total++; 
+        }
+      } catch(e) {
+        console.warn('Sync exception on ' + tbl + ':', e);
+        errors++;
+      }
     }
   }
-  toast('✅ ' + total + ' înregistrări sincronizate în Supabase!');
+  const msg = '✅ ' + total + ' înregistrări sincronizate!' + (errors > 0 ? ' (' + errors + ' erori — verifică consola)' : '');
+  toast(msg);
   addIstoricEvent('import', 'Sincronizare date locale → Supabase: ' + total + ' înregistrări', currentUser);
+}
+
+
+async function syncAllToSupabase() {
+  // Ensure seed data is loaded
+  if(!DB.cladiri || DB.cladiri.length === 0) seedData();
+  
+  // Ensure sbClient is ready
+  if(!sbClient) initSupabase();
+  if(!sbClient) { toast('⚠️ Supabase nu este conectat!'); return; }
+  
+  SUPABASE_ENABLED = true;
+  
+  toast('⬆️ Sincronizare în curs... (poate dura 30-60 sec)');
+  
+  const tableOrder = [
+    {tbl:'cladiri',    items: DB.cladiri},
+    {tbl:'camere',     items: DB.camere},
+    {tbl:'furnizori',  items: DB.furnizori},
+    {tbl:'personal',   items: DB.personal},
+    {tbl:'inventar',   items: DB.inventar},
+    {tbl:'achizitii',  items: DB.achizitii},
+    {tbl:'tasks',      items: DB.tasks},
+  ];
+  
+  let total = 0, errors = 0;
+  
+  for(const {tbl, items} of tableOrder) {
+    if(!items || !items.length) { console.log('Skip empty:', tbl); continue; }
+    console.log('Syncing', tbl, ':', items.length, 'items');
+    for(const item of items) {
+      try {
+        const sbRow = toSb[tbl] ? toSb[tbl](item) : {...item};
+        // Remove undefined values
+        Object.keys(sbRow).forEach(k => sbRow[k] === undefined && delete sbRow[k]);
+        const { data, error } = await sbClient.from(tbl).insert(sbRow).select();
+        if(error) {
+          console.warn(tbl, 'insert error:', error.message, 'Row:', JSON.stringify(sbRow).substring(0,100));
+          errors++;
+        } else {
+          total++;
+        }
+      } catch(e) {
+        console.warn(tbl, 'exception:', e.message);
+        errors++;
+      }
+    }
+  }
+  
+  const msg = total > 0 
+    ? '✅ ' + total + ' înregistrări în Supabase!' + (errors > 0 ? ' (' + errors + ' erori minore)' : '')
+    : '⚠️ 0 înregistrări — verifică consola (F12) pentru detalii';
+  toast(msg);
+  console.log('Sync complete. Total:', total, 'Errors:', errors);
+  if(total > 0) addIstoricEvent('import', 'Sincronizare → Supabase: ' + total + ' înregistrări', currentUser);
 }
 
 // Keyboard shortcut for login

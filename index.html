@@ -2626,6 +2626,10 @@ function editCladire(id) {
   document.getElementById('cladireAdresa').value=c.adresa;
   document.getElementById('cladireEtaje').value=c.etaje;
   document.getElementById('cladireAn').value=c.an;
+  if(document.getElementById('cladireSupUtila')) document.getElementById('cladireSupUtila').value=c.supUtila||'';
+  if(document.getElementById('cladireSupDesfasurata')) document.getElementById('cladireSupDesfasurata').value=c.supDesfasurata||'';
+  if(document.getElementById('cladireStare')) document.getElementById('cladireStare').value=c.stare||'Bună';
+  if(document.getElementById('cladireSiiir')) document.getElementById('cladireSiiir').value=c.codSiiir||'';
   document.getElementById('cladireResp').value=c.resp;
   document.getElementById('cladireNote').value=c.note||'';
   openModal('modalCladire');

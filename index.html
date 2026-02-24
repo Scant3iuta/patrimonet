@@ -2262,8 +2262,10 @@ async function loadFromSupabase() {
   });
   _supabaseLoaded = true;
   
-  // 2. Then render everything
-  toast('✅ Date încărcate din Supabase!');
+  // 2. Render everything
+  toast('✅ Date încărcate din Supabase! (' + 
+    DB.cladiri.length + ' clăd, ' + DB.camere.length + ' cam, ' + 
+    DB.inventar.length + ' bun, ' + DB.tasks.length + ' sarcini)');
   renderCladiri();
   renderInventar();
   renderTasks();
@@ -2272,10 +2274,11 @@ async function loadFromSupabase() {
   typeof renderMutari === 'function' && renderMutari();
   typeof renderRezervari === 'function' && renderRezervari();
   renderPersonal();
+  typeof renderFluxuri === 'function' && renderFluxuri();
   updateDashboard();
   updateBadges();
   typeof renderAprobariPending === 'function' && renderAprobariPending();
-  console.log('✅ Toate datele din Supabase încărcate și afișate. Tasks:', DB.tasks.length);
+  console.log('✅ SB loaded:', {cladiri:DB.cladiri.length, camere:DB.camere.length, inventar:DB.inventar.length, tasks:DB.tasks.length, personal:DB.personal.length});
 }
 
 // ===== SUPABASE SAVE WRAPPER =====
@@ -2414,6 +2417,8 @@ function initApp() {
   initSupabase();
   // Load from Supabase if configured, otherwise use demo data
   if(SUPABASE_ENABLED) {
+    // Curăță datele seed înainte de încărcare din SB
+    // (seed-ul rămâne doar dacă SB e gol sau deconectat)
     loadFromSupabase();
   }
   // Log authentication
@@ -2436,6 +2441,12 @@ function initApp() {
 
 // ===== SEED =====
 function seedData() {
+  // Nu suprascrie datele dacă Supabase e conectat și are date
+  // seedData e fallback doar când SB e gol sau deconectat
+  if(SUPABASE_ENABLED && _supabaseLoaded) {
+    console.log('SB activ - seed ignorat');
+    return;
+  }
   DB.cladiri = [
     {id:1,cod:'CLD-A',nume:'Clădirea A — Vasile Goldiș',adresa:'Calea Victoriei nr. 1-3, 310158 Arad (lângă Spitalul Județean)',etaje:3,an:1898,resp:'Admin. patrimoniu'},
     {id:2,cod:'CLD-B',nume:'Clădirea B — Ioan Slavici',adresa:'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)',etaje:3,an:1965,resp:'Admin. patrimoniu'},
@@ -4946,40 +4957,58 @@ async function syncAllToSupabase() {
 // Salvează automat orice modificare în Supabase fără să fie nevoie de sync manual
 
 async function sbAutoSave(tbl, localObj) {
-  if(!SUPABASE_ENABLED || !sbClient) return;
+  if(!SUPABASE_ENABLED || !sbClient) return localObj;
   try {
     const mapper = toSb[tbl];
-    const row = mapper ? mapper(localObj) : {...localObj};
-    // Remap foreign keys for camere - cladire_id must be Supabase id
-    if(tbl === 'camere' && row.cladire_id) {
-      const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
-      if(cld && cld._loaded) row.cladire_id = cld.id;
-    }
-    // Remap for inventar
-    if(tbl === 'inventar' && row.cladire_id) {
-      const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
-      if(cld && cld._loaded) row.cladire_id = cld.id;
-      const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
-      if(cam && cam._loaded) row.camera_id = cam.id;
-    }
-    // Curăță undefined
-    Object.keys(row).forEach(k => row[k] === undefined && delete row[k]);
+    if(!mapper) return localObj;
+    const row = mapper(localObj);
     
-    const sbId = localObj._sbId || (typeof localObj.id === 'number' && localObj.id > 1000000 ? null : localObj._sbId);
-    // Use _sbId for updates, or check if this is a Supabase row (has _sbId)
-    if(localObj._sbId) {
-      await sbClient.from(tbl).update(row).eq('id', localObj._sbId);
-    } else if(localObj.id && localObj._loaded) {
-      // Loaded from Supabase - update by id
-      await sbClient.from(tbl).update(row).eq('id', localObj.id);
-    } else {
-      // New local object - insert
-      const { data, error } = await sbClient.from(tbl).insert(row).select('id').single();
-      if(!error && data) { localObj._sbId = data.id; localObj._loaded = true; }
-      if(error) console.warn('Insert error:', tbl, error.message);
+    // Remap FK-uri la ID-uri Supabase
+    if(tbl === 'camere' && localObj.cladireId) {
+      const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
+      if(cld) row.cladire_id = cld.id;
     }
-  } catch(e) {
-    console.warn('AutoSave error:', tbl, e.message);
+    if(tbl === 'inventar') {
+      if(localObj.cladireId) {
+        const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
+        if(cld) row.cladire_id = cld.id;
+      }
+      if(localObj.cameraId) {
+        const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
+        if(cam) row.camera_id = cam.id;
+      }
+    }
+    if(tbl === 'tasks' && localObj.assignId) {
+      const per = DB.personal.find(p => p.id === localObj.assignId);
+      if(per) row.assign_id = per.id;
+    }
+    if(tbl === 'rezervari' && localObj.cameraId) {
+      const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
+      if(cam) row.camera_id = cam.id;
+    }
+    
+    // Curăță undefined/null string
+    Object.keys(row).forEach(k => { if(row[k] === undefined) delete row[k]; });
+    
+    let sbId = localObj._loaded ? localObj.id : null;
+    
+    if(sbId) {
+      // UPDATE - obiect existent în SB
+      const { error } = await sbClient.from(tbl).update(row).eq('id', sbId);
+      if(error) throw error;
+    } else {
+      // INSERT - obiect nou
+      const { data, error } = await sbClient.from(tbl).insert(row).select().single();
+      if(error) throw error;
+      // Actualizează obiectul local cu ID-ul din Supabase
+      localObj.id = data.id;
+      localObj._loaded = true;
+    }
+    return localObj;
+  } catch(err) {
+    console.error('SB Save error ['+tbl+']:', err.message || err);
+    toast('⚠️ Eroare salvare ' + tbl + ': ' + (err.message||'necunoscută'));
+    return null; // semnalează eșec
   }
 }
 

@@ -3002,7 +3002,6 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 
 // ===== TASKS =====
 function renderTasks(data) {
-  console.log('renderTasks called: tasks='+DB.tasks.length+' personal='+DB.personal.length+' sample personal id='+(DB.personal[0]&&DB.personal[0].id));
   let allTasks = data || DB.tasks;
   // Muncitor mentenanta sees only their assigned tasks
   // Admins and admin_pat see ALL tasks
@@ -3018,8 +3017,7 @@ function renderTasks(data) {
     if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
     c.innerHTML=items.map(t=>{
       const per=DB.personal.find(x=>x.id===t.assignId);
-      if(!per && t.assignId) console.log('NO MATCH: task.id='+t.id+' assignId='+t.assignId+' _loaded='+t._loaded+' | personal ids='+DB.personal.slice(0,5).map(p=>p.id+'('+p.email+')').join(','));
-      if(!per && !t.assignId) console.log('NULL assignId: task='+t.titlu+' assignId='+t.assignId);
+
       const canAssign = currentUser && ['admin_app','admin_pat','director'].includes(currentUser.rol);
       const cam=DB.camere.find(x=>x.id===t.cameraId);
       const cld=DB.cladiri.find(x=>x.id===t.cladireId);
@@ -3176,13 +3174,13 @@ function updateDashboard(){
   }).join('');
 
   // Tasks
-  const taskItems=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status)).slice(0,4);
+  const taskItems=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status) && (t.titlu||t.title||'').trim() !== '—').slice(0,4);
   document.getElementById('dashTasks').innerHTML=taskItems.length?taskItems.map(t=>{
     const per=DB.personal.find(x=>x.id===t.assignId);
     const pc=t.prio==='Înaltă'?'#c0392b':t.prio==='Medie'?'#d97706':'#0d7c6b';
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
       <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu||t.title||"—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?per.prenume+' '+per.nume:'—'}</div></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu||t.title||"—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?(per.prenume+' '+per.nume):(t.assignId?'ID:'+t.assignId:'Neatribuit')}</div></div>
       <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prio}</span>
     </div>`;
   }).join(''):'<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';

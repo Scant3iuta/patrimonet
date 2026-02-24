@@ -2842,8 +2842,9 @@ function saveBun() {
     desc: document.getElementById('bunDesc').value
   };
   if (!b.nume) { toast('⚠️ Completează denumirea!'); return; }
-  if (id) { const i=DB.inventar.findIndex(x=>x.id==id); DB.inventar[i]=b; toast('✅ Bun actualizat!'); }
+  if (id) { const i=DB.inventar.findIndex(x=>x.id==id); DB.inventar[i]={...DB.inventar[i],...b}; b=DB.inventar[i]; toast('✅ Bun actualizat!'); }
   else { DB.inventar.push(b); toast('✅ Bun adăugat — '+b.nrInv); }
+  sbAutoSave('inventar', b).then(toastSave);
   addActivity('Bun inventar: '+b.nrInv+' — '+b.nume,'teal');
   closeModal('modalBun');
   renderInventar();
@@ -2959,7 +2960,8 @@ function saveFurnizor(){
   const id=document.getElementById('furnEditId').value;
   const f={id:id?parseInt(id):Date.now(),nume:document.getElementById('furnNume').value,cui:document.getElementById('furnCui').value,contact:document.getElementById('furnContact').value,tel:document.getElementById('furnTel').value,email:document.getElementById('furnEmail').value,cat:document.getElementById('furnCat').value};
   if(!f.nume){toast('⚠️ Completează denumirea!');return;}
-  if(id){const i=DB.furnizori.findIndex(x=>x.id==id);DB.furnizori[i]=f;}else DB.furnizori.push(f);
+  if(id){const i=DB.furnizori.findIndex(x=>x.id==id);DB.furnizori[i]={...DB.furnizori[i],...f};f=DB.furnizori[i];}else DB.furnizori.push(f);
+  sbAutoSave('furnizori', f).then(toastSave);
   toast('✅ Furnizor salvat!');closeModal('modalFurnizor');
   document.getElementById('furnEditId').value='';renderFurnizori();
 }
@@ -3160,7 +3162,8 @@ function savePersonal(){
   const id=document.getElementById('perEditId').value;
   const p={id:id?parseInt(id):Date.now(),prenume:document.getElementById('perPrenume').value,nume:document.getElementById('perNume').value,email:document.getElementById('perEmail').value,tel:document.getElementById('perTel').value,rol:document.getElementById('perRol').value,parola:document.getElementById('perParola').value||'temp123'};
   if(!p.prenume||!p.email){toast('⚠️ Completează câmpurile obligatorii!');return;}
-  if(id){const i=DB.personal.findIndex(x=>x.id==id);DB.personal[i]=p;}else DB.personal.push(p);
+  if(id){const i=DB.personal.findIndex(x=>x.id==id);DB.personal[i]={...DB.personal[i],...p};p=DB.personal[i];}else DB.personal.push(p);
+  sbAutoSave('personal', p).then(toastSave);
   toast('✅ Utilizator salvat!');closeModal('modalPersonal');
   document.getElementById('perEditId').value='';renderPersonal();
 }
@@ -3824,11 +3827,13 @@ function saveMutare() {
   };
 
   DB.mutari.unshift(m);
+  sbAutoSave('mutari', m);
 
   if (aprob !== 'da') {
     // Apply move immediately
     b.cladireId = m.laCladireId || b.cladireId;
     b.cameraId = m.laCameraId || b.cameraId;
+    sbAutoSave('inventar', b);
     toast('✅ Mutare înregistrată și aplicată!');
     addNotification('Mutare bun finalizată', `${b.nrInv} — ${b.nume.substring(0,30)} → ${m.laCamera}`, 'mutare', ['admin_pat','admin_app']);
   } else {
@@ -3956,6 +3961,7 @@ function saveRezervare() {
     creatLa: new Date().toLocaleDateString('ro-RO')
   };
   DB.rezervari.push(r);
+  sbAutoSave('rezervari', r).then(toastSave);
 
   if (necesitaAprobare) {
     toast('⏳ Rezervare trimisă spre aprobare director și admin patrimoniu!');
@@ -5295,86 +5301,12 @@ async function fixTaskTitluInSupabase() {
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen').style.display!=='none')doLogin();});
 </script>
 
-
   <script>
     if('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com' && !location.hostname.includes('claude')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW:', e));
       });
     }
-    async function sbAutoSave(table, localObj) {
-  if (!SUPABASE_ENABLED || !sbClient) return null;
-  try {
-    const sbRow = toSb[table] ? toSb[table](localObj) : { ...localObj };
-    // Dacă obiectul are id Supabase (mare, din _loaded), facem UPDATE
-    if (localObj._loaded && localObj.id) {
-      const { data, error } = await sbClient.from(table).update(sbRow).eq('id', localObj.id).select().single();
-      if (error) { console.error('sbAutoSave UPDATE', table, error.message); return null; }
-      return data;
-    } else {
-      // INSERT nou
-      const { data, error } = await sbClient.from(table).insert(sbRow).select().single();
-      if (error) { console.error('sbAutoSave INSERT', table, error.message); return null; }
-      // Salvează ID-ul Supabase pe obiectul local pentru viitor
-      if (data) { localObj.id = data.id; localObj._loaded = true; }
-      return data;
-    }
-  } catch (e) {
-    console.error('sbAutoSave exception', table, e);
-    return null;
-  }
-}
-
-function toastSave(result) {
-  if (result) {
-    const ind = document.getElementById('autosaveIndicator');
-    if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 2000); }
-  }
-}
-
-// ---- apobraAchizitie: funcție lipsă ----
-function aprobaAchizitie(aprobId, approved) {
-  const ap = (DB.aprobari || []).find(x => x.id === aprobId);
-  if (!ap) return;
-  ap.status = approved ? 'aprobat' : 'respins';
-  ap.aprobatDe = currentUser.prenume + ' ' + currentUser.nume;
-  ap.aprobatLa = new Date().toLocaleDateString('ro-RO');
-  // Actualizează și achiziția
-  if (ap.achId) {
-    const ach = DB.achizitii.find(x => x.id === ap.achId);
-    if (ach) ach.status = approved ? 'Livrat' : 'Anulat';
-  }
-  toast(approved ? '✅ Achiziție aprobată!' : '❌ Achiziție respinsă!');
-  addIstoricEvent('aprobare', `Achiziție ${approved ? 'aprobată' : 'respinsă'} de ${currentUser.prenume} ${currentUser.nume}`, currentUser);
-  addNotification(
-    approved ? 'Achiziție aprobată' : 'Achiziție respinsă',
-    ap.titlu || '—',
-    'aprobare',
-    ['admin_pat', 'contabil']
-  );
-  updateAprobari();
-  renderAchizitii();
-  renderAprobariPending();
-}
-
-// ---- assignTask: funcție lipsă ----
-function assignTask(taskId) {
-  const t = DB.tasks.find(x => x.id === taskId);
-  if (!t) return;
-  const muncitori = DB.personal.filter(p => p.rol === 'mentenanta');
-  if (!muncitori.length) { toast('⚠️ Niciun personal de mentenanță disponibil!'); return; }
-  const opts = muncitori.map(p => p.prenume + ' ' + p.nume).join('\n');
-  const ales = prompt('Alocă sarcina:\n' + muncitori.map((p, i) => (i + 1) + '. ' + p.prenume + ' ' + p.nume).join('\n') + '\n\nIntrodu numărul:');
-  const idx = parseInt(ales) - 1;
-  if (idx >= 0 && idx < muncitori.length) {
-    t.assignId = muncitori[idx].id;
-    t.titlu = t.titlu || t.title || '—';
-    sbAutoSave('tasks', t).then(toastSave);
-    toast('✅ Sarcină alocată: ' + muncitori[idx].prenume + ' ' + muncitori[idx].nume);
-    addNotification('Sarcină alocată', t.titlu || '—', 'mentenanta', [muncitori[idx].email || 'mentenanta']);
-    renderTasks();
-  }
-}
 
 // ---- showLocatii: funcție pentru distribuție locații ----
 function showLocatii(bunId) {
@@ -5388,7 +5320,6 @@ function showLocatii(bunId) {
   alert('Distribuție locații pentru ' + b.nrInv + ':\n\n' + info);
 }
 
-// ---- toggleLocatiiMultiple: pentru modal bun ----
 function toggleLocatiiMultiple() {
   const qty = parseInt(document.getElementById('bunQty').value) || 1;
   const section = document.getElementById('locatiiMultipleSection');
@@ -5434,526 +5365,6 @@ function updateLocSumar() {
   sumar.innerHTML = `Total distribuit: <strong>${total}</strong> / ${bunQty} buc ${total === bunQty ? '✅' : total > bunQty ? '⚠️ Prea mult!' : '⚠️ Mai rămân ' + (bunQty - total)}`;
 }
 
-// ===== PATCH: OVERRIDE funcții de salvare cu Supabase INSERT =====
-
-// Override saveCladire cu SB
-const _origSaveCladire = saveCladire;
-// Nu overrideăm - saveCladire deja apelează sbAutoSave
-
-// Override saveCamera — adaugă SB INSERT
-const _origSaveCamera = window.saveCamera;
-window.saveCamera = async function() {
-  const id = document.getElementById('cameraEditId').value;
-  const c = {
-    id: id ? parseInt(id) : Date.now(),
-    cod: document.getElementById('camCod').value,
-    nr: document.getElementById('camNr').value,
-    tip: document.getElementById('camTip').value,
-    nume: document.getElementById('camNume').value,
-    cladireId: parseInt(document.getElementById('camCladire').value),
-    etaj: document.getElementById('camEtaj').value,
-    resp: document.getElementById('camResp').value,
-    sup: document.getElementById('camSup').value
-  };
-  if (!c.cod || !c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
-  let existing = null;
-  if (id) {
-    const i = DB.camere.findIndex(x => x.id == id);
-    existing = DB.camere[i];
-    DB.camere[i] = { ...existing, ...c };
-    await sbAutoSave('camere', DB.camere[i]);
-  } else {
-    DB.camere.push(c);
-    await sbAutoSave('camere', c);
-  }
-  toast('✅ Cameră salvată!');
-  closeModal('modalCamera');
-  renderCamere();
-};
-
-// Override saveBun — adaugă SB INSERT
-const _origSaveBun = window.saveBun;
-window.saveBun = async function() {
-  const id = document.getElementById('bunEditId').value;
-  const b = {
-    id: id ? parseInt(id) : Date.now(),
-    nrInv: document.getElementById('bunNrInv').value || 'INV-' + Date.now(),
-    nume: document.getElementById('bunNume').value,
-    cat: document.getElementById('bunCat').value,
-    cladireId: parseInt(document.getElementById('bunCladire').value),
-    cameraId: parseInt(document.getElementById('bunCamera').value),
-    qty: parseInt(document.getElementById('bunQty').value) || 1,
-    val: parseFloat(document.getElementById('bunVal').value) || 0,
-    stare: document.getElementById('bunStare').value,
-    data: document.getElementById('bunData').value,
-    furnId: parseInt(document.getElementById('bunFurnizor').value) || null,
-    desc: document.getElementById('bunDesc').value
-  };
-  if (!b.nume) { toast('⚠️ Completează denumirea!'); return; }
-  if (id) {
-    const i = DB.inventar.findIndex(x => x.id == id);
-    const existing = DB.inventar[i];
-    DB.inventar[i] = { ...existing, ...b };
-    await sbAutoSave('inventar', DB.inventar[i]);
-    toast('✅ Bun actualizat!');
-  } else {
-    DB.inventar.push(b);
-    await sbAutoSave('inventar', b);
-    toast('✅ Bun adăugat — ' + b.nrInv);
-  }
-  addActivity('Bun inventar: ' + b.nrInv + ' — ' + b.nume, 'teal');
-  addIstoricEvent('inventar', 'Bun ' + (id ? 'modificat' : 'adăugat') + ': ' + b.nrInv + ' — ' + b.nume, currentUser);
-  closeModal('modalBun');
-  renderInventar();
-};
-
-// Override saveFurnizor — adaugă SB INSERT
-const _origSaveFurnizor = window.saveFurnizor;
-window.saveFurnizor = async function() {
-  const id = document.getElementById('furnEditId').value;
-  const f = {
-    id: id ? parseInt(id) : Date.now(),
-    nume: document.getElementById('furnNume').value,
-    cui: document.getElementById('furnCui').value,
-    contact: document.getElementById('furnContact').value,
-    tel: document.getElementById('furnTel').value,
-    email: document.getElementById('furnEmail').value,
-    cat: document.getElementById('furnCat').value,
-    adresa: document.getElementById('furnAdresa')?.value || '',
-    judet: document.getElementById('furnJudet')?.value || ''
-  };
-  if (!f.nume) { toast('⚠️ Completează denumirea!'); return; }
-  if (id) {
-    const i = DB.furnizori.findIndex(x => x.id == id);
-    const existing = DB.furnizori[i];
-    DB.furnizori[i] = { ...existing, ...f };
-    await sbAutoSave('furnizori', DB.furnizori[i]);
-  } else {
-    DB.furnizori.push(f);
-    await sbAutoSave('furnizori', f);
-  }
-  toast('✅ Furnizor salvat!');
-  closeModal('modalFurnizor');
-  document.getElementById('furnEditId').value = '';
-  renderFurnizori();
-};
-
-// Override saveAchizitie — adaugă SB INSERT (deja are sbAutoSave, dar asigurăm)
-const _origSaveAchizitie = window.saveAchizitie;
-window.saveAchizitie = async function() {
-  const id = document.getElementById('achEditId').value;
-  const a = {
-    id: id ? parseInt(id) : Date.now(),
-    produs: document.getElementById('achProdus').value,
-    furnId: parseInt(document.getElementById('achFurn').value),
-    qty: parseInt(document.getElementById('achQty').value) || 1,
-    val: parseFloat(document.getElementById('achVal').value) || 0,
-    data: document.getElementById('achData').value,
-    status: document.getElementById('achStatus').value,
-    aprobare: document.getElementById('achAprobare').value,
-    note: document.getElementById('achNote').value,
-    userId: currentUser?.id
-  };
-  if (!a.produs) { toast('⚠️ Completează produsul!'); return; }
-  if (id) {
-    const i = DB.achizitii.findIndex(x => x.id == id);
-    const existing = DB.achizitii[i];
-    DB.achizitii[i] = { ...existing, ...a };
-    await sbAutoSave('achizitii', DB.achizitii[i]);
-  } else {
-    DB.achizitii.push(a);
-    await sbAutoSave('achizitii', a);
-  }
-  // Aprobare dacă necesară
-  if ((a.val > 5000 || a.aprobare === 'da') && a.status !== 'Livrat') {
-    DB.aprobari = DB.aprobari || [];
-    if (!DB.aprobari.find(x => x.achId === a.id && x.status === 'pending')) {
-      DB.aprobari.push({
-        id: Date.now(), tip: 'achizitie', achId: a.id,
-        titlu: 'Achiziție: ' + a.produs,
-        descriere: 'Valoare: ' + a.val.toLocaleString('ro-RO') + ' RON — necesită aprobare director',
-        status: 'pending', userId: currentUser?.id,
-        dataCreare: new Date().toLocaleDateString('ro-RO')
-      });
-      addNotification('Aprobare necesară', 'Achiziție ' + a.produs + ' — ' + a.val.toLocaleString('ro-RO') + ' RON', 'aprobare', ['director', 'admin_app', 'admin_pat']);
-    }
-    toast('✅ Achiziție salvată și trimisă spre aprobare!');
-  } else {
-    toast('✅ Achiziție salvată!');
-  }
-  closeModal('modalAchizitie');
-  document.getElementById('achEditId').value = '';
-  addActivity('Achiziție: ' + a.produs, 'sky');
-  addIstoricEvent('inventar', 'Achiziție ' + (id ? 'modificată' : 'adăugată') + ': ' + a.produs, currentUser);
-  renderAchizitii();
-  updateBadges();
-  updateAprobari();
-};
-
-// Override saveTask — adaugă SB INSERT
-const _origSaveTask = window.saveTask;
-window.saveTask = async function() {
-  const id = document.getElementById('taskEditId').value;
-  const assignEl = document.getElementById('taskAssign');
-  // Colectează toți angajații selectați (multi-select dacă există)
-  const assignIds = assignEl ? Array.from(assignEl.selectedOptions || [assignEl]).map(o => parseInt(o.value)).filter(Boolean) : [];
-  const t = {
-    id: id ? parseInt(id) : Date.now(),
-    titlu: document.getElementById('taskTitle').value,
-    prioritate: document.getElementById('taskPrio').value,
-    assignId: assignIds[0] || null,
-    assignIds: assignIds,
-    cladireId: parseInt(document.getElementById('taskCladire').value) || null,
-    cameraId: parseInt(document.getElementById('taskCamera2').value) || null,
-    bunId: document.getElementById('taskBun').value || null,
-    termen: document.getElementById('taskTermen').value || null,
-    desc: document.getElementById('taskDesc').value,
-    status: 'Deschisă',
-    userId: currentUser?.id
-  };
-  if (!t.titlu) { toast('⚠️ Completează titlul sarcinii!'); return; }
-  if (id) {
-    const i = DB.tasks.findIndex(x => x.id == id);
-    const existing = DB.tasks[i];
-    DB.tasks[i] = { ...existing, ...t };
-    await sbAutoSave('tasks', DB.tasks[i]);
-  } else {
-    DB.tasks.push(t);
-    await sbAutoSave('tasks', t);
-  }
-  // Notifică persoana alocată
-  if (t.assignId) {
-    const per = DB.personal.find(x => x.id === t.assignId);
-    if (per) addNotification('Sarcină nouă alocată', t.titlu, 'mentenanta', [per.email || 'mentenanta']);
-  }
-  toast('✅ Sarcină mentenanță creată!');
-  closeModal('modalTask');
-  addActivity('Sarcină mentenanță: ' + t.titlu, 'amber');
-  addIstoricEvent('mentenanta', 'Sarcină ' + (id ? 'modificată' : 'creată') + ': ' + t.titlu, currentUser);
-  renderTasks();
-  updateDashboard();
-  updateBadges();
-};
-
-// Override savePersonal — adaugă SB INSERT
-const _origSavePersonal = window.savePersonal;
-window.savePersonal = async function() {
-  const id = document.getElementById('perEditId').value;
-  const p = {
-    id: id ? parseInt(id) : Date.now(),
-    prenume: document.getElementById('perPrenume').value,
-    nume: document.getElementById('perNume').value,
-    email: document.getElementById('perEmail').value,
-    tel: document.getElementById('perTel').value,
-    rol: document.getElementById('perRol').value,
-    parola: document.getElementById('perParola').value || 'temp123'
-  };
-  if (!p.prenume || !p.email) { toast('⚠️ Completează câmpurile obligatorii!'); return; }
-  if (id) {
-    const i = DB.personal.findIndex(x => x.id == id);
-    const existing = DB.personal[i];
-    DB.personal[i] = { ...existing, ...p };
-    await sbAutoSave('personal', DB.personal[i]);
-  } else {
-    DB.personal.push(p);
-    await sbAutoSave('personal', p);
-  }
-  toast('✅ Utilizator salvat!');
-  closeModal('modalPersonal');
-  document.getElementById('perEditId').value = '';
-  renderPersonal();
-};
-
-// Override saveMutare — adaugă SB INSERT
-const _origSaveMutare = window.saveMutare;
-window.saveMutare = async function() {
-  const bunId = parseInt(document.getElementById('mutareBun').value);
-  if (!bunId) { toast('⚠️ Selectează bunul!'); return; }
-  const b = DB.inventar.find(x => x.id === bunId);
-  const laCamId = parseInt(document.getElementById('mutareLaCamera').value);
-  const laCld = DB.cladiri.find(x => x.id === parseInt(document.getElementById('mutareLaCladire').value));
-  const laCam = DB.camere.find(x => x.id === laCamId);
-  const aprob = document.getElementById('mutareAprobare').value;
-  const deCld = DB.cladiri.find(x => x.id === b.cladireId);
-  const deCam = DB.camere.find(x => x.id === b.cameraId);
-
-  const m = {
-    id: Date.now(),
-    bunId,
-    userId: currentUser.id,
-    data: new Date().toLocaleDateString('ro-RO'),
-    deCladire: deCld ? deCld.cod : 'Neatribuit',
-    deCamera: deCam ? deCam.cod : 'Neatribuită',
-    laCladire: laCld ? laCld.cod : '—',
-    laCamera: laCam ? laCam.cod : '—',
-    laCladireId: laCld ? laCld.id : null,
-    laCameraId: laCamId || null,
-    motiv: document.getElementById('mutareMotiv').value,
-    obs: document.getElementById('mutareObs').value,
-    status: aprob === 'da' ? 'În așteptare aprobare' : 'Finalizată'
-  };
-
-  DB.mutari.unshift(m);
-  await sbAutoSave('mutari', m);
-
-  if (aprob !== 'da') {
-    b.cladireId = m.laCladireId || b.cladireId;
-    b.cameraId = m.laCameraId || b.cameraId;
-    await sbAutoSave('inventar', b);
-    toast('✅ Mutare înregistrată și aplicată!');
-    addNotification('Mutare bun finalizată', `${b.nrInv} — ${b.nume.substring(0,30)} → ${m.laCamera}`, 'mutare', ['admin_pat', 'admin_app']);
-  } else {
-    toast('⏳ Mutare trimisă spre aprobare director!');
-    addNotification('Cerere mutare bun', `${b.nrInv} necesită aprobare pentru mutare în ${m.laCamera}`, 'aprobare', ['director', 'admin_pat']);
-    updateAprobari();
-  }
-
-  addIstoricEvent('mutare', `Mutare bun: ${b.nrInv} din ${m.deCamera} → ${m.laCamera}`, currentUser);
-  closeModal('modalMutare');
-  renderMutari();
-  updateDashboard();
-};
-
-// Override saveRezervare — FIX PRINCIPAL + SB INSERT
-const _origSaveRezervare = window.saveRezervare;
-window.saveRezervare = async function() {
-  const camId = parseInt(document.getElementById('rezCamera').value);
-  const data = document.getElementById('rezData').value;
-  const oraStart = document.getElementById('rezOraStart').value;
-  const oraEnd = document.getElementById('rezOraEnd').value;
-  const materie = document.getElementById('rezMaterie').value;
-  if (!materie) { toast('⚠️ Completează materia / scopul!'); return; }
-
-  // Verifică conflict
-  const conflict = DB.rezervari.find(r => r.cameraId === camId && r.data === data && r.oraStart === oraStart && r.status !== 'Respinsă');
-  if (conflict) { toast('⚠️ Sala este deja rezervată în acel interval!'); return; }
-
-  const cam = DB.camere.find(x => x.id === camId);
-  const necesitaAprobare = cam && ['Laborator', 'Sală sport', 'Atelier'].includes(cam.tip);
-  const echip = Array.from(document.querySelectorAll('#echipCheckboxes input:checked')).map(cb => cb.value);
-
-  const r = {
-    id: Date.now(),
-    cameraId: camId,
-    userId: currentUser.id,
-    data, oraStart, oraEnd,
-    materie,
-    elevi: parseInt(document.getElementById('rezElevi').value) || 0,
-    echipamente: echip.join(', '),
-    status: necesitaAprobare ? 'În așteptare aprobare' : 'Aprobată',
-    creatLa: new Date().toLocaleDateString('ro-RO')
-  };
-
-  DB.rezervari.push(r);
-  // *** SUPABASE INSERT ***
-  await sbAutoSave('rezervari', r);
-
-  if (necesitaAprobare) {
-    toast('⏳ Rezervare trimisă spre aprobare director și admin patrimoniu!');
-    addNotification('Cerere rezervare sală', `${cam.cod} — ${materie} pe ${data} ora ${oraStart}`, 'rezervare', ['director', 'admin_pat']);
-  } else {
-    toast('✅ Sală rezervată cu succes!');
-    addNotification('Rezervare sală confirmată', `${cam ? cam.cod : ''} rezervată pe ${data} ora ${oraStart}`, 'rezervare', ['admin_pat']);
-  }
-  addIstoricEvent('rezervare', `Rezervare sală ${cam ? cam.cod : ''} pe ${data} ${oraStart}–${oraEnd} · ${materie}`, currentUser);
-  closeModal('modalRezervare');
-  renderCalendarRez();
-  renderRezLista();
-  updateAprobari();
-  updateBadges();
-};
-
-// Override saveProblema — adaugă SB INSERT (deja are sbAutoSave dar cu catch gol)
-const _origSaveProblema = window.saveProblema;
-window.saveProblema = async function() {
-  const tip = document.getElementById('probTip').value;
-  const locatie = document.getElementById('probLocatie').value;
-  const desc = document.getElementById('probDesc').value;
-  const prio = document.getElementById('probPrio').value;
-  if (!desc || !locatie) { toast('⚠️ Completează locația și descrierea!'); return; }
-
-  const prob = {
-    id: Date.now(), tip, locatie, desc, prio,
-    status: 'Deschisă',
-    userId: currentUser.id,
-    creat: new Date().toLocaleDateString('ro-RO'),
-    creatTime: new Date().toLocaleString('ro-RO')
-  };
-  DB.probleme.push(prob);
-  await sbAutoSave('probleme', prob);
-
-  // Creează automat task de mentenanță
-  const autoTask = {
-    id: Date.now() + 1,
-    titlu: 'Sesizare: ' + desc.substring(0, 50),
-    prioritate: prio || 'Medie',
-    status: 'Deschisă',
-    cameraId: null, bunId: null,
-    assignId: null,
-    userId: currentUser?.id,
-    desc: desc + ' (locație: ' + (locatie || '—') + ')',
-    termen: null,
-    dinSesizare: true
-  };
-  DB.tasks = DB.tasks || [];
-  DB.tasks.push(autoTask);
-  await sbAutoSave('tasks', autoTask);
-
-  toast('✅ Sesizare trimisă și task de mentenanță creat automat!');
-  addNotification('Sesizare nouă internat', prio + ' · ' + tip + ' · ' + locatie, 'mentenanta', ['admin_pat', 'mentenanta', 'admin_app']);
-  addIstoricEvent('mentenanta', 'Sesizare internat: ' + tip + ' la ' + locatie + ' (' + prio + ')', currentUser);
-  closeModal('modalProblema');
-  renderProbleme();
-  updateIntBadges();
-};
-
-// Override saveFlux — adaugă SB INSERT
-const _origSaveFlux = window.saveFlux;
-window.saveFlux = async function() {
-  const titlu = document.getElementById('fluxTitlu').value;
-  if (!titlu) { toast('⚠️ Completează titlul fluxului!'); return; }
-  const f = {
-    id: Date.now(),
-    tip: document.getElementById('fluxTip').value,
-    titlu,
-    responsabilId: parseInt(document.getElementById('fluxResponsabil').value),
-    termen: document.getElementById('fluxTermen').value || null,
-    obs: document.getElementById('fluxObs').value,
-    userId: currentUser.id,
-    dataStart: new Date().toISOString().split('T')[0],
-    stepCurent: 0,
-    status: 'În așteptare',
-    istoricPasi: []
-  };
-  DB.fluxuri.push(f);
-  await sbAutoSave('fluxuri', f);
-
-  toast('▶️ Flux pornit: ' + f.titlu);
-  addIstoricEvent('aprobare', 'Flux pornit: ' + f.tip + ' — ' + f.titlu, currentUser);
-  addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat', 'director', 'admin_app']);
-  closeModal('modalFlux');
-  const tab = document.querySelector('#section-fluxuri .tab');
-  if (tab) switchTabFlux('flux-activ', tab);
-  renderFluxuri();
-  updateFluxBadge();
-};
-
-// Override avanseazaFlux — adaugă SB UPDATE
-const _origAvanseazaFlux = window.avanseazaFlux;
-window.avanseazaFlux = async function(id) {
-  const f = DB.fluxuri.find(x => x.id === id);
-  if (!f) return;
-  const steps = FLUX_STEPS[f.tip] || [];
-  f.stepCurent = (f.stepCurent || 0) + 1;
-  f.status = 'În lucru';
-  const stepName = steps[f.stepCurent - 1] || '';
-  f.istoricPasi = f.istoricPasi || [];
-  f.istoricPasi.push({ pas: f.stepCurent, nume: stepName, data: new Date().toLocaleDateString('ro-RO'), user: currentUser.prenume + ' ' + currentUser.nume });
-  if (f.stepCurent >= steps.length) {
-    f.status = 'Finalizat';
-    f.dataFinal = new Date().toLocaleDateString('ro-RO');
-    toast('✅ Flux finalizat: ' + f.titlu);
-    addNotification('Flux finalizat', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat', 'director', 'contabil']);
-  } else {
-    toast('→ Pas ' + f.stepCurent + '/' + steps.length + ' completat: ' + stepName);
-    addNotification('Flux avansat', f.tip + ' — pas ' + f.stepCurent + ': ' + stepName, 'aprobare', ['admin_pat', 'director']);
-  }
-  await sbAutoSave('fluxuri', f);
-  addIstoricEvent('aprobare', 'Flux avansat: ' + f.tip + ' — ' + stepName, currentUser);
-  renderFluxuri();
-  updateFluxBadge();
-};
-
-// Override savePrezenta — deja are sbAutoSave dar asigurăm
-const _origSavePrezenta = window.savePrezenta;
-window.savePrezenta = async function() {
-  const data = document.getElementById('prezData').value;
-  const nr = parseInt(document.getElementById('prezElevi').value);
-  if (!data || isNaN(nr)) { toast('⚠️ Completează data și numărul de elevi!'); return; }
-  const tipZi = document.getElementById('prezTipZi').value;
-  const obs = document.getElementById('prezObs').value;
-  const existing = DB.prezenta.find(p => p.data === data);
-  let obj;
-  if (existing) {
-    existing.elevi = nr; existing.tipZi = tipZi; existing.obs = obs; existing.userId = currentUser.id;
-    obj = existing;
-    await sbAutoSave('prezenta', obj);
-  } else {
-    obj = { id: Date.now(), data, elevi: nr, tipZi, obs, userId: currentUser.id, creat: new Date().toLocaleString('ro-RO') };
-    DB.prezenta.push(obj);
-    await sbAutoSave('prezenta', obj);
-  }
-  toast('✅ Prezența salvată!');
-  addIstoricEvent('internat', 'Prezență internat: ' + nr + ' elevi pe ' + data + ' (' + tipZi + ')', currentUser);
-  updateIntStatBox();
-  renderPrezenta();
-  document.getElementById('prezElevi').value = '';
-  document.getElementById('prezObs').value = '';
-};
-
-// Override saveMese — deja are sbAutoSave dar asigurăm
-const _origSaveMese = window.saveMese;
-window.saveMese = async function() {
-  const data = document.getElementById('meseData').value;
-  const md = parseInt(document.getElementById('meseMicDejun').value) || 0;
-  const pr = parseInt(document.getElementById('mesePranz').value) || 0;
-  const ci = parseInt(document.getElementById('meseCina').value) || 0;
-  if (!data) { toast('⚠️ Selectează data!'); return; }
-  const obs = document.getElementById('meseObs').value;
-  const existing = DB.mese.find(m => m.data === data);
-  let obj;
-  if (existing) {
-    existing.micDejun = md; existing.pranz = pr; existing.cina = ci; existing.obs = obs; existing.userId = currentUser.id;
-    obj = existing;
-    await sbAutoSave('mese', obj);
-  } else {
-    obj = { id: Date.now(), data, micDejun: md, pranz: pr, cina: ci, obs, userId: currentUser.id, creat: new Date().toLocaleString('ro-RO') };
-    DB.mese.push(obj);
-    await sbAutoSave('mese', obj);
-  }
-  toast('✅ Mese salvate!');
-  addIstoricEvent('internat', 'Mese cantină: MicDejun=' + md + ' Prânz=' + pr + ' Cină=' + ci + ' pe ' + data, currentUser);
-  updateMeseStat();
-  renderMese();
-  ['meseMicDejun', 'mesePranz', 'meseCina', 'meseObs'].forEach(id => { document.getElementById(id).value = ''; });
-};
-
-// Override saveCladire — asigurăm SB INSERT
-const _origSaveCladire2 = window.saveCladire;
-window.saveCladire = async function() {
-  const id = document.getElementById('cladireEditId').value;
-  const c = {
-    id: id ? parseInt(id) : Date.now(),
-    cod: document.getElementById('cladireCod').value,
-    nume: document.getElementById('cladireNume').value,
-    adresa: document.getElementById('cladireAdresa').value,
-    etaje: parseInt(document.getElementById('cladireEtaje').value) || 1,
-    an: document.getElementById('cladireAn').value || null,
-    supUtila: document.getElementById('cladireSupUtila')?.value || '',
-    supDesfasurata: document.getElementById('cladireSupDesfasurata')?.value || '',
-    stare: document.getElementById('cladireStare')?.value || 'Bună',
-    codSiiir: document.getElementById('cladireSiiir')?.value || '',
-    resp: document.getElementById('cladireResp').value,
-    note: document.getElementById('cladireNote').value
-  };
-  if (!c.cod || !c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
-  if (id) {
-    const i = DB.cladiri.findIndex(x => x.id == id);
-    const existing = DB.cladiri[i];
-    DB.cladiri[i] = { ...existing, ...c };
-    await sbAutoSave('cladiri', DB.cladiri[i]);
-  } else {
-    DB.cladiri.push(c);
-    await sbAutoSave('cladiri', c);
-  }
-  toast('✅ Clădire salvată!');
-  closeModal('modalCladire');
-  addActivity('Clădire salvată: ' + c.cod + ' — ' + c.nume, 'gold');
-  addIstoricEvent('inventar', 'Clădire ' + (id ? 'modificată' : 'adăugată') + ': ' + c.cod, currentUser);
-  renderCladiri();
-  updateDashboard();
-};
-
 // ANAF lookup — completare automată furnizor
 async function cautaANAF() {
   const cui = document.getElementById('furnCuiSearch').value.trim().replace(/[^0-9]/g, '');
@@ -5963,13 +5374,6 @@ async function cautaANAF() {
   statusEl.textContent = '⏳ Se caută în ANAF...';
   if (btn) btn.disabled = true;
 
-  // Proxy CORS pentru ANAF (mai multe opțiuni)
-  const proxies = [
-    `https://api.codul-fiscal.ro/company/${cui}`,
-    `https://openapi.ro/api/companies/${cui}?token=demo`,
-  ];
-
-  // Fallback: simulare date pentru demo
   const demoData = {
     '4262239': { denumire: 'COLEGIUL NATIONAL VASILE GOLDIS', adresa: 'CALEA VICTORIEI 1-3', judet: 'ARAD', tva: false },
   };
@@ -5987,7 +5391,6 @@ async function cautaANAF() {
   }
 
   try {
-    // Încearcă primul proxy
     const resp = await fetch(`https://cors-anywhere.herokuapp.com/https://webservicesp.anaf.ro/AsynchWebService/api/v8/ws/tva?cui=${cui}&data=${new Date().toISOString().split('T')[0]}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -6006,9 +5409,7 @@ async function cautaANAF() {
       } else {
         statusEl.innerHTML = '<span style="color:var(--amber)">⚠️ CUI negăsit în ANAF.</span>';
       }
-    } else {
-      throw new Error('ANAF API indisponibil');
-    }
+    } else { throw new Error('ANAF API indisponibil'); }
   } catch (e) {
     statusEl.innerHTML = '<span style="color:var(--amber)">⚠️ ANAF indisponibil. Completează manual.</span>';
     document.getElementById('furnCui').value = 'RO' + cui;

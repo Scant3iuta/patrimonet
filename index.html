@@ -873,7 +873,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       <div class="nav-item" onclick="nav('mutari',this)"><span class="nav-icon">🔀</span> Mutări bunuri <span class="nav-badge" id="mutariBadge" style="display:none">!</span></div>
       <div class="nav-item" onclick="nav('rezervari',this)"><span class="nav-icon">📅</span> Rezervare săli <span class="nav-badge" id="rezervariBadge" style="display:none">0</span></div>
       <div class="nav-item" onclick="nav('aprobari',this)"><span class="nav-icon">✅</span> Aprobări <span class="nav-badge" id="aprobariBadge" style="display:none">0</span></div>
-      <div class="nav-item" onclick="nav('internat',this)"><span class="nav-icon">🏠</span> Internat & Cantină</div>
+      <div class="nav-item" data-roles="admin_app,admin_pat,pedagog,director,informatician" onclick="nav('internat',this)"><span class="nav-icon">🏠</span> Internat & Cantină</div>
       <div class="nav-item" onclick="nav('mentenanta',this)"><span class="nav-icon">🔧</span> Mentenanță <span class="nav-badge" id="taskBadge">0</span></div>
       <div class="nav-item" onclick="nav('fluxuri',this)"><span class="nav-icon">🔄</span> Fluxuri de lucru</div>
     </div>
@@ -2562,6 +2562,11 @@ function populateCladireSelects() {
 }
 
 // ===== CLADIRI =====
+
+function toggleCladireDetail(id) {
+  const el = document.getElementById('cladire-detail-'+id);
+  if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
 function renderCladiri(data) {
   const items = data || DB.cladiri;
   const grid = document.getElementById('cladiriGrid');
@@ -2570,18 +2575,38 @@ function renderCladiri(data) {
     const camere = DB.camere.filter(x => x.cladireId===c.id);
     const bunuri = DB.inventar.filter(x => x.cladireId===c.id);
     const val = bunuri.reduce((s,b)=>s+b.val,0);
+    const saliClasa=camere.filter(x=>['Sală de clasă','SALĂ DE CLASĂ'].includes(x.tip));
+    const laboratoare=camere.filter(x=>['Laborator','LABORATOR'].includes(x.tip));
+    const birouri=camere.filter(x=>['Birou','BIROU'].includes(x.tip));
+    const saliSport=camere.filter(x=>['Sală sport','SALĂ SPORT'].includes(x.tip));
+    const depozite=camere.filter(x=>['Depozit','DEPOZIT'].includes(x.tip));
+    const altele=camere.filter(x=>!['Sală de clasă','SALĂ DE CLASĂ','Laborator','LABORATOR','Birou','BIROU','Sală sport','SALĂ SPORT','Depozit','DEPOZIT'].includes(x.tip));
     return `<div class="building-card">
-      <div class="building-card-header" style="cursor:pointer" onclick="editCladire(${c.id})">
+      <div class="building-card-header" style="cursor:pointer" onclick="toggleCladireDetail(${c.id})">
         <div class="building-card-name">🏢 ${c.cod} — ${c.nume}</div>
         <div class="building-card-addr">📍 ${c.adresa}</div>
+        ${c.an?`<div style="font-size:11px;color:var(--mist);margin-top:2px">🗓 Construit: ${c.an}${c.supUtila?' · '+c.supUtila+'m² util':''}${c.supDesfasurata?' · '+c.supDesfasurata+'m² desfășurat':''}</div>`:''}
+        ${c.stare?`<div style="font-size:11px;margin-top:2px">Stare: <strong>${c.stare}</strong></div>`:''}
       </div>
       <div class="building-card-body">
-        <div class="building-stat"><span>Camere înregistrate</span><span class="building-stat-val">${camere.length}</span></div>
-        <div class="building-stat"><span>Bunuri inventariate</span><span class="building-stat-val">${bunuri.length}</span></div>
-        <div class="building-stat"><span>Valoare patrimoniu</span><span class="building-stat-val">${val.toLocaleString('ro-RO')} RON</span></div>
-        <div class="building-stat"><span>Etaje</span><span class="building-stat-val">${c.etaje}</span></div>
-        <div class="building-stat"><span>Responsabil</span><span class="building-stat-val" style="font-size:11px">${c.resp}</span></div>
+        <div class="building-stat"><span>📦 Bunuri</span><span class="building-stat-val">${bunuri.length} (${val.toLocaleString('ro-RO')} RON)</span></div>
+        ${saliClasa.length?`<div class="building-stat"><span>🏫 Săli de clasă</span><span class="building-stat-val">${saliClasa.length}</span></div>`:''}
+        ${laboratoare.length?`<div class="building-stat"><span>🔬 Laboratoare</span><span class="building-stat-val">${laboratoare.length}</span></div>`:''}
+        ${birouri.length?`<div class="building-stat"><span>🗂 Birouri</span><span class="building-stat-val">${birouri.length}</span></div>`:''}
+        ${saliSport.length?`<div class="building-stat"><span>⚽ Săli sport</span><span class="building-stat-val">${saliSport.length}</span></div>`:''}
+        ${depozite.length?`<div class="building-stat"><span>📦 Depozite</span><span class="building-stat-val">${depozite.length}</span></div>`:''}
+        ${altele.length?`<div class="building-stat"><span>📋 Alte spații</span><span class="building-stat-val">${altele.length}</span></div>`:''}
+        <div class="building-stat"><span>🏗 Etaje</span><span class="building-stat-val">${c.etaje||'—'}</span></div>
+        <div class="building-stat"><span>👤 Responsabil</span><span class="building-stat-val" style="font-size:11px">${c.resp||'—'}</span></div>
+        <div id="cladire-detail-${c.id}" style="display:none;margin-top:10px;border-top:1px solid var(--surface);padding-top:10px">
+          <div style="font-size:11px;font-weight:600;color:var(--mist);margin-bottom:6px">SPAȚII ÎNREGISTRATE (${camere.length})</div>
+          ${camere.map(cam=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--surface)">
+            <span><strong>${cam.cod}</strong> — ${cam.nume}</span>
+            <span style="color:var(--mist)">${cam.tip||''} · Et.${cam.etaj||0}${cam.sup?' · '+cam.sup+'m²':''}</span>
+          </div>`).join('')||'<div style="font-size:11px;color:var(--mist)">Nicio cameră înregistrată</div>'}
+        </div>
         <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="toggleCladireDetail(${c.id})">📋 Spații</button>
           <button class="btn btn-outline btn-sm" onclick="editCladire(${c.id})">✏️ Editează</button>
           <button class="btn btn-danger btn-sm" onclick="deleteCladire(${c.id})">🗑️</button>
         </div>
@@ -2604,6 +2629,10 @@ function saveCladire() {
     adresa: document.getElementById('cladireAdresa').value,
     etaje: parseInt(document.getElementById('cladireEtaje').value)||1,
     an: document.getElementById('cladireAn').value,
+    supUtila: document.getElementById('cladireSupUtila')?.value||'',
+    supDesfasurata: document.getElementById('cladireSupDesfasurata')?.value||'',
+    stare: document.getElementById('cladireStare')?.value||'Bună',
+    codSiiir: document.getElementById('cladireSiiir')?.value||'',
     resp: document.getElementById('cladireResp').value,
     note: document.getElementById('cladireNote').value
   };
@@ -4662,7 +4691,7 @@ function saveFlux() {
     termen: document.getElementById('fluxTermen').value,
     obs: document.getElementById('fluxObs').value,
     userId: currentUser.id,
-    dataStart: new Date().toLocaleDateString('ro-RO'),
+    dataStart: new Date().toISOString().split('T')[0],
     stepCurent: 0,
     status: 'În așteptare',
     istoricPasi: []
@@ -4921,6 +4950,18 @@ async function sbAutoSave(tbl, localObj) {
   try {
     const mapper = toSb[tbl];
     const row = mapper ? mapper(localObj) : {...localObj};
+    // Remap foreign keys for camere - cladire_id must be Supabase id
+    if(tbl === 'camere' && row.cladire_id) {
+      const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
+      if(cld && cld._loaded) row.cladire_id = cld.id;
+    }
+    // Remap for inventar
+    if(tbl === 'inventar' && row.cladire_id) {
+      const cld = DB.cladiri.find(cl => cl.id === localObj.cladireId);
+      if(cld && cld._loaded) row.cladire_id = cld.id;
+      const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
+      if(cam && cam._loaded) row.camera_id = cam.id;
+    }
     // Curăță undefined
     Object.keys(row).forEach(k => row[k] === undefined && delete row[k]);
     

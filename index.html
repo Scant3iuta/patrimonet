@@ -3002,6 +3002,7 @@ function deleteAch(id){if(!confirm('Ștergi achiziția?'))return;DB.achizitii=DB
 
 // ===== TASKS =====
 function renderTasks(data) {
+  console.log('renderTasks called: tasks='+DB.tasks.length+' personal='+DB.personal.length+' sample personal id='+(DB.personal[0]&&DB.personal[0].id));
   let allTasks = data || DB.tasks;
   // Muncitor mentenanta sees only their assigned tasks
   // Admins and admin_pat see ALL tasks
@@ -3017,7 +3018,8 @@ function renderTasks(data) {
     if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină.</p></div>';return;}
     c.innerHTML=items.map(t=>{
       const per=DB.personal.find(x=>x.id===t.assignId);
-      if(!per && t.assignId) console.log('NO MATCH: task assignId='+t.assignId+' personal ids='+DB.personal.map(p=>p.id).join(','));
+      if(!per && t.assignId) console.log('NO MATCH: task.id='+t.id+' assignId='+t.assignId+' _loaded='+t._loaded+' | personal ids='+DB.personal.slice(0,5).map(p=>p.id+'('+p.email+')').join(','));
+      if(!per && !t.assignId) console.log('NULL assignId: task='+t.titlu+' assignId='+t.assignId);
       const canAssign = currentUser && ['admin_app','admin_pat','director'].includes(currentUser.rol);
       const cam=DB.camere.find(x=>x.id===t.cameraId);
       const cld=DB.cladiri.find(x=>x.id===t.cladireId);

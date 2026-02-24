@@ -2139,7 +2139,7 @@ async function sbDelete(table, id) {
 // ===== MAP DB ↔ SUPABASE =====
 // Convert local object → supabase row
 const toSb = {
-  cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||null }),
+  cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||x.supUtila||null, suprafata_desfasurata:x.supDesfasurata||null, stare_generala:x.stare||'Bună', cod_siiir:x.codSiiir||'', responsabil:x.resp||'' }),
   camere:  (x) => ({ cladire_id:x.cladireId||null, cod:x.cod, nume:x.nume, tip:x.tip||'', etaj:parseInt(x.etaj)||0, suprafata:parseFloat(x.sup)||null, responsabil:x.responsabil||x.resp||'', capacitate:parseInt(x.cap)||null }),
   inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, qty:parseInt(x.qty)||1, data_pif:x.dataPIF||null, furnizor_id:x.furnId||x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.desc||x.obs||'', locatii:x.locatii?JSON.stringify(x.locatii):null }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
@@ -2156,7 +2156,7 @@ const toSb = {
 
 // Convert supabase row → local object
 const fromSb = {
-  cladiri: (x) => ({ _loaded:true, id:x.id, cod:x.cod, nume:x.nume, adresa:x.adresa, etaje:x.etaje, an:x.an_constructie, sup:x.suprafata }),
+  cladiri: (x) => ({ _loaded:true, id:x.id, cod:x.cod, nume:x.nume, adresa:x.adresa, etaje:x.etaje, an:x.an_constructie, sup:x.suprafata, supUtila:x.suprafata, supDesfasurata:x.suprafata_desfasurata||'', stare:x.stare_generala||'Bună', codSiiir:x.cod_siiir||'', resp:x.responsabil||'' }),
   camere:  (x) => ({ _loaded:true, id:x.id, cladireId:x.cladire_id, cod:x.cod, nume:x.nume, tip:x.tip, etaj:x.etaj, sup:x.suprafata, resp:x.responsabil, cap:x.capacitate }),
   inventar:(x) => ({ _loaded:true, id:x.id, nrInv:x.nr_inv, nume:x.nume, cat:x.cat, cladireId:x.cladire_id, cameraId:x.camera_id, stare:x.stare, val:parseFloat(x.val)||0, dataPIF:x.data_pif, furnizorId:x.furnizor_id, cont:x.cont, durata:x.durata, amortizare:parseFloat(x.amortizare)||0, obs:x.obs }),
   furnizori:(x)=> ({ _loaded:true, id:x.id, nume:x.nume, cui:x.cui, adresa:x.adresa, tel:x.tel, email:x.email, persoana:x.persoana }),
@@ -2649,10 +2649,16 @@ function saveCladire() {
     note: document.getElementById('cladireNote').value
   };
   if (!c.cod||!c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
-  if (id) { const i = DB.cladiri.findIndex(x=>x.id==id); DB.cladiri[i]=c; }
-  else DB.cladiri.push(c);
+  if (id) {
+    const i = DB.cladiri.findIndex(x=>x.id==id);
+    const existing = DB.cladiri[i];
+    DB.cladiri[i] = {...existing, ...c, id: existing.id, _loaded: existing._loaded};
+    sbAutoSave('cladiri', DB.cladiri[i]).then(toastSave);
+  } else {
+    DB.cladiri.push(c);
+    sbAutoSave('cladiri', c).then(toastSave);
+  }
   toast('✅ Clădire salvată!');
-  sbAutoSave('cladiri', DB.cladiri[DB.cladiri.length-1]).then(toastSave);
   closeModal('modalCladire');
   addActivity('Clădire salvată: '+c.cod+' — '+c.nume,'gold');
   renderCladiri();
@@ -2735,10 +2741,16 @@ function saveCamera() {
     sup: document.getElementById('camSup').value
   };
   if (!c.cod||!c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
-  if (id) { const i=DB.camere.findIndex(x=>x.id==id); DB.camere[i]=c; }
-  else DB.camere.push(c);
+  if (id) {
+    const i=DB.camere.findIndex(x=>x.id==id);
+    const existing = DB.camere[i];
+    DB.camere[i] = {...existing, ...c, id: existing.id, _loaded: existing._loaded};
+    sbAutoSave('camere', DB.camere[i]).then(toastSave);
+  } else {
+    DB.camere.push(c);
+    sbAutoSave('camere', c).then(toastSave);
+  }
   toast('✅ Cameră salvată!');
-  sbAutoSave('camere', DB.camere[DB.camere.length-1]).then(toastSave);
   closeModal('modalCamera');
   renderCamere();
 }
@@ -4326,14 +4338,17 @@ function savePrezenta() {
   const obs = document.getElementById('prezObs').value;
   // Update or insert
   const existing = DB.prezenta.find(p => p.data === data);
+  let obj;
   if(existing) {
     existing.elevi = nr; existing.tipZi = tipZi; existing.obs = obs;
     existing.userId = currentUser.id;
+    obj = existing;
   } else {
-    DB.prezenta.push({id:Date.now(), data, elevi:nr, tipZi, obs, userId:currentUser.id, creat:new Date().toLocaleString('ro-RO')});
+    obj = {id:Date.now(), data, elevi:nr, tipZi, obs, userId:currentUser.id, creat:new Date().toLocaleString('ro-RO')};
+    DB.prezenta.push(obj);
   }
   toast('✅ Prezența salvată!');
-  sbAutoSave('prezenta', DB.prezenta[DB.prezenta.length-1]).then(toastSave);
+  sbAutoSave('prezenta', obj).then(toastSave);
   addIstoricEvent('internat', 'Prezență internat: ' + nr + ' elevi pe ' + data + ' (' + tipZi + ')', currentUser);
   updateIntStatBox();
   renderPrezenta();
@@ -4376,13 +4391,16 @@ function saveMese() {
   if(!data) { toast('⚠️ Selectează data!'); return; }
   const obs = document.getElementById('meseObs').value;
   const existing = DB.mese.find(m=>m.data===data);
+  let obj;
   if(existing) {
     existing.micDejun=md; existing.pranz=pr; existing.cina=ci; existing.obs=obs; existing.userId=currentUser.id;
+    obj = existing;
   } else {
-    DB.mese.push({id:Date.now(),data,micDejun:md,pranz:pr,cina:ci,obs,userId:currentUser.id,creat:new Date().toLocaleString('ro-RO')});
+    obj = {id:Date.now(),data,micDejun:md,pranz:pr,cina:ci,obs,userId:currentUser.id,creat:new Date().toLocaleString('ro-RO')};
+    DB.mese.push(obj);
   }
   toast('✅ Mese salvate!');
-  sbAutoSave('mese', DB.mese[DB.mese.length-1]).then(toastSave);
+  sbAutoSave('mese', obj).then(toastSave);
   addIstoricEvent('internat','Mese cantină: MicDejun='+md+' Prânz='+pr+' Cină='+ci+' pe '+data, currentUser);
   updateMeseStat();
   renderMese();
@@ -4716,7 +4734,7 @@ function saveFlux() {
   };
   DB.fluxuri.push(f);
   toast('▶️ Flux pornit: ' + f.titlu);
-  sbAutoSave('fluxuri', DB.fluxuri[DB.fluxuri.length-1]).then(toastSave);
+  sbAutoSave('fluxuri', f).then(toastSave);
   addIstoricEvent('aprobare', 'Flux pornit: ' + f.tip + ' — ' + f.titlu, currentUser);
   addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat','director','admin_app']);
   closeModal('modalFlux');

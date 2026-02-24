@@ -2197,7 +2197,8 @@ async function loadFromSupabase() {
       });
 
     } else if(rows !== null && rows.length === 0) {
-      console.log('Supabase table empty, keeping local:', tbl);
+      console.log('Supabase table empty, using Supabase:', tbl);
+DB[tbl] = [];
     }
   }
   // 1. Dedup + normalize FIRST

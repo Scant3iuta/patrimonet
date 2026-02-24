@@ -3177,11 +3177,11 @@ function updateDashboard(){
   const taskItems=DB.tasks.filter(t=>['deschis','Deschisă','deschisa'].includes(t.status) && (t.titlu||t.title||'').trim() !== '—').slice(0,4);
   document.getElementById('dashTasks').innerHTML=taskItems.length?taskItems.map(t=>{
     const per=DB.personal.find(x=>x.id===t.assignId);
-    const pc=t.prio==='Înaltă'?'#c0392b':t.prio==='Medie'?'#d97706':'#0d7c6b';
+    const prio=t.prioritate||t.prio||'Medie'; const pc=prio==='Înaltă'?'#c0392b':prio==='Medie'?'#d97706':'#0d7c6b';
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
       <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
       <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu||t.title||"—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per?(per.prenume+' '+per.nume):(t.assignId?'ID:'+t.assignId:'Neatribuit')}</div></div>
-      <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prio}</span>
+      <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prioritate||t.prio||'—'}</span>
     </div>`;
   }).join(''):'<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';
 

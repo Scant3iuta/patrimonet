@@ -2138,20 +2138,34 @@ async function sbDelete(table, id) {
 
 // ===== MAP DB ↔ SUPABASE =====
 // Convert local object → supabase row
+// Helper: convertește orice format dată → YYYY-MM-DD pentru Supabase
+// Acceptă: "24.02.2026" (ro), "2026-02-24" (iso), Date object
+function toISODate(d) {
+  if (!d) return null;
+  if (d instanceof Date) return d.toISOString().split('T')[0];
+  const s = String(d).trim();
+  // Format românesc DD.MM.YYYY
+  const ro = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (ro) return `${ro[3]}-${ro[2].padStart(2,'0')}-${ro[1].padStart(2,'0')}`;
+  // Deja ISO YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.split('T')[0];
+  return null;
+}
+
 const toSb = {
   cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||x.supUtila||null, suprafata_desfasurata:x.supDesfasurata||null, stare_generala:x.stare||'Bună', cod_siiir:x.codSiiir||'', responsabil:x.resp||'' }),
   camere:  (x) => ({ cladire_id:x.cladireId||null, cod:x.cod, nume:x.nume, tip:x.tip||'', etaj:parseInt(x.etaj)||0, suprafata:parseFloat(x.sup)||null, responsabil:x.responsabil||x.resp||'', capacitate:parseInt(x.cap)||null }),
-  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, qty:parseInt(x.qty)||1, data_pif:x.dataPIF||null, furnizor_id:x.furnId||x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.desc||x.obs||'', locatii:x.locatii?JSON.stringify(x.locatii):null }),
+  inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, qty:parseInt(x.qty)||1, data_pif:toISODate(x.dataPIF)||null, furnizor_id:x.furnId||x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.desc||x.obs||'', locatii:x.locatii?JSON.stringify(x.locatii):null }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
-  achizitii:(x)=> ({ descriere:x.produs||x.descriere||'', furnizor_id:x.furnId||x.furnizorId||null, cantitate:x.qty||1, val:parseFloat(x.val)||0, data_doc:x.data||x.dataDoc||null, status:x.status||'Comandat', aprobare_necesara:x.aprobare||'nu', note:x.note||'', user_id:x.userId||null }),
+  achizitii:(x)=> ({ descriere:x.produs||x.descriere||'', furnizor_id:x.furnId||x.furnizorId||null, cantitate:x.qty||1, val:parseFloat(x.val)||0, data_doc:toISODate(x.data||x.dataDoc)||null, status:x.status||'Comandat', aprobare_necesara:x.aprobare||'nu', note:x.note||'', user_id:x.userId||null }),
   personal: (x)=> ({ prenume:x.prenume, nume:x.nume, email:x.email, parola:x.parola, rol:x.rol, tel:x.tel||'', functie:x.functie||'', categorie:x.categorie||'' }),
-  mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:x.data, de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
-  rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:parseInt(x.elevi)||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'', obs:x.obs||'' }),
-  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:({'Deschisă':'deschisa','Finalizată':'finalizata'}[x.status])||x.status||'deschisa', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, assign_ids:x.assignIds?JSON.stringify(x.assignIds):null, description:x.desc||x.description||'', termen:x.termen||null }),
-  prezenta: (x)=> ({ data:x.data, elevi:x.elevi||0, tip_zi:x.tipZi||'saptamana', obs:x.obs||'' }),
-  mese:     (x)=> ({ data:x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'' }),
+  mutari:   (x)=> ({ bun_id:x.bunId||null, user_id:x.userId||null, data:toISODate(x.data), de_cladire:x.deCladire||'', de_camera:x.deCamera||'', la_cladire:x.laCladire||'', la_camera:x.laCamera||'', la_cladire_id:x.laCladireId||null, la_camera_id:x.laCameraId||null, motiv:x.motiv||'', obs:x.obs||'', status:x.status||'Finalizată', aprobat_de:x.aprobatDe||'' }),
+  rezervari:(x)=> ({ camera_id:x.cameraId||null, user_id:x.userId||null, data:toISODate(x.data)||x.data, ora_start:x.oraStart||'', ora_end:x.oraEnd||'', materie:x.materie||'', elevi:parseInt(x.elevi)||0, echipamente:x.echipamente||'', status:x.status||'Aprobată', aprobat_de:x.aprobatDe||'', obs:x.obs||'' }),
+  tasks:    (x)=> ({ titlu:x.titlu||x.title||'(fără titlu)', prioritate:x.prioritate||x.prio||'Medie', status:({'Deschisă':'deschisa','Finalizată':'finalizata'}[x.status])||x.status||'deschisa', camera_id:x.cameraId||null, bun_id:x.bunId||null, assign_id:x.assignId||null, assign_ids:x.assignIds?JSON.stringify(x.assignIds):null, description:x.desc||x.description||'', termen:toISODate(x.termen)||null }),
+  prezenta: (x)=> ({ data:toISODate(x.data)||x.data, elevi:x.elevi||0, tip_zi:x.tipZi||'saptamana', obs:x.obs||'' }),
+  mese:     (x)=> ({ data:toISODate(x.data)||x.data, mic_dejun:x.micDejun||0, pranz:x.pranz||0, cina:x.cina||0, obs:x.obs||'' }),
   probleme: (x)=> ({ tip:x.tip||'', locatie:x.locatie||'', descriere:x.desc||x.descriere||'', prio:x.prio||'Medie', status:x.status||'Deschisă', rezolvat_de:x.rezolvatDe||'' }),
-  fluxuri:  (x)=> ({ tip:x.tip||'', titlu:x.titlu||'', responsabil_id:x.responsabilId||null, user_id:x.userId||null, termen:x.termen||null, obs:x.obs||'', step_curent:x.stepCurent||0, status:x.status||'În așteptare', data_start:x.dataStart||null, data_final:x.dataFinal||null, istoric_pasi:JSON.stringify(x.istoricPasi||[]) }),
+  fluxuri:  (x)=> ({ tip:x.tip||'', titlu:x.titlu||'', responsabil_id:x.responsabilId||null, user_id:x.userId||null, termen:toISODate(x.termen)||null, obs:x.obs||'', step_curent:x.stepCurent||0, status:x.status||'În așteptare', data_start:toISODate(x.dataStart)||null, data_final:toISODate(x.dataFinal)||null, istoric_pasi:JSON.stringify(x.istoricPasi||[]) }),
 };
 
 // Convert supabase row → local object

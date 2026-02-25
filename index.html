@@ -969,7 +969,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
       <div class="filters">
         <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută cameră..." oninput="filterCamere(this.value)" id="searchCam"></div>
         <select id="filterCladireC" onchange="filterCamere()"><option value="">Toate clădirile</option></select>
-        <select id="filterTipC" onchange="filterCamere()"><option value="">Toate tipurile</option><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option></select>
+        <select id="filterTipC" onchange="filterCamere()"><option value="">Toate tipurile</option><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option><option>Bibliotecă</option><option>Cantină</option><option>Internat</option><option>Sală mese</option><option>Auxiliar</option></select>
         <button class="btn btn-primary" onclick="openModalCamera()">+ Adaugă cameră</button>
       </div>
       <div class="card">
@@ -1752,7 +1752,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
         <div class="form-row"><label>Cod cameră</label><input type="text" id="camCod" placeholder="ex: S-101"></div>
         <div class="form-row"><label>Numerotare oficială</label><input type="text" id="camNr" placeholder="ex: 101"></div>
         <div class="form-row"><label>Tip</label>
-          <select id="camTip"><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option></select>
+          <select id="camTip"><option>Sală de clasă</option><option>Laborator</option><option>Birou</option><option>Depozit</option><option>Sală sport</option><option>Atelier</option><option>Bibliotecă</option><option>Cantină</option><option>Internat</option><option>Sală mese</option><option>Auxiliar</option></select>
         </div>
       </div>
       <div class="form-row"><label>Denumire</label><input type="text" id="camNume" placeholder="ex: Sala de Fizică"></div>
@@ -2153,7 +2153,7 @@ function toISODate(d) {
 }
 
 const toSb = {
-  cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||x.supUtila||null, suprafata_desfasurata:x.supDesfasurata||null, stare_generala:x.stare||'Bună', cod_siiir:x.codSiiir||'', responsabil:x.resp||'' }),
+  cladiri: (x) => ({ cod:x.cod, nume:x.nume, adresa:x.adresa||'', etaje:x.etaje||1, an_constructie:x.an||null, suprafata:x.sup||x.supUtila||null, suprafata_desfasurata:x.supDesfasurata||null, stare_generala:x.stare||'Buna', cod_siiir:x.codSiiir||'' }),
   camere:  (x) => ({ cladire_id:x.cladireId||null, cod:x.cod, nume:x.nume, tip:x.tip||'', etaj:parseInt(x.etaj)||0, suprafata:parseFloat(x.sup)||null, responsabil:x.responsabil||x.resp||'', capacitate:parseInt(x.cap)||null }),
   inventar:(x) => ({ nr_inv:x.nrInv, nume:x.nume, cat:x.cat||'', cladire_id:x.cladireId||null, camera_id:x.cameraId||null, stare:x.stare||'Bun', val:parseFloat(x.val)||0, qty:parseInt(x.qty)||1, data_pif:toISODate(x.dataPIF)||null, furnizor_id:x.furnId||x.furnizorId||null, cont:x.cont||'', durata:x.durata||null, amortizare:parseFloat(x.amortizare)||0, obs:x.desc||x.obs||'', locatii:x.locatii?JSON.stringify(x.locatii):null }),
   furnizori:(x)=> ({ nume:x.nume, cui:x.cui||'', adresa:x.adresa||'', tel:x.tel||'', email:x.email||'', persoana:x.persoana||'' }),
@@ -2594,7 +2594,7 @@ function toggleCladireDetail(id) {
   if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 function renderCladiri(data) {
-  const items = data || DB.cladiri;
+  const items = (data || DB.cladiri).slice().sort((a,b) => a.cod.localeCompare(b.cod, 'ro'));
   const grid = document.getElementById('cladiriGrid');
   if (!items.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><p>Nicio clădire înregistrată.</p></div>'; return; }
   grid.innerHTML = items.map(c => {
@@ -3194,7 +3194,8 @@ function savePersonal(){
   document.getElementById('perEditId').value='';renderPersonal();
 }
 function editPersonal(id){
-  const p=DB.personal.find(x=>x.id===id);
+  const p=DB.personal.find(x=>x.id===id||String(x.id)===String(id));
+  if(!p){toast('⚠️ Utilizatorul nu a fost găsit. Reîncarcă pagina.');return;}
   document.getElementById('perEditId').value=p.id;
   document.getElementById('perPrenume').value=p.prenume;document.getElementById('perNume').value=p.nume;
   document.getElementById('perEmail').value=p.email;document.getElementById('perTel').value=p.tel||'';
@@ -3972,7 +3973,7 @@ function saveRezervare() {
   if (conflict) { toast('⚠️ Sala este deja rezervată în acel interval!'); return; }
 
   const cam = DB.camere.find(x=>x.id===camId);
-  const necesitaAprobare = cam && ['Laborator','Sală sport','Atelier'].includes(cam.tip);
+  const necesitaAprobare = cam && cam.tip !== 'Sală de clasă';
   const echip = Array.from(document.querySelectorAll('#echipCheckboxes input:checked')).map(cb=>cb.value);
 
   const r = {
@@ -4252,6 +4253,32 @@ function exportAuditLog() {
 function genAudit(tip) {
   const de = document.getElementById('auditDe')?.value || '';
   const pana = document.getElementById('auditPana')?.value || '';
+
+  if (tip === 'sali') {
+    let rez = [...(DB.rezervari||[])];
+    if (de) rez = rez.filter(r => (toISODate(r.data)||r.data||'') >= de);
+    if (pana) rez = rez.filter(r => (toISODate(r.data)||r.data||'') <= pana);
+    rez.sort((a,b) => (a.data||'').localeCompare(b.data||''));
+    const rows = rez.map(r => {
+      const cam = DB.camere.find(x=>x.id===r.cameraId);
+      const user = DB.personal.find(x=>x.id===r.userId);
+      return '<tr><td>'+(r.data||'—')+'</td><td>'+(r.oraStart||'')+'–'+(r.oraEnd||'')+'</td><td>'+(cam?cam.cod+' — '+cam.nume:'—')+'</td><td>'+(r.materie||'—')+'</td><td>'+(r.elevi||'—')+'</td><td>'+(r.echipamente||'—')+'</td><td>'+(r.status||'—')+'</td><td>'+(r.aprobatDe||(user?user.prenume+' '+user.nume:'—'))+'</td></tr>';
+    }).join('');
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Audit Utilizare Sali</title><style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px} h1{font-size:15px;text-align:center} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:6px;text-align:left} th{background:#f5f5f5}</style></head><body>'
+      + '<div style="text-align:center;margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:12px"><div style="font-size:11px;color:#666">COLEGIUL NATIONAL VASILE GOLDIS ARAD</div>'
+      + '<h1>RAPORT AUDIT — UTILIZARE SALI</h1>'
+      + '<div style="font-size:11px;color:#666">Generat: '+new Date().toLocaleString('ro-RO')+' · De: '+(currentUser?.prenume)+' '+(currentUser?.nume)+'</div>'
+      + (de||pana ? '<div style="font-size:11px;color:#666">Perioada: '+(de||'—')+' → '+(pana||'—')+'</div>' : '')
+      + '</div><table><thead><tr><th>Data</th><th>Orar</th><th>Sala</th><th>Materie/Scop</th><th>Elevi</th><th>Echipamente</th><th>Status</th><th>Aprobat de</th></tr></thead><tbody>'
+      + rows + '</tbody></table>'
+      + '<div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: '+rez.length+' rezervari · PatrimoNet CN Vasile Goldis Arad</div></body></html>';
+    const win = window.open('','_blank');
+    win.document.write(html); win.document.close();
+    setTimeout(()=>win.print(),500);
+    toast('Raport audit utilizare sali generat!');
+    return;
+  }
+
   let items = istoricLog.filter(e => e.tip === tip || tip === 'user');
   if (tip === 'user') {
     const u = document.getElementById('auditUser')?.value;
@@ -4259,27 +4286,20 @@ function genAudit(tip) {
   }
   if (de) items = items.filter(e => e.data >= de);
   if (pana) items = items.filter(e => e.data <= pana);
-
-  const titlu = {mutari:'Audit Mutări Bunuri', user:'Audit Activitate Utilizator', inventar:'Audit Modificări Inventar', sali:'Audit Utilizare Săli'}[tip] || 'Audit';
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${titlu}</title>
-    <style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px} h1{font-size:15px;text-align:center} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:6px;text-align:left} th{background:#f5f5f5} tr:nth-child(even){background:#fafafa}</style>
-    </head><body>
-    <div style="text-align:center;margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:12px">
-      <div style="font-size:11px;color:#666">COLEGIUL NAȚIONAL „VASILE GOLDIȘ" ARAD</div>
-      <h1>RAPORT AUDIT — ${titlu.toUpperCase()}</h1>
-      <div style="font-size:11px;color:#666">Generat: ${new Date().toLocaleString('ro-RO')} · De: ${currentUser?.prenume} ${currentUser?.nume}</div>
-    </div>
-    <table><thead><tr><th>Data/Ora</th><th>Tip</th><th>Descriere</th><th>Utilizator</th><th>Rol</th></tr></thead>
-    <tbody>${items.map(e=>`<tr><td>${e.timestamp}</td><td>${e.tip}</td><td>${e.descriere}</td><td>${e.user}</td><td>${e.rol}</td></tr>`).join('')}</tbody></table>
-    <div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: ${items.length} evenimente · PatrimoNet — CN Vasile Goldiș Arad</div>
-    
-
-</body></html>`;
+  const titlu = {mutari:'Audit Mutari Bunuri', user:'Audit Activitate Utilizator', inventar:'Audit Modificari Inventar'}[tip] || 'Audit';
+  const html2 = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+titlu+'</title><style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px} h1{font-size:15px;text-align:center} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:6px;text-align:left} th{background:#f5f5f5} tr:nth-child(even){background:#fafafa}</style></head><body>'
+    + '<div style="text-align:center;margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:12px"><div style="font-size:11px;color:#666">COLEGIUL NATIONAL VASILE GOLDIS ARAD</div>'
+    + '<h1>RAPORT AUDIT — '+titlu.toUpperCase()+'</h1>'
+    + '<div style="font-size:11px;color:#666">Generat: '+new Date().toLocaleString('ro-RO')+' · De: '+(currentUser?.prenume)+' '+(currentUser?.nume)+'</div></div>'
+    + '<table><thead><tr><th>Data/Ora</th><th>Tip</th><th>Descriere</th><th>Utilizator</th><th>Rol</th></tr></thead><tbody>'
+    + items.map(e=>'<tr><td>'+e.timestamp+'</td><td>'+e.tip+'</td><td>'+e.descriere+'</td><td>'+e.user+'</td><td>'+e.rol+'</td></tr>').join('')
+    + '</tbody></table><div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: '+items.length+' evenimente · PatrimoNet CN Vasile Goldis Arad</div></body></html>';
   const win = window.open('','_blank');
-  win.document.write(html); win.document.close();
+  win.document.write(html2); win.document.close();
   setTimeout(()=>win.print(),500);
-  toast('📄 Raport audit generat!');
+  toast('Raport audit generat!');
 }
+
 
 // ===== NEED-TO-KNOW ROLE VISIBILITY =====
 const ROLE_PERMISSIONS = {
@@ -4777,6 +4797,7 @@ function avanseazaFlux(id) {
     toast('→ Pas ' + f.stepCurent + '/' + steps.length + ' completat: ' + stepName);
     addNotification('Flux avansat', f.tip + ' — pas ' + f.stepCurent + ': ' + stepName, 'aprobare', ['admin_pat','director']);
   }
+  sbAutoSave('fluxuri', f).then(toastSave);
   addIstoricEvent('aprobare', 'Flux avansat: ' + f.tip + ' — ' + stepName, currentUser);
   renderFluxuri();
   updateFluxBadge();
@@ -4950,7 +4971,7 @@ async function syncAllToSupabase() {
       row.cladire_id = cladiriIdMap[item.cladireId] || null;
       row.camera_id  = camereIdMap[item.cameraId]   || null;
       row.furnizor_id = furnizoriIdMap[item.furnizorId] || null;
-      const { error } = await sbClient.from('inventar').insert(row);
+      const { error } = await sbClient.from('inventar').upsert(row, {onConflict:'nr_inv'});
       if(error) { console.error('inventar:', error.message); errors++; }
       else total++;
     } catch(e) { errors++; }

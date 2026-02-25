@@ -6,6 +6,7 @@
 <title>PatrimoNet — CN Vasile Goldiș Arad</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
 :root {
   --ink: #1a1f2e;
@@ -740,6 +741,32 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
 .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
 #autosaveIndicator { pointer-events:none; }
+
+/* QR Scanner */
+@keyframes scanLine {
+  0% { top: 20%; opacity: 1; }
+  50% { top: 80%; opacity: 1; }
+  100% { top: 20%; opacity: 1; }
+}
+#modalQRScanner .modal, #modalQRActiuni .modal {
+  max-height: 95vh;
+  overflow-y: auto;
+}
+@media (max-width: 480px) {
+  #modalQRScanner .modal, #modalQRActiuni .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+  }
+  #modalQRScanner, #modalQRActiuni {
+    align-items: flex-end !important;
+  }
+}
+.btn-rose { background: var(--rose); color: white; border: none; }
 </style>
 
   <!-- PWA -->
@@ -920,6 +947,7 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
         🔔<div class="notif-dot" id="notifDot" style="display:none"></div>
         <span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-6px;background:var(--rose);color:white;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px">0</span>
       </div>
+      <button class="btn btn-teal btn-sm" id="btnScanQR" onclick="openQRScanner()" style="display:none" title="Scanează QR inventar">📷 Scan QR</button>
       <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Tipărire</button>
     </div>
   </div>
@@ -2076,6 +2104,138 @@ select:focus, input:focus, textarea:focus { border-color: var(--gold); }
   </div>
 </div>
 
+<!-- MODAL QR SCANNER -->
+<div class="modal-overlay" id="modalQRScanner" style="z-index:10000">
+  <div class="modal" style="max-width:480px;width:96%;padding:0;overflow:hidden;border-radius:16px">
+    <div style="background:var(--dark);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-weight:700;font-size:16px">📷 Scanează cod QR</div>
+      <button onclick="closeQRScanner()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0 4px">✕</button>
+    </div>
+    <div style="position:relative;background:#000;aspect-ratio:1">
+      <video id="qrVideo" style="width:100%;height:100%;object-fit:cover" playsinline autoplay muted></video>
+      <canvas id="qrCanvas" style="display:none"></canvas>
+      <!-- Overlay ghidaj -->
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:60%;aspect-ratio:1;border:3px solid rgba(255,255,255,0.8);border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4)"></div>
+      </div>
+      <div id="qrScanLine" style="position:absolute;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,#0d7c6b,transparent);top:50%;animation:scanLine 2s linear infinite;display:none"></div>
+      <div id="qrStatus" style="position:absolute;bottom:12px;left:0;right:0;text-align:center;color:white;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,0.8)">Îndreaptă camera spre codul QR</div>
+    </div>
+    <div style="padding:16px 20px;background:var(--surface)">
+      <div style="font-size:12px;color:var(--mist);margin-bottom:10px">Sau introdu manual numărul de inventar:</div>
+      <div style="display:flex;gap:8px">
+        <input id="qrManualInput" type="text" placeholder="ex: CNVG-A-1011" style="flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px">
+        <button class="btn btn-primary btn-sm" onclick="qrManualSearch()">Caută</button>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <select id="qrCameraSelect" onchange="switchQRCamera()" style="flex:1;min-width:180px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px">
+          <option value="">📷 Selectează camera...</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QR ACTIUNI -->
+<div class="modal-overlay" id="modalQRActiuni">
+  <div class="modal" style="max-width:480px;width:96%;padding:0;overflow:hidden;border-radius:16px">
+    <!-- Header bun identificat -->
+    <div style="background:var(--teal);color:white;padding:16px 20px">
+      <div style="font-size:11px;opacity:0.8;margin-bottom:2px">✅ Bun identificat</div>
+      <div style="font-weight:700;font-size:17px" id="qrBunNume">—</div>
+      <div style="font-size:12px;opacity:0.85;margin-top:4px" id="qrBunInfo">—</div>
+    </div>
+    <!-- Panou curent -->
+    <div id="qrPanelMeniu" style="padding:20px">
+      <div style="font-size:13px;color:var(--slate);margin-bottom:16px;font-weight:600">Alege acțiunea:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <button onclick="qrShowPanel('locatie')" style="padding:20px 12px;border:2px solid var(--teal);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--teal);transition:all 0.2s" onmouseover="this.style.background='var(--teal)';this.style.color='white'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--teal)'">
+          <div style="font-size:28px;margin-bottom:6px">📍</div>Confirmă / Schimbă locația
+        </button>
+        <button onclick="qrShowPanel('editare')" style="padding:20px 12px;border:2px solid var(--gold);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--gold);transition:all 0.2s" onmouseover="this.style.background='var(--gold)';this.style.color='white'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--gold)'">
+          <div style="font-size:28px;margin-bottom:6px">✏️</div>Editează bunul
+        </button>
+        <button onclick="qrShowPanel('sesizare')" style="padding:20px 12px;border:2px solid var(--rose);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--rose);transition:all 0.2s" onmouseover="this.style.background='var(--rose)';this.style.color='white'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--rose)'">
+          <div style="font-size:28px;margin-bottom:6px">🔧</div>Raportează problemă
+        </button>
+        <button onclick="qrConfirmInventariat()" style="padding:20px 12px;border:2px solid var(--slate);border-radius:12px;background:var(--surface);cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:var(--slate);transition:all 0.2s" onmouseover="this.style.background='var(--slate)';this.style.color='white'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--slate)'">
+          <div style="font-size:28px;margin-bottom:6px">📦</div>Marchează inventariat
+        </button>
+      </div>
+      <button onclick="closeModal('modalQRActiuni')" class="btn btn-outline" style="width:100%;margin-top:16px">Închide</button>
+    </div>
+
+    <!-- Panel Locatie -->
+    <div id="qrPanelLocatie" style="display:none;padding:20px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:var(--teal)">📍 Confirmare / Schimbare locație</div>
+      <div style="background:var(--surface-alt,#f0f4f8);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
+        <div style="color:var(--mist);font-size:11px;margin-bottom:4px">LOCAȚIE CURENTĂ</div>
+        <div id="qrLocCurenta" style="font-weight:600">—</div>
+      </div>
+      <div class="form-row"><label>Clădire destinație</label>
+        <select id="qrLocCladire" onchange="updateQRLocCamere()" style="width:100%">
+          <option value="">Selectează clădirea...</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Cameră destinație</label>
+        <select id="qrLocCamera" style="width:100%">
+          <option value="">Selectează camera...</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Motiv (opțional)</label>
+        <input type="text" id="qrLocMotiv" placeholder="ex: Redistribuire, Inventariere" style="width:100%">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-sm" onclick="qrShowPanel('meniu')">← Înapoi</button>
+        <button class="btn btn-teal" style="flex:1" onclick="qrSaveLocatie()">✅ Confirmă locația</button>
+      </div>
+    </div>
+
+    <!-- Panel Editare -->
+    <div id="qrPanelEditare" style="display:none;padding:20px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:var(--gold)">✏️ Editare bun</div>
+      <div class="form-row"><label>Stare bun</label>
+        <select id="qrEditStare" style="width:100%">
+          <option>Bun</option><option>Uzat</option><option>Necesită reparații</option><option>Defect</option><option>Casat</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Valoare inventar (RON)</label>
+        <input type="number" id="qrEditVal" step="0.01" min="0" style="width:100%">
+      </div>
+      <div class="form-row"><label>Observații</label>
+        <textarea id="qrEditObs" rows="3" style="width:100%;resize:vertical" placeholder="Observații despre starea bunului..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-sm" onclick="qrShowPanel('meniu')">← Înapoi</button>
+        <button class="btn btn-gold" style="flex:1" onclick="qrSaveEditare()">💾 Salvează modificările</button>
+      </div>
+    </div>
+
+    <!-- Panel Sesizare -->
+    <div id="qrPanelSesizare" style="display:none;padding:20px">
+      <div style="font-weight:600;font-size:14px;margin-bottom:16px;color:var(--rose)">🔧 Raportare problemă</div>
+      <div class="form-row"><label>Tip problemă</label>
+        <select id="qrSezTip" style="width:100%">
+          <option>Defecțiune tehnică</option><option>Deteriorare fizică</option><option>Lipsă accesorii</option>
+          <option>Nefuncțional</option><option>Necesită curățare</option><option>Altele</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Prioritate</label>
+        <select id="qrSezPrio" style="width:100%">
+          <option>Scăzută</option><option selected>Medie</option><option>Înaltă</option><option>Urgentă</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Descriere problemă</label>
+        <textarea id="qrSezDesc" rows="3" style="width:100%;resize:vertical" placeholder="Descrie problema observată..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-sm" onclick="qrShowPanel('meniu')">← Înapoi</button>
+        <button class="btn btn-rose" style="flex:1;background:var(--rose);color:white;border:none;border-radius:8px;padding:10px;cursor:pointer;font-weight:600" onclick="qrSaveSesizare()">📤 Trimite sesizarea</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toastEl"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2448,6 +2608,7 @@ function initApp() {
     if(rezCam) rezCam.innerHTML = '<option value="">Toate sălile</option>' + DB.camere.map(cam=>`<option value="${cam.id}">${cam.cod} — ${cam.nume}</option>`).join('');
   }, 100);
   applyRolePermissions();
+  updateQRScanButton();
   updateAprobari();
   updateFluxBadge();
   // Navigate to dashboard
@@ -4345,6 +4506,331 @@ function applyRolePermissions() {
 
 
 
+
+
+// ===== QR SCANNER =====
+let qrStream = null;
+let qrAnimFrame = null;
+let qrCurrentBun = null;
+let qrCameras = [];
+let qrActiveCameraId = null;
+
+function openQRScanner() {
+  openModal('modalQRScanner');
+  // Populează select clădiri în panelul locație
+  const selCld = document.getElementById('qrLocCladire');
+  if (selCld) {
+    selCld.innerHTML = '<option value="">Selectează clădirea...</option>' +
+      DB.cladiri.map(c => `<option value="${c.id}">${c.cod} — ${c.nume.substring(0,30)}</option>`).join('');
+  }
+  startQRCamera();
+}
+
+async function startQRCamera(deviceId) {
+  stopQRCamera();
+  const video = document.getElementById('qrVideo');
+  const status = document.getElementById('qrStatus');
+  const scanLine = document.getElementById('qrScanLine');
+  try {
+    const constraints = {
+      video: deviceId
+        ? { deviceId: { exact: deviceId } }
+        : { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    };
+    qrStream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = qrStream;
+    video.play();
+    if (status) status.textContent = 'Camera activă — îndreaptă spre codul QR';
+    if (scanLine) scanLine.style.display = 'block';
+    // Populează lista de camere disponibile
+    await populateQRCameras();
+    // Pornește procesarea cadrelor
+    video.addEventListener('loadedmetadata', () => {
+      requestAnimationFrame(processQRFrame);
+    }, { once: true });
+  } catch(err) {
+    if (status) status.textContent = '⚠️ Nu s-a putut accesa camera: ' + err.message;
+    console.warn('QR camera error:', err);
+  }
+}
+
+async function populateQRCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    qrCameras = devices.filter(d => d.kind === 'videoinput');
+    const sel = document.getElementById('qrCameraSelect');
+    if (!sel || qrCameras.length <= 1) { if(sel) sel.style.display='none'; return; }
+    sel.style.display = 'block';
+    sel.innerHTML = qrCameras.map((d, i) =>
+      `<option value="${d.deviceId}">${d.label || 'Camera ' + (i+1)}</option>`
+    ).join('');
+    // Selectează camera activă
+    if (qrStream) {
+      const activeTrack = qrStream.getVideoTracks()[0];
+      const activeId = activeTrack?.getSettings()?.deviceId;
+      if (activeId) sel.value = activeId;
+    }
+  } catch(e) { console.warn('enumerate cameras:', e); }
+}
+
+function switchQRCamera() {
+  const sel = document.getElementById('qrCameraSelect');
+  if (sel?.value) startQRCamera(sel.value);
+}
+
+function processQRFrame() {
+  const video = document.getElementById('qrVideo');
+  const canvas = document.getElementById('qrCanvas');
+  const status = document.getElementById('qrStatus');
+  if (!video || !canvas || !qrStream) return;
+  if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+    qrAnimFrame = requestAnimationFrame(processQRFrame);
+    return;
+  }
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    inversionAttempts: 'dontInvert'
+  });
+  if (code) {
+    // QR detectat!
+    if (status) status.textContent = '✅ Cod detectat: ' + code.data;
+    stopQRCamera();
+    closeModal('modalQRScanner');
+    qrHandleCode(code.data);
+    return;
+  }
+  qrAnimFrame = requestAnimationFrame(processQRFrame);
+}
+
+function stopQRCamera() {
+  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
+}
+
+function closeQRScanner() {
+  stopQRCamera();
+  closeModal('modalQRScanner');
+}
+
+function qrManualSearch() {
+  const val = document.getElementById('qrManualInput')?.value?.trim();
+  if (!val) { toast('⚠️ Introdu un număr de inventar'); return; }
+  qrHandleCode(val);
+  closeQRScanner();
+}
+
+function qrHandleCode(code) {
+  // Caută bunul după nr_inv sau după codul QR direct
+  let bun = DB.inventar.find(b =>
+    b.nrInv === code ||
+    b.nrInv === code.replace(/^.*[|]/, '') || // format "CNVG|NR_INV|..."
+    code.includes(b.nrInv)
+  );
+  if (!bun) {
+    toast('⚠️ Bunul cu codul "' + code + '" nu a fost găsit în inventar');
+    return;
+  }
+  qrCurrentBun = bun;
+  // Populează header modal acțiuni
+  const cld = DB.cladiri.find(c => c.id === bun.cladireId);
+  const cam = DB.camere.find(c => c.id === bun.cameraId);
+  document.getElementById('qrBunNume').textContent = bun.nrInv + ' — ' + bun.nume;
+  document.getElementById('qrBunInfo').textContent =
+    'Stare: ' + (bun.stare||'—') +
+    ' · Locație: ' + (cld ? cld.cod : 'Neatribuit') + (cam ? ' / ' + cam.cod : '') +
+    (bun.lastInventariat ? ' · Ultim inventariat: ' + bun.lastInventariat : '');
+  // Locație curentă în panelul locație
+  document.getElementById('qrLocCurenta').textContent =
+    (cld ? cld.cod + ' — ' + cld.nume : 'Neatribuită') +
+    (cam ? ' / ' + cam.cod + ' — ' + cam.nume : '');
+  // Pre-completare editare
+  const stareEl = document.getElementById('qrEditStare');
+  if (stareEl) stareEl.value = bun.stare || 'Bun';
+  const valEl = document.getElementById('qrEditVal');
+  if (valEl) valEl.value = bun.val || '';
+  const obsEl = document.getElementById('qrEditObs');
+  if (obsEl) obsEl.value = bun.desc || bun.obs || '';
+  // Pre-selectează clădire/cameră curentă
+  const selCld = document.getElementById('qrLocCladire');
+  if (selCld && bun.cladireId) {
+    selCld.value = bun.cladireId;
+    updateQRLocCamere();
+    setTimeout(() => {
+      const selCam = document.getElementById('qrLocCamera');
+      if (selCam && bun.cameraId) selCam.value = bun.cameraId;
+    }, 100);
+  }
+  qrShowPanel('meniu');
+  openModal('modalQRActiuni');
+}
+
+function qrShowPanel(panel) {
+  ['meniu','locatie','editare','sesizare'].forEach(p => {
+    const el = document.getElementById('qrPanel' + p.charAt(0).toUpperCase() + p.slice(1));
+    if (el) el.style.display = p === panel ? 'block' : 'none';
+  });
+}
+
+function updateQRLocCamere() {
+  const cldId = parseInt(document.getElementById('qrLocCladire')?.value);
+  const sel = document.getElementById('qrLocCamera');
+  if (!sel) return;
+  const camere = DB.camere.filter(c => c.cladireId === cldId);
+  sel.innerHTML = '<option value="">Selectează camera...</option>' +
+    camere.map(c => `<option value="${c.id}">${c.cod} — ${c.nume}</option>`).join('');
+}
+
+function qrSaveLocatie() {
+  if (!qrCurrentBun) return;
+  const cldId = parseInt(document.getElementById('qrLocCladire')?.value);
+  const camId = parseInt(document.getElementById('qrLocCamera')?.value);
+  const motiv = document.getElementById('qrLocMotiv')?.value || 'Confirmare locație QR';
+  if (!cldId) { toast('⚠️ Selectează o clădire'); return; }
+  const cld = DB.cladiri.find(c => c.id === cldId);
+  const cam = DB.camere.find(c => c.id === camId);
+  const b = qrCurrentBun;
+  // Verifică dacă locația s-a schimbat
+  const locatieSchimbata = b.cladireId !== cldId || b.cameraId !== camId;
+  if (locatieSchimbata) {
+    // Creează mutare
+    const deCld = DB.cladiri.find(c => c.id === b.cladireId);
+    const deCam = DB.camere.find(c => c.id === b.cameraId);
+    const mutare = {
+      id: Date.now(),
+      bunId: b.id,
+      userId: currentUser.id,
+      data: new Date().toISOString().split('T')[0],
+      deCladire: deCld ? deCld.cod : 'Neatribuit',
+      deCamera: deCam ? deCam.cod : 'Neatribuită',
+      laCladire: cld ? cld.cod : '—',
+      laCamera: cam ? cam.cod : '—',
+      laCladireId: cldId,
+      laCameraId: camId || null,
+      motiv: motiv + ' (via QR)',
+      status: 'Finalizată',
+      aprobatDe: currentUser.prenume + ' ' + currentUser.nume
+    };
+    DB.mutari.push(mutare);
+    sbAutoSave('mutari', mutare);
+    // Actualizează bunul
+    b.cladireId = cldId;
+    b.cameraId = camId || null;
+    b.lastInventariat = new Date().toISOString().split('T')[0];
+    b.inventariatDe = currentUser.prenume + ' ' + currentUser.nume;
+  } else {
+    // Doar confirmare locație
+    b.lastInventariat = new Date().toISOString().split('T')[0];
+    b.inventariatDe = currentUser.prenume + ' ' + currentUser.nume;
+  }
+  sbAutoSave('inventar', b);
+  addIstoricEvent(locatieSchimbata ? 'mutare' : 'inventar',
+    (locatieSchimbata ? 'Mutare QR: ' : 'Confirmare locație QR: ') + b.nrInv + ' — ' + b.nume +
+    ' → ' + (cld ? cld.cod : '') + (cam ? '/' + cam.cod : ''),
+    currentUser);
+  toast(locatieSchimbata ? '✅ Locație actualizată și mutare înregistrată!' : '✅ Locație confirmată!');
+  closeModal('modalQRActiuni');
+}
+
+function qrSaveEditare() {
+  if (!qrCurrentBun) return;
+  const b = qrCurrentBun;
+  const stareVeche = b.stare;
+  b.stare = document.getElementById('qrEditStare')?.value || b.stare;
+  b.val = parseFloat(document.getElementById('qrEditVal')?.value) || b.val;
+  b.obs = document.getElementById('qrEditObs')?.value || b.obs;
+  b.lastInventariat = new Date().toISOString().split('T')[0];
+  b.inventariatDe = currentUser.prenume + ' ' + currentUser.nume;
+  sbAutoSave('inventar', b).then(toastSave);
+  addIstoricEvent('inventar',
+    'Editare QR: ' + b.nrInv + ' — ' + b.nume +
+    (stareVeche !== b.stare ? ' · Stare: ' + stareVeche + ' → ' + b.stare : ''),
+    currentUser);
+  toast('✅ Bun actualizat!');
+  closeModal('modalQRActiuni');
+}
+
+function qrSaveSesizare() {
+  if (!qrCurrentBun) return;
+  const b = qrCurrentBun;
+  const tip = document.getElementById('qrSezTip')?.value || 'Defecțiune tehnică';
+  const prio = document.getElementById('qrSezPrio')?.value || 'Medie';
+  const desc = document.getElementById('qrSezDesc')?.value?.trim();
+  if (!desc) { toast('⚠️ Descrie problema'); return; }
+  const cld = DB.cladiri.find(c => c.id === b.cladireId);
+  const cam = DB.camere.find(c => c.id === b.cameraId);
+  // Creează problemă
+  const problema = {
+    id: Date.now(),
+    tip: tip,
+    locatie: (cld ? cld.cod : '') + (cam ? '/' + cam.cod : ''),
+    desc: b.nrInv + ' — ' + b.nume + ': ' + desc,
+    prio: prio,
+    status: 'Deschisă',
+    rezolvatDe: '',
+    bunId: b.id,
+    creatDe: currentUser.prenume + ' ' + currentUser.nume,
+    creatLa: new Date().toISOString().split('T')[0]
+  };
+  DB.probleme = DB.probleme || [];
+  DB.probleme.push(problema);
+  sbAutoSave('probleme', problema);
+  // Creează task mentenanță automat
+  const task = {
+    id: Date.now() + 1,
+    titlu: tip + ': ' + b.nrInv + ' — ' + b.nume,
+    desc: desc,
+    prio: prio,
+    status: 'Deschisă',
+    cameraId: b.cameraId || null,
+    bunId: b.id,
+    assignId: null,
+    assignIds: [],
+    termen: null,
+    sursa: 'QR',
+    creatLa: new Date().toISOString().split('T')[0]
+  };
+  DB.tasks = DB.tasks || [];
+  DB.tasks.push(task);
+  sbAutoSave('tasks', task);
+  // Actualizează starea bunului dacă e problemă serioasă
+  if (['Înaltă','Urgentă'].includes(prio) && b.stare === 'Bun') {
+    b.stare = 'Necesită reparații';
+    sbAutoSave('inventar', b);
+  }
+  addIstoricEvent('mentenanta',
+    'Sesizare QR: ' + b.nrInv + ' — ' + tip + ' (' + prio + ')',
+    currentUser);
+  addNotification('Sesizare nouă via QR', b.nrInv + ' — ' + b.nume + ': ' + tip, 'mentenanta', ['admin_pat','mentenanta']);
+  toast('📤 Sesizare trimisă + task mentenanță creat!');
+  closeModal('modalQRActiuni');
+}
+
+function qrConfirmInventariat() {
+  if (!qrCurrentBun) return;
+  const b = qrCurrentBun;
+  b.lastInventariat = new Date().toISOString().split('T')[0];
+  b.inventariatDe = currentUser.prenume + ' ' + currentUser.nume;
+  sbAutoSave('inventar', b).then(toastSave);
+  addIstoricEvent('inventar',
+    'Inventariat QR: ' + b.nrInv + ' — ' + b.nume,
+    currentUser);
+  toast('📦 Bun marcat ca inventariat!');
+  closeModal('modalQRActiuni');
+}
+
+// Arată butonul Scan QR pentru rolurile permise
+function updateQRScanButton() {
+  const btn = document.getElementById('btnScanQR');
+  if (btn && currentUser && ['admin_app','admin_pat'].includes(currentUser.rol)) {
+    btn.style.display = 'inline-flex';
+  } else if (btn) {
+    btn.style.display = 'none';
+  }
+}
 
 // ===== INTERNAT & CANTINA =====
 DB.prezenta = DB.prezenta || [];

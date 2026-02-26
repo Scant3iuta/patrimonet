@@ -838,6 +838,21 @@
       backdrop-filter: blur(4px);
     }
 
+    /* Table Responsiveness */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .table-responsive table {
+        min-width: 700px;
+        /* Force scroll on mobile */
+      }
+    }
+
     .modal-overlay.open {
       display: flex;
     }
@@ -2444,21 +2459,23 @@
           <div class="card">
             <div class="card-header"><span class="card-title">📦 Inventar bunuri</span><span
                 style="font-size:11px;color:var(--mist)" id="invCount">0 bunuri</span></div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Nr. Inv.</th>
-                  <th>Denumire</th>
-                  <th>Cat.</th>
-                  <th>Clădire / Cameră</th>
-                  <th>Cant.</th>
-                  <th>Valoare</th>
-                  <th>Stare</th>
-                  <th>Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody id="invTable"></tbody>
-            </table>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nr. Inv.</th>
+                    <th>Denumire</th>
+                    <th>Cat.</th>
+                    <th>Clădire / Cameră</th>
+                    <th>Cant.</th>
+                    <th>Valoare</th>
+                    <th>Stare</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="invTable"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -2901,20 +2918,22 @@
           <div class="card">
             <div class="card-header"><span class="card-title">🤝 Furnizori</span><span
                 style="font-size:11px;color:var(--mist)" id="furnCount">0</span></div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Companie</th>
-                  <th>CUI</th>
-                  <th>Contact</th>
-                  <th>Telefon</th>
-                  <th>Email</th>
-                  <th>Categorie</th>
-                  <th>Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody id="furnTable"></tbody>
-            </table>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Companie</th>
+                    <th>CUI</th>
+                    <th>Contact</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Categorie</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="furnTable"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -2935,22 +2954,24 @@
           <div class="card">
             <div class="card-header"><span class="card-title">🛒 Achiziții</span><span id="achCount"
                 style="font-size:11px;color:var(--mist)">0</span></div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Nr.</th>
-                  <th>Produs</th>
-                  <th>Furnizor</th>
-                  <th>Cant.</th>
-                  <th>Valoare</th>
-                  <th>Data</th>
-                  <th>Status</th>
-                  <th>Aprobat</th>
-                  <th>Acțiuni</th>
-                </tr>
-              </thead>
-              <tbody id="achTable"></tbody>
-            </table>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nr.</th>
+                    <th>Produs</th>
+                    <th>Furnizor</th>
+                    <th>Cant.</th>
+                    <th>Valoare</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Aprobat</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="achTable"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -4363,9 +4384,9 @@
     const toSb = {
       cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: x.sup || x.supUtila || null, suprafata_desfasurata: x.supDesfasurata || null, stare_generala: x.stare || 'Buna', cod_siiir: x.codSiiir || '' }),
       camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null }),
-      inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, qty: parseInt(x.qty) || 1, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || x.furnizorId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', locatii: x.locatii ? JSON.stringify(x.locatii) : null }),
+      inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, qty: parseInt(x.qty) || 1, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', locatii: x.locatii ? JSON.stringify(x.locatii) : null }),
       furnizori: (x) => ({ nume: x.nume, cui: x.cui || '', adresa: x.adresa || '', tel: x.tel || '', email: x.email || '', persoana: x.persoana || '' }),
-      achizitii: (x) => ({ descriere: x.produs || x.descriere || '', furnizor_id: x.furnId || x.furnizorId || null, cantitate: x.qty || 1, val: parseFloat(x.val) || 0, data_doc: toISODate(x.data || x.dataDoc) || null, status: x.status || 'Comandat', aprobare_necesara: x.aprobare || 'nu', note: x.note || '', user_id: x.userId || null }),
+      achizitii: (x) => ({ descriere: x.produs || x.descriere || '', furnizor_id: x.furnId || null, cantitate: x.qty || 1, val: parseFloat(x.val) || 0, data_doc: toISODate(x.data || x.dataDoc) || null, status: x.status || 'Comandat', aprobare_necesara: x.aprobare || 'nu', note: x.note || '', user_id: x.userId || null }),
       personal: (x) => ({ prenume: x.prenume, nume: x.nume, email: x.email, parola: x.parola, rol: x.rol, tel: x.tel || '', functie: x.functie || '', categorie: x.categorie || '' }),
       mutari: (x) => ({ bun_id: x.bunId || null, user_id: x.userId || null, data: toISODate(x.data), de_cladire: x.deCladire || '', de_camera: x.deCamera || '', la_cladire: x.laCladire || '', la_camera: x.laCamera || '', la_cladire_id: x.laCladireId || null, la_camera_id: x.laCameraId || null, motiv: x.motiv || '', obs: x.obs || '', status: x.status || 'Finalizată', aprobat_de: x.aprobatDe || '' }),
       rezervari: (x) => ({ camera_id: x.cameraId || null, user_id: x.userId || null, data: toISODate(x.data) || x.data, ora_start: x.oraStart || '', ora_end: x.oraEnd || '', materie: x.materie || '', elevi: parseInt(x.elevi) || 0, echipamente: x.echipamente || '', status: x.status || 'Aprobată', aprobat_de: x.aprobatDe || '', obs: x.obs || '' }),
@@ -4380,9 +4401,9 @@
     const fromSb = {
       cladiri: (x) => ({ _loaded: true, id: x.id, cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, an_constructie: x.an_constructie, sup: x.suprafata, supUtila: x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', resp: x.responsabil || '' }),
       camere: (x) => ({ _loaded: true, id: x.id, cladireId: x.cladire_id, cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate }),
-      inventar: (x) => ({ _loaded: true, id: x.id, nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id, cameraId: x.camera_id, stare: x.stare, val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnizorId: x.furnizor_id, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs }),
+      inventar: (x) => ({ _loaded: true, id: x.id, nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id, cameraId: x.camera_id, stare: x.stare, val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnId: x.furnizor_id, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs }),
       furnizori: (x) => ({ _loaded: true, id: x.id, nume: x.nume, cui: x.cui, adresa: x.adresa, tel: x.tel, email: x.email, persoana: x.persoana, contact: x.persoana, cat: x.categorie || 'General' }),
-      achizitii: (x) => ({ _loaded: true, id: x.id, nrDoc: x.nr_doc, tipDoc: x.tip_doc, dataDoc: x.data_doc, data: x.data_doc, furnizorId: x.furnizor_id, descriere: x.descriere, produs: x.descriere, val: parseFloat(x.val) || 0, status: x.status, qty: x.qty || 1, userId: x.user_id }),
+      achizitii: (x) => ({ _loaded: true, id: x.id, nrDoc: x.nr_doc, tipDoc: x.tip_doc, dataDoc: x.data_doc, data: x.data_doc, furnId: x.furnizor_id, descriere: x.descriere, produs: x.descriere, val: parseFloat(x.val) || 0, status: x.status, qty: x.qty || 1, userId: x.user_id }),
       personal: (x) => ({ _loaded: true, id: x.id, prenume: x.prenume, nume: x.nume, email: x.email, parola: x.parola, rol: x.rol, tel: x.tel }),
       mutari: (x) => ({ _loaded: true, id: x.id, bunId: x.bun_id, userId: x.user_id, data: x.data, deCladire: x.de_cladire, deCamera: x.de_camera, laCladire: x.la_cladire, laCamera: x.la_camera, laCladireId: x.la_cladire_id, laCameraId: x.la_camera_id, motiv: x.motiv, obs: x.obs, status: x.status, aprobatDe: x.aprobat_de }),
       rezervari: (x) => ({ _loaded: true, id: x.id, cameraId: x.camera_id, userId: x.user_id, data: x.data, oraStart: x.ora_start, oraEnd: x.ora_end, materie: x.materie, elevi: x.elevi, echipamente: x.echipamente, status: x.status, aprobatDe: x.aprobat_de }),
@@ -5014,8 +5035,8 @@
       const tbody = document.getElementById('invTable');
       if (!items.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><p>Niciun bun.</p></div></td></tr>'; return; }
       tbody.innerHTML = items.map(b => {
-        const cld = DB.cladiri.find(x => x.id === b.cladireId);
-        const cam = DB.camere.find(x => x.id === b.cameraId);
+        const cld = DB.cladiri.find(x => x.id == b.cladireId);
+        const cam = DB.camere.find(x => x.id == b.cameraId);
         const sb = b.stare === 'Funcțional' ? 'b-green' : b.stare === 'Necesită reparații' ? 'b-yellow' : 'b-red';
         return `<tr>
       <td><code style="background:var(--surface);padding:2px 6px;border-radius:5px;font-size:11px;font-weight:700">${b.nrInv}</code></td>

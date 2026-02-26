@@ -4316,6 +4316,33 @@
       if (error) { console.error('Supabase delete error:', table, error); return null; }
       return true;
     }
+    // ===== ERROR LOGGING (METHOD 2) =====
+    window.onerror = function (msg, url, line, col, error) {
+      if (typeof sbInsert === 'function' && SUPABASE_ENABLED) {
+        sbInsert('audit_logs', {
+          message: msg,
+          stack: error ? error.stack : `Line: ${line}, Col: ${col}`,
+          url: window.location.href,
+          ua: navigator.userAgent,
+          user_id: window.LOGGED_USER ? window.LOGGED_USER.id : null,
+          locatie: document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Login/Init'
+        });
+      }
+      return false;
+    };
+
+    window.addEventListener('unhandledrejection', function (event) {
+      if (typeof sbInsert === 'function' && SUPABASE_ENABLED) {
+        sbInsert('audit_logs', {
+          message: 'Unhandled Rejection: ' + (event.reason ? event.reason.message : 'Unknown'),
+          stack: event.reason ? event.reason.stack : '',
+          url: window.location.href,
+          ua: navigator.userAgent,
+          user_id: window.LOGGED_USER ? window.LOGGED_USER.id : null,
+          locatie: document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Login/Init'
+        });
+      }
+    });
 
     // ===== MAP DB ↔ SUPABASE =====
     // Convert local object → supabase row

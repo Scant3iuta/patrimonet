@@ -626,9 +626,16 @@
     /* CARDS */
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
     .stat-card {
@@ -969,13 +976,13 @@
 
     .form-grid2 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 14px;
     }
 
     .form-grid3 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
     }
 
@@ -1094,6 +1101,12 @@
     }
 
     /* BUILDING CARD */
+    #cladiriGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
     .building-card {
       background: var(--white);
       border: 1px solid var(--border);
@@ -1283,7 +1296,7 @@
     /* SETTINGS SECTION */
     .settings-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
       gap: 20px;
     }
 
@@ -1452,7 +1465,7 @@
       }
 
       .stats-row {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       }
 
       .flux-card,
@@ -1502,7 +1515,7 @@
 
       /* Stats grid */
       .stats-row {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 8px;
       }
 
@@ -1626,7 +1639,7 @@
 
       /* Stats 2 coloane */
       .stats-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 6px;
       }
 
@@ -2741,7 +2754,7 @@
           </div>
 
           <div id="int-prezenta">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="card-grid">
               <div class="card">
                 <div class="card-header"><span class="card-title">👥 Prezență zilnică internat</span></div>
                 <div style="padding:16px">
@@ -2763,7 +2776,7 @@
               <div class="card">
                 <div class="card-header"><span class="card-title">📊 Statistici rapide internat</span></div>
                 <div style="padding:16px" id="intStatBox">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="stats-row" style="gap:10px">
                     <div class="stat-card" style="padding:14px">
                       <div class="stat-val" id="statPrezAzi">—</div>
                       <div class="stat-label">Prezenți azi</div>
@@ -2802,7 +2815,7 @@
           </div>
 
           <div id="int-mese" style="display:none">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="card-grid">
               <div class="card">
                 <div class="card-header"><span class="card-title">🍽️ Înregistrare mese</span></div>
                 <div style="padding:16px">
@@ -3058,12 +3071,12 @@
               </select>
               <button class="btn btn-primary" onclick="openModalFlux()">+ Flux nou</button>
             </div>
-            <div id="fluxuriList" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px"></div>
+            <div id="fluxuriList" class="card-grid" style="margin-top:4px"></div>
           </div>
 
           <!-- PROCEDURI STANDARD -->
           <div id="flux-definite" style="display:none">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="card-grid">
 
               <div class="card">
                 <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span><button
@@ -4175,16 +4188,16 @@
 
   <!-- MODAL QR SCANNER -->
   <div class="modal-overlay" id="modalQRScanner" style="z-index:10000">
-    <div class="modal" style="max-width:480px;width:96%;padding:0;overflow:hidden;border-radius:16px">
+    <div class="modal" style="max-width:480px;width:96%;padding:0;border-radius:16px">
       <div
         style="background:var(--dark);color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
         <div style="font-weight:700;font-size:16px">📷 Scanează cod QR</div>
         <button onclick="closeQRScanner()"
-          style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0 4px">✕</button>
+          style="background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:8px;line-height:1;margin:-8px">✕</button>
       </div>
-      <div style="position:relative;background:#000;aspect-ratio:1">
+      <div style="position:relative;background:#000;aspect-ratio:1;max-height:50vh;overflow:hidden">
         <video id="qrVideo" style="width:100%;height:100%;object-fit:cover" playsinline autoplay muted></video>
-        <canvas id="qrCanvas" style="display:none"></canvas>
+        <canvas id="qrScanCanvas" style="display:none"></canvas>
         <!-- Overlay ghidaj -->
         <div
           style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
@@ -4211,7 +4224,8 @@
             style="flex:1;min-width:180px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px">
             <option value="">📷 Selectează camera...</option>
           </select>
-          <button class="btn btn-outline btn-sm" onclick="closeQRScanner()" style="white-space:nowrap">Închide scanner</button>
+          <button class="btn btn-outline btn-sm" onclick="closeQRScanner()" style="white-space:nowrap">Închide
+            scanner</button>
         </div>
       </div>
     </div>
@@ -4409,13 +4423,11 @@
     // ===== ERROR LOGGING (METHOD 2) =====
     window.onerror = function (msg, url, line, col, error) {
       if (typeof sbInsert === 'function' && SUPABASE_ENABLED) {
-        sbInsert('audit_logs', {
-          message: msg,
-          stack: error ? error.stack : `Line: ${line}, Col: ${col}`,
-          url: window.location.href,
-          ua: navigator.userAgent,
-          user_id: window.LOGGED_USER ? window.LOGGED_USER.id : null,
-          locatie: document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Login/Init'
+        sbInsert('istoric_log', {
+          tip: 'error',
+          descriere: `JS Error: ${msg} | ${url} | L${line}:C${col}`,
+          user_name: currentUser ? (currentUser.prenume + ' ' + currentUser.nume) : 'Sistem',
+          user_rol: currentUser ? currentUser.rol : '—'
         });
       }
       return false;
@@ -4423,13 +4435,11 @@
 
     window.addEventListener('unhandledrejection', function (event) {
       if (typeof sbInsert === 'function' && SUPABASE_ENABLED) {
-        sbInsert('audit_logs', {
-          message: 'Unhandled Rejection: ' + (event.reason ? event.reason.message : 'Unknown'),
-          stack: event.reason ? event.reason.stack : '',
-          url: window.location.href,
-          ua: navigator.userAgent,
-          user_id: window.LOGGED_USER ? window.LOGGED_USER.id : null,
-          locatie: document.getElementById('pageTitle') ? document.getElementById('pageTitle').textContent : 'Login/Init'
+        sbInsert('istoric_log', {
+          tip: 'error',
+          descriere: 'Unhandled Rejection: ' + (event.reason ? (event.reason.message || event.reason) : 'Unknown'),
+          user_name: currentUser ? (currentUser.prenume + ' ' + currentUser.nume) : 'Sistem',
+          user_rol: currentUser ? currentUser.rol : '—'
         });
       }
     });
@@ -6852,7 +6862,7 @@
 
     function processQRFrame() {
       const video = document.getElementById('qrVideo');
-      const canvas = document.getElementById('qrCanvas');
+      const canvas = document.getElementById('qrScanCanvas');
       const status = document.getElementById('qrStatus');
       if (!video || !canvas || !qrStream) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) {

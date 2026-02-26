@@ -2411,7 +2411,7 @@
               <div class="stat-sub">mentenanță</div>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card-grid">
             <div class="card">
               <div class="card-header"><span class="card-title">🏢 Clădiri active</span></div>
               <div id="dashCladiri" style="padding:4px 0"></div>
@@ -2433,1285 +2433,1271 @@
               <div class="card-header"><span class="card-title">⚡ Activitate recentă</span></div>
               <div id="dashActivity" style="padding:4px 0"></div>
             </div>
-            <!-- ================= DASHBOARD ================= -->
-            <section id="section-dashboard" class="content-section active">
-              <div class="header">
-                <h1>Overview</h1>
-                <div style="font-size:13px;color:var(--mist)">Bun venit, <span id="dashUser"></span>!</div>
-              </div>
-              <div id="dashStats" class="stats-row" style="margin-bottom:24px">
-                <!-- Renderizat dinamic -->
-              </div>
-              <div id="dashGrid" class="card-grid">
-                <!-- Shortcut-uri -->
-              </div>
-            </section>
-
-            <!-- CLADIRI -->
-            <div class="section" id="section-cladiri">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută clădire..."
-                    oninput="filterCladiri(this.value)"></div>
-                <button class="btn btn-primary" onclick="openModal('modalCladire')">+ Adaugă clădire</button>
-              </div>
-              <div class="card-grid" id="cladiriGrid">
-              </div>
-            </div>
-
-            <!-- CAMERE -->
-            <div class="section" id="section-camere">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută cameră..."
-                    oninput="filterCamere(this.value)" id="searchCam"></div>
-                <select id="filterCladireC" onchange="filterCamere()">
-                  <option value="">Toate clădirile</option>
-                </select>
-                <select id="filterTipC" onchange="filterCamere()">
-                  <option value="">Toate tipurile</option>
-                  <option>Sală de clasă</option>
-                  <option>Laborator</option>
-                  <option>Birou</option>
-                  <option>Depozit</option>
-                  <option>Sală sport</option>
-                  <option>Atelier</option>
-                  <option>Bibliotecă</option>
-                  <option>Cantină</option>
-                  <option>Internat</option>
-                  <option>Sală mese</option>
-                  <option>Auxiliar</option>
-                </select>
-                <button class="btn btn-primary" onclick="openModalCamera()">+ Adaugă cameră</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">🚪 Camere & Săli</span><span
-                    style="font-size:11px;color:var(--mist)" id="camCount">0 spații</span></div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Cod</th>
-                      <th>Denumire</th>
-                      <th>Clădire</th>
-                      <th>Nivel</th>
-                      <th>Tip</th>
-                      <th>Responsabil</th>
-                      <th>Bunuri</th>
-                      <th>Acțiuni</th>
-                    </tr>
-                  </thead>
-                  <tbody id="camTable"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- INVENTAR -->
-            <div class="section" id="section-inventar">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută după cod, denumire..."
-                    oninput="filterInventar()" id="searchInv"></div>
-                <select onchange="filterInventar()" id="filterCat">
-                  <option value="">Toate categoriile</option>
-                  <option>Mobilier</option>
-                  <option>Tehnologie IT</option>
-                  <option>Echipament Sportiv</option>
-                  <option>Laborator</option>
-                  <option>Auxiliar</option>
-                  <option>Carte & Publicație</option>
-                </select>
-                <select onchange="filterInventar()" id="filterStare">
-                  <option value="">Toate stările</option>
-                  <option>Funcțional</option>
-                  <option>Necesită reparații</option>
-                  <option>Casat</option>
-                </select>
-                <select onchange="filterInventar()" id="filterCladireI">
-                  <option value="">Toate clădirile</option>
-                </select>
-                <button class="btn btn-primary" onclick="openModalBun()">+ Adaugă bun</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">📦 Inventar bunuri</span><span
-                    style="font-size:11px;color:var(--mist)" id="invCount">0 bunuri</span></div>
-                <div class="table-responsive">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Nr. Inv.</th>
-                        <th>Denumire</th>
-                        <th>Cat.</th>
-                        <th>Clădire / Cameră</th>
-                        <th>Cant.</th>
-                        <th>Valoare</th>
-                        <th>Stare</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody id="invTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- QR -->
-            <div class="section" id="section-qr">
-              <div class="alert alert-info">ℹ️ <span>Selectează un bun din inventar pentru a genera codul QR. Codul
-                  conține
-                  toate informațiile bunului și poate fi scanat cu orice telefon.</span></div>
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută bun pentru QR..."
-                    oninput="filterQR(this.value)" id="searchQR"></div>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">📲 Generare coduri QR</span></div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nr. Inv.</th>
-                      <th>Denumire</th>
-                      <th>Cameră</th>
-                      <th>Stare</th>
-                      <th>Generează QR</th>
-                    </tr>
-                  </thead>
-                  <tbody id="qrTable"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- IMPORT / EXPORT -->
-            <div class="section" id="section-import">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-
-                <!-- IMPORT CARD -->
-                <div class="card">
-                  <div class="card-header">
-                    <span class="card-title">📥 Import gestiune din Expert Bugetar</span>
-                  </div>
-                  <div style="padding:20px">
-                    <div class="alert alert-info" style="margin-bottom:16px">
-                      ℹ️ Importă fișierul Excel exportat din <strong>Expert Bugetar</strong> (Lista mijloace fixe /
-                      obiecte
-                      inventar). Coloanele vor fi detectate automat.
-                    </div>
-                    <div class="logo-upload-area" id="importDropArea"
-                      onclick="document.getElementById('importFile').click()" style="margin-bottom:14px;padding:32px"
-                      ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
-                      ondragleave="this.style.borderColor=''" ondrop="handleImportDrop(event)">
-                      <div style="font-size:40px;margin-bottom:10px">📊</div>
-                      <div style="font-size:14px;font-weight:600;color:var(--ink)">Trage fișierul Excel aici</div>
-                      <div style="font-size:12px;color:var(--mist);margin-top:6px">sau click pentru a selecta</div>
-                      <div style="font-size:11px;color:var(--mist);margin-top:4px">.xlsx / .xls — Export Expert Bugetar
-                      </div>
-                    </div>
-                    <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none"
-                      onchange="handleImportFile(this)">
-
-                    <div id="importPreview" style="display:none">
-                      <div style="font-weight:600;font-size:13px;margin-bottom:10px" id="importStats"></div>
-                      <div
-                        style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)">
-                        <table style="width:100%">
-                          <thead id="importHead"></thead>
-                          <tbody id="importBody"></tbody>
-                        </table>
-                      </div>
-                      <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
-                        <button class="btn btn-outline" onclick="cancelImport()">✕ Anulează</button>
-                        <button class="btn btn-teal" onclick="confirmImport()">✅ Importă <span
-                            id="importCountBtn">0</span>
-                          bunuri</button>
-                      </div>
-                    </div>
-
-                    <div
-                      style="margin-top:16px;padding:14px;background:var(--surface);border-radius:var(--r);font-size:12px">
-                      <div style="font-weight:700;margin-bottom:8px;font-size:13px">📋 Coloane recunoscute automat din
-                        Expert Bugetar:</div>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--slate)">
-                        <div>✓ Nr. inventar / Cod</div>
-                        <div>✓ Denumire mijloc fix</div>
-                        <div>✓ Cont contabil (211-214)</div>
-                        <div>✓ Data PIF / achiziție</div>
-                        <div>✓ Valoare de intrare</div>
-                        <div>✓ Amortizare cumulată</div>
-                        <div>✓ Valoare rămasă netă</div>
-                        <div>✓ Durata normală (ani)</div>
-                        <div>✓ Gestiune / Locație</div>
-                        <div>✓ Furnizor / Doc. intrare</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- EXPORT CARD -->
-                <div class="card">
-                  <div class="card-header">
-                    <span class="card-title">📤 Export date — Configurabil</span>
-                  </div>
-                  <div style="padding:20px">
-                    <div class="alert alert-info" style="margin-bottom:16px">
-                      ℹ️ Selectează ce date și în ce format dorești să exporți. Administratorul de patrimoniu
-                      controlează
-                      complet ce se exportă.
-                    </div>
-
-                    <div style="font-weight:700;font-size:13px;margin-bottom:10px">📋 Exporturi Excel (compatibil Expert
-                      Bugetar)</div>
-                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <input type="checkbox" id="expInvComplet" checked style="width:16px;height:16px">
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Inventar complet — toate bunurile</div>
-                          <div style="font-size:11px;color:var(--mist)">Nr.inv, denumire, cont, valoare, locație, stare
-                          </div>
-                        </div>
-                        <button class="btn btn-teal btn-sm" onclick="exportExpertBugetar('complet')">⬇️ CSV</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <input type="checkbox" id="expInvCladire" style="width:16px;height:16px">
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Inventar filtrat pe clădire</div>
-                          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-                            <select id="expCladireSelect"
-                              style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border)">${DB_CLADIRI_OPTIONS}</select>
-                          </div>
-                        </div>
-                        <button class="btn btn-teal btn-sm" onclick="exportExpertBugetar('cladire')">⬇️ CSV</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <input type="checkbox" id="expMutari" style="width:16px;height:16px">
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Registru mutări bunuri</div>
-                          <div style="font-size:11px;color:var(--mist)">Toate mutările cu data, utilizator, aprobare
-                          </div>
-                        </div>
-                        <button class="btn btn-teal btn-sm" onclick="exportMutariCSV()">⬇️ CSV</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <input type="checkbox" id="expMese" style="width:16px;height:16px">
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Registru mese cantină + prezențe internat</div>
-                          <div style="font-size:11px;color:var(--mist)">Lunar, pentru contabilitate și administrație
-                          </div>
-                        </div>
-                        <button class="btn btn-teal btn-sm" onclick="exportMese()">⬇️ CSV</button>
-                      </div>
-                    </div>
-
-                    <div style="font-weight:700;font-size:13px;margin-bottom:10px">📄 Rapoarte PDF (tipărire / semnare)
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:8px">
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🏛️</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Inventar complet pe clădiri și camere</div>
-                          <div style="font-size:11px;color:var(--mist)">Cu valori totale, semnat de admin patrimoniu
-                          </div>
-                        </div>
-                        <button class="btn btn-primary btn-sm" onclick="exportRaportPDF('complet')">🖨️ PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🗑️</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Proces verbal casare bunuri</div>
-                          <div style="font-size:11px;color:var(--mist)">Cu semnături director, contabil șef, admin
-                            patrimoniu</div>
-                        </div>
-                        <button class="btn btn-danger btn-sm" onclick="exportRaportPDF('casare')">🖨️ PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🚪</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Fișă inventar pe cameră / sală</div>
-                          <div style="font-size:11px;color:var(--mist)">Câte o pagină per spațiu, pentru afișare</div>
-                        </div>
-                        <button class="btn btn-gold btn-sm" onclick="exportRaportPDF('camera')">🖨️ PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🔧</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Raport bunuri ce necesită reparații</div>
-                          <div style="font-size:11px;color:var(--mist)">Pentru mentenanță și aprobare director</div>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="exportRaportPDF('reparatii')">🖨️ PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">📅</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Raport ocupare săli (lunar)</div>
-                          <div style="font-size:11px;color:var(--mist)">Statistici rezervări per sală, pentru conducere
-                          </div>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="exportRaportPDF('ocupare')">🖨️ PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🏠</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Raport lunar internat & cantină</div>
-                          <div style="font-size:11px;color:var(--mist)">Prezențe zilnice + mese + sesizări</div>
-                        </div>
-                        <button class="btn btn-outline btn-sm"
-                          onclick="nav('internat',null);setTimeout(()=>switchTabInternat('int-raport',document.querySelector('#section-internat .tab:last-child')),200)">🖨️
-                          PDF</button>
-                      </div>
-                      <div
-                        style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
-                        <div style="font-size:22px">🔍</div>
-                        <div style="flex:1">
-                          <div style="font-weight:600;font-size:13px">Log audit complet</div>
-                          <div style="font-size:11px;color:var(--mist)">Toate acțiunile utilizatorilor, cu marcă
-                            temporală
-                          </div>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="exportAuditLog()">⬇️ CSV</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- MAPARE COLOANE (apare dupa upload) -->
-              <div class="card" id="mapareCard" style="display:none">
-                <div class="card-header"><span class="card-title">🔗 Mapare coloane — Expert Bugetar</span></div>
-                <div style="padding:20px" id="mapareBody"></div>
-              </div>
-
-            </div>
-
-            <!-- INTERNAT & CANTINA -->
-            <div class="section" id="section-internat">
-              <div class="tabs">
-                <div class="tab active" onclick="switchTabInternat('int-prezenta',this)">👥 Prezență elevi</div>
-                <div class="tab" onclick="switchTabInternat('int-mese',this)">🍽️ Mese cantină</div>
-                <div class="tab" onclick="switchTabInternat('int-probleme',this)">🔧 Sesizări probleme <span
-                    id="intProblemeCount" class="notif-count" style="margin-left:4px">0</span></div>
-                <div class="tab" onclick="switchTabInternat('int-raport',this)">📊 Rapoarte</div>
-              </div>
-
-              <div id="int-prezenta">
-                <div class="card-grid">
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">👥 Prezență zilnică internat</span></div>
-                    <div style="padding:16px">
-                      <div class="form-row"><label>Data</label><input type="date" id="prezData" style="width:100%">
-                      </div>
-                      <div class="form-row"><label>Tip zi</label>
-                        <select id="prezTipZi" style="width:100%">
-                          <option value="saptamana">Zi lucrătoare (Lun–Vin)</option>
-                          <option value="weekend">Weekend (Sâm–Dum)</option>
-                          <option value="vacanta">Vacanță</option>
-                        </select>
-                      </div>
-                      <div class="form-row"><label>Elevi prezenți în internat</label><input type="number" id="prezElevi"
-                          min="0" max="200" placeholder="nr. elevi"></div>
-                      <div class="form-row"><label>Observații</label><textarea id="prezObs"
-                          placeholder="ex: 12 elevi plecați acasă, 3 absenți nemotivat..."></textarea></div>
-                      <button class="btn btn-primary" onclick="savePrezenta()">✅ Salvează prezența</button>
-                    </div>
-                  </div>
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">📊 Statistici rapide internat</span></div>
-                    <div style="padding:16px" id="intStatBox">
-                      <div class="stats-row" style="gap:10px">
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statPrezAzi">—</div>
-                          <div class="stat-label">Prezenți azi</div>
-                        </div>
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statPrezWeekend">—</div>
-                          <div class="stat-label">Weekend curent</div>
-                        </div>
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statMeseAzi">—</div>
-                          <div class="stat-label">Mese azi</div>
-                        </div>
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statProblemeOpen">0</div>
-                          <div class="stat-label">Sesizări deschise</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📋 Istoric prezență</span></div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Data</th>
-                        <th>Zi</th>
-                        <th>Elevi prezenți</th>
-                        <th>Înregistrat de</th>
-                        <th>Observații</th>
-                      </tr>
-                    </thead>
-                    <tbody id="prezentaTable"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div id="int-mese" style="display:none">
-                <div class="card-grid">
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">🍽️ Înregistrare mese</span></div>
-                    <div style="padding:16px">
-                      <div class="form-row"><label>Data</label><input type="date" id="meseData" style="width:100%">
-                      </div>
-                      <div class="form-row"><label>Mic dejun (persoane)</label><input type="number" id="meseMicDejun"
-                          min="0" placeholder="0"></div>
-                      <div class="form-row"><label>Prânz (persoane)</label><input type="number" id="mesePranz" min="0"
-                          placeholder="0"></div>
-                      <div class="form-row"><label>Cină (persoane)</label><input type="number" id="meseCina" min="0"
-                          placeholder="0"></div>
-                      <div class="form-row"><label>Observații</label><textarea id="meseObs"
-                          placeholder="ex: meniu modificat, alergii, vizitatori..."></textarea></div>
-                      <button class="btn btn-primary" onclick="saveMese()">✅ Salvează</button>
-                    </div>
-                  </div>
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">📊 Total mese luna curentă</span></div>
-                    <div style="padding:16px" id="meseStatBox">
-                      <div class="stats-row" style="gap:10px">
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statMeseLunaMicDejun">—</div>
-                          <div class="stat-label">Mic dejun (luna curentă)</div>
-                        </div>
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statMeseLunaPranz">—</div>
-                          <div class="stat-label">Prânz (luna curentă)</div>
-                        </div>
-                        <div class="stat-card" style="padding:14px">
-                          <div class="stat-val" id="statMeseLunaCina">—</div>
-                          <div class="stat-label">Cină (luna curentă)</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📋 Registru mese</span><button
-                      class="btn btn-outline btn-sm" onclick="exportMese()">📥 Export</button></div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Data</th>
-                        <th>Mic dejun</th>
-                        <th>Prânz</th>
-                        <th>Cină</th>
-                        <th>Total</th>
-                        <th>Înregistrat de</th>
-                      </tr>
-                    </thead>
-                    <tbody id="meseTable"></tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div id="int-probleme" style="display:none">
-                <div class="filters">
-                  <select id="filterProbStatus" onchange="renderProbleme()">
-                    <option value="">Toate</option>
-                    <option>Deschisă</option>
-                    <option>În lucru</option>
-                    <option>Rezolvată</option>
-                  </select>
-                  <select id="filterProbTip" onchange="renderProbleme()">
-                    <option value="">Toate tipurile</option>
-                    <option>Instalație sanitară</option>
-                    <option>Instalație electrică</option>
-                    <option>Mobilier deteriorat</option>
-                    <option>Încălzire / AC</option>
-                    <option>Geamuri / Uși</option>
-                    <option>Altele</option>
-                  </select>
-                  <button class="btn btn-primary" onclick="openModalProblema()">+ Sesizare nouă</button>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">🔧 Sesizări probleme internat</span></div>
-                  <div id="problemeList" style="padding:8px 0"></div>
-                </div>
-              </div>
-
-              <div id="int-raport" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📊 Raport lunar internat & cantină</span></div>
-                  <div style="padding:16px">
-                    <div class="form-grid2">
-                      <div class="form-row"><label>Luna</label><input type="month" id="raportLuna" style="width:100%">
-                      </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="genRaportInternat()">📄 Generează raport PDF</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- MODAL SESIZARE PROBLEMA INTERNAT -->
-            <div class="modal-overlay" id="modalProblema">
-              <div class="modal" style="width:520px">
-                <div class="modal-head"><span class="modal-title">🔧 Sesizare problemă internat</span><span
-                    class="modal-close" onclick="closeModal('modalProblema')">✕</span></div>
-                <div class="modal-body">
-                  <div class="form-row"><label>Tip problemă</label>
-                    <select id="probTip" style="width:100%">
-                      <option>Instalație sanitară</option>
-                      <option>Instalație electrică</option>
-                      <option>Mobilier deteriorat</option>
-                      <option>Încălzire / AC</option>
-                      <option>Geamuri / Uși</option>
-                      <option>Altele</option>
-                    </select>
-                  </div>
-                  <div class="form-row"><label>Locație (cameră/etaj)</label><input type="text" id="probLocatie"
-                      placeholder="ex: Camera 12 — Etaj 2, Baie comună etaj 1..."></div>
-                  <div class="form-row"><label>Prioritate</label>
-                    <select id="probPrio" style="width:100%">
-                      <option value="Înaltă">🔴 Înaltă — urgentă</option>
-                      <option value="Medie" selected>🟡 Medie</option>
-                      <option value="Scăzută">🟢 Scăzută</option>
-                    </select>
-                  </div>
-                  <div class="form-row"><label>Descriere problemă</label><textarea id="probDesc"
-                      placeholder="Descrie problema cât mai detaliat..."></textarea></div>
-                </div>
-                <div class="modal-foot">
-                  <button class="btn btn-outline" onclick="closeModal('modalProblema')">Anulează</button>
-                  <button class="btn btn-primary" onclick="saveProblema()">Trimite sesizarea</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- FURNIZORI -->
-            <div class="section" id="section-furnizori">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută furnizor..."
-                    oninput="filterFurnizori(this.value)"></div>
-                <button class="btn btn-primary"
-                  onclick="document.getElementById('furnEditId').value='';document.getElementById('furnCuiSearch').value='';document.getElementById('anafStatus').textContent='Introdu CUI-ul și apasă Caută pentru completare automată';openModal('modalFurnizor')">+
-                  Adaugă furnizor</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">🤝 Furnizori</span><span
-                    style="font-size:11px;color:var(--mist)" id="furnCount">0</span></div>
-                <div class="table-responsive">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Companie</th>
-                        <th>CUI</th>
-                        <th>Contact</th>
-                        <th>Telefon</th>
-                        <th>Email</th>
-                        <th>Categorie</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody id="furnTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- ACHIZITII -->
-            <div class="section" id="section-achizitii">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută achiziție..."
-                    oninput="filterAchizitii(this.value)" id="searchAch"></div>
-                <select id="filterAchStatus" onchange="filterAchizitii()">
-                  <option value="">Toate statusurile</option>
-                  <option>Comandat</option>
-                  <option>Livrat</option>
-                  <option>În așteptare</option>
-                  <option>Anulat</option>
-                </select>
-                <button class="btn btn-primary" onclick="openModalAch()">+ Adaugă achiziție</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">🛒 Achiziții</span><span id="achCount"
-                    style="font-size:11px;color:var(--mist)">0</span></div>
-                <div class="table-responsive">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Nr.</th>
-                        <th>Produs</th>
-                        <th>Furnizor</th>
-                        <th>Cant.</th>
-                        <th>Valoare</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                        <th>Aprobat</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody id="achTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- MENTENANTA -->
-            <div class="section" id="section-mentenanta">
-              <div class="tabs">
-                <div class="tab active" onclick="switchTab('tasks-open',this)">Sarcini deschise</div>
-                <div class="tab" onclick="switchTab('tasks-done',this)">Finalizate</div>
-              </div>
-              <div id="tasks-open">
-                <div class="filters">
-                  <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută sarcină..."
-                      oninput="filterTasks(this.value)"></div>
-                  <select id="filterPriority" onchange="filterTasks()">
-                    <option value="">Toate prioritățile</option>
-                    <option>Înaltă</option>
-                    <option>Medie</option>
-                    <option>Scăzută</option>
-                  </select>
-                  <button class="btn btn-primary" onclick="openModalTask()">+ Adaugă sarcină</button>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">🔧 Sarcini mentenanță deschise</span></div>
-                  <div id="taskList"></div>
-                </div>
-              </div>
-              <div id="tasks-done" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">✅ Sarcini finalizate</span></div>
-                  <div id="taskListDone"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FLUXURI -->
-            <div class="section" id="section-fluxuri">
-              <div class="tabs">
-                <div class="tab active" onclick="switchTabFlux('flux-activ',this)">▶️ Fluxuri active <span
-                    id="fluxActivCount" class="notif-count" style="margin-left:4px">0</span></div>
-                <div class="tab" onclick="switchTabFlux('flux-definite',this)">📋 Proceduri standard</div>
-                <div class="tab" onclick="switchTabFlux('flux-istoric',this)">✅ Finalizate</div>
-              </div>
-
-              <!-- FLUXURI ACTIVE -->
-              <div id="flux-activ">
-                <div class="filters">
-                  <select id="filterFluxTip" onchange="renderFluxuri()">
-                    <option value="">Toate tipurile</option>
-                    <option>Achiziție</option>
-                    <option>Reparație</option>
-                    <option>Casare</option>
-                    <option>Transfer</option>
-                    <option>Comandă alimente</option>
-                  </select>
-                  <select id="filterFluxStatus" onchange="renderFluxuri()">
-                    <option value="">Toate statusurile</option>
-                    <option>În așteptare</option>
-                    <option>În lucru</option>
-                    <option>Blocat</option>
-                  </select>
-                  <button class="btn btn-primary" onclick="openModalFlux()">+ Flux nou</button>
-                </div>
-                <div id="fluxuriList" class="card-grid" style="margin-top:4px"></div>
-              </div>
-
-              <!-- PROCEDURI STANDARD -->
-              <div id="flux-definite" style="display:none">
-                <div class="card-grid">
-
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span><button
-                        class="btn btn-primary btn-sm" onclick="startFlux('Achiziție')">▶️ Pornește</button></div>
-                    <div style="padding:16px 20px">
-                      <div class="workflow-step">
-                        <div class="ws-num">1</div>
-                        <div class="ws-text"><strong>Inițiere</strong> — Admin Patrimoniu completează formularul de
-                          necesitate</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">2</div>
-                        <div class="ws-text"><strong>Aprobare bugetară</strong> — Contabilul verifică disponibilul
-                          bugetar
-                        </div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">3</div>
-                        <div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă achiziția (peste
-                          5.000
-                          RON)</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">4</div>
-                        <div class="ws-text"><strong>Comandă furnizor</strong> — Admin Patrimoniu emite comanda</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">5</div>
-                        <div class="ws-text"><strong>Recepție</strong> — Comisia de recepție confirmă livrarea</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">6</div>
-                        <div class="ws-text"><strong>Inventariere</strong> — Se atribuie nr. inventar și se generează QR
-                        </div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">7</div>
-                        <div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează în
-                          evidențele contabile</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">🔧 Flux: Reparație bun defect</span><button
-                        class="btn btn-primary btn-sm" onclick="startFlux('Reparație')">▶️ Pornește</button></div>
-                    <div style="padding:16px 20px">
-                      <div class="workflow-step">
-                        <div class="ws-num">1</div>
-                        <div class="ws-text"><strong>Sesizare defect</strong> — Profesorul/utilizatorul raportează
-                          defecțiunea</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">2</div>
-                        <div class="ws-text"><strong>Înregistrare sarcină</strong> — Admin Patrimoniu creează sarcina de
-                          mentenanță</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">3</div>
-                        <div class="ws-text"><strong>Evaluare tehnică</strong> — Personalul mentenanță evaluează
-                          defecțiunea
-                        </div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">4</div>
-                        <div class="ws-text"><strong>Decizie reparație/casare</strong> — Admin Patrimoniu decide</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">5</div>
-                        <div class="ws-text"><strong>Reparație</strong> — Mentenanță intern SAU service extern</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">6</div>
-                        <div class="ws-text"><strong>Confirmare remediere</strong> — Actualizare stare bun în inventar
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">🗑️ Flux: Casare bun</span><button
-                        class="btn btn-primary btn-sm" onclick="startFlux('Casare')">▶️ Pornește</button></div>
-                    <div style="padding:16px 20px">
-                      <div class="workflow-step">
-                        <div class="ws-num">1</div>
-                        <div class="ws-text"><strong>Propunere casare</strong> — Admin Patrimoniu identifică bunul
-                          propus
-                          pentru casare</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">2</div>
-                        <div class="ws-text"><strong>Evaluare comisie</strong> — Comisia de inventariere verifică starea
-                          bunului</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">3</div>
-                        <div class="ws-text"><strong>Aprobare director</strong> — Directorul semnează procesul verbal de
-                          casare</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">4</div>
-                        <div class="ws-text"><strong>Aprobare contabil</strong> — Contabilul șef aprobă scoaterea din
-                          evidențe</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">5</div>
-                        <div class="ws-text"><strong>Scoatere din gestiune</strong> — Bunul este marcat casat în sistem
-                        </div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">6</div>
-                        <div class="ws-text"><strong>Valorificare/distrugere</strong> — Conform deciziei comisiei</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="card">
-                    <div class="card-header"><span class="card-title">🔀 Flux: Transfer bun între clădiri</span><button
-                        class="btn btn-primary btn-sm" onclick="startFlux('Transfer')">▶️ Pornește</button></div>
-                    <div style="padding:16px 20px">
-                      <div class="workflow-step">
-                        <div class="ws-num">1</div>
-                        <div class="ws-text"><strong>Solicitare transfer</strong> — Inițiator completează motivul și
-                          destinația</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">2</div>
-                        <div class="ws-text"><strong>Verificare disponibilitate</strong> — Admin Patrimoniu confirmă că
-                          spațiul destinație e disponibil</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">3</div>
-                        <div class="ws-text"><strong>Aprobare director</strong> — Necesară pentru transferuri între
-                          clădiri
-                        </div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">4</div>
-                        <div class="ws-text"><strong>Mutare fizică</strong> — Transportul bunului cu procesul verbal de
-                          predare-primire</div>
-                      </div>
-                      <div class="workflow-step">
-                        <div class="ws-num">5</div>
-                        <div class="ws-text"><strong>Actualizare inventar</strong> — Noua locație înregistrată în sistem
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="card" style="grid-column:1/-1">
-                    <div class="card-header"><span class="card-title">🍽️ Flux: Comandă alimente cantină</span><button
-                        class="btn btn-primary btn-sm" onclick="startFlux('Comandă alimente')">▶️ Pornește</button>
-                    </div>
-                    <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:0">
-                      <div>
-                        <div class="workflow-step">
-                          <div class="ws-num">1</div>
-                          <div class="ws-text"><strong>Estimare pedagog</strong> — Pedagogul înregistrează nr. elevi
-                            prezenți pentru zilele următoare (5 zile în avans)</div>
-                        </div>
-                        <div class="workflow-step">
-                          <div class="ws-num">2</div>
-                          <div class="ws-text"><strong>Calcul necesar</strong> — Admin Patrimoniu calculează cantitățile
-                            necesare pe baza estimărilor</div>
-                        </div>
-                        <div class="workflow-step">
-                          <div class="ws-num">3</div>
-                          <div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă comanda (valoare
-                            estimată)</div>
-                        </div>
-                      </div>
-                      <div>
-                        <div class="workflow-step">
-                          <div class="ws-num">4</div>
-                          <div class="ws-text"><strong>Transmitere furnizor</strong> — Admin Patrimoniu trimite comanda
-                            la
-                            furnizorul de alimente</div>
-                        </div>
-                        <div class="workflow-step">
-                          <div class="ws-num">5</div>
-                          <div class="ws-text"><strong>Recepție alimente</strong> — Comisia verifică cantitatea și
-                            calitatea
-                            la livrare</div>
-                        </div>
-                        <div class="workflow-step">
-                          <div class="ws-num">6</div>
-                          <div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează
-                            cheltuielile cu hrana</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- FINALIZATE -->
-              <div id="flux-istoric" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">✅ Fluxuri finalizate</span></div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Tip</th>
-                        <th>Titlu</th>
-                        <th>Pornit de</th>
-                        <th>Data start</th>
-                        <th>Data final</th>
-                        <th>Pași completați</th>
-                      </tr>
-                    </thead>
-                    <tbody id="fluxFinalizateTable"></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <!-- MODAL FLUX NOU -->
-            <div class="modal-overlay" id="modalFlux">
-              <div class="modal" style="width:560px">
-                <div class="modal-head"><span class="modal-title" id="modalFluxTitle">▶️ Flux nou</span><span
-                    class="modal-close" onclick="closeModal('modalFlux')">✕</span></div>
-                <div class="modal-body">
-                  <div class="form-row"><label>Tip flux</label><select id="fluxTip" onchange="updateFluxSteps()"
-                      style="width:100%">
-                      <option>Achiziție</option>
-                      <option>Reparație</option>
-                      <option>Casare</option>
-                      <option>Transfer</option>
-                      <option>Comandă alimente</option>
-                    </select></div>
-                  <div class="form-row"><label>Titlu / descriere scurtă</label><input type="text" id="fluxTitlu"
-                      placeholder="ex: Achiziție 5 scaune laborator chimie"></div>
-                  <div class="form-row"><label>Responsabil principal</label><select id="fluxResponsabil"
-                      style="width:100%"></select></div>
-                  <div class="form-row"><label>Termen estimat</label><input type="date" id="fluxTermen"
-                      style="width:100%">
-                  </div>
-                  <div class="form-row"><label>Observații</label><textarea id="fluxObs"
-                      placeholder="Detalii suplimentare..."></textarea></div>
-                  <div class="alert alert-info" id="fluxStepsPreview" style="margin-top:8px;font-size:12px"></div>
-                </div>
-                <div class="modal-foot">
-                  <button class="btn btn-outline" onclick="closeModal('modalFlux')">Anulează</button>
-                  <button class="btn btn-primary" onclick="saveFlux()">▶️ Pornește fluxul</button>
-                </div>
-              </div>
-            </div>
-
-
-            <!-- PERSONAL -->
-            <div class="section" id="section-personal">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută persoană..."
-                    oninput="filterPersonal(this.value)"></div>
-                <select id="filterRolP" onchange="filterPersonal()">
-                  <option value="">Toate rolurile</option>
-                  <optgroup label="── Administrație ──">
-                    <option value="admin_app">Admin Aplicație</option>
-                    <option value="admin_pat">Admin Patrimoniu</option>
-                  </optgroup>
-                  <optgroup label="── Conducere ──">
-                    <option value="director">Director</option>
-                    <option value="dir_adj">Director Adjunct</option>
-                  </optgroup>
-                  <optgroup label="── Contabilitate ──">
-                    <option value="contabil">Contabil Șef</option>
-                    <option value="contabil_sec">Contabil</option>
-                    <option value="casier">Casier</option>
-                    <option value="economist">Economist</option>
-                  </optgroup>
-                  <optgroup label="── Personal ──">
-                    <option value="informatician">Informatician</option>
-                    <option value="profesor">Profesor</option>
-                    <option value="mentenanta">Mentenanță</option>
-                    <option value="pedagog">Pedagog Internat</option>
-                  </optgroup>
-                </select>
-                <button class="btn btn-primary" onclick="openModal('modalPersonal')">+ Adaugă utilizator</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">👥 Utilizatori & Personal</span></div>
-                <div id="personalList"></div>
-              </div>
-            </div>
-
-            <!-- SETARI -->
-            <div class="section" id="section-setari">
-              <div class="settings-grid">
-                <div class="settings-card">
-                  <div class="settings-card-title">🏫 Date instituție</div>
-                  <div class="form-row"><label>Denumire instituție</label><input type="text" id="setNume"
-                      value="Colegiul Național „Vasile Goldiș" Arad"></div>
-                  <div class="form-row"><label>CIF / CUI</label><input type="text" id="setCif" value="RO4262239"></div>
-                  <div class="form-row"><label>Director</label><input type="text" id="setDirector"
-                      value="Prof. Ioja Petronela Angela — Director"></div>
-                  <div class="form-row"><label>Telefon</label><input type="text" id="setTel" value="0257 231 726"></div>
-                  <div class="form-row"><label>Email instituție</label><input type="text" id="setEmail"
-                      value="secretariat@cnvga.ro"></div>
-                  <button class="btn btn-primary" onclick="saveSettings()">💾 Salvează date</button>
-                </div>
-                <div class="settings-card">
-                  <div class="settings-card-title">🖼️ Logo instituție</div>
-                  <div class="logo-upload-area" onclick="document.getElementById('logoUpload').click()" id="logoArea">
-                    <img id="logoPreview" class="logo-preview">
-                    <div id="logoPlaceholder">
-                      <div style="font-size:36px;margin-bottom:8px">🖼️</div>
-                      <div style="font-size:13px;color:var(--mist)">Click pentru a încărca logo</div>
-                      <div style="font-size:11px;color:var(--mist);margin-top:4px">PNG, JPG, SVG — max. 2MB</div>
-                    </div>
-                  </div>
-                  <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="loadLogo(this)">
-                  <button class="btn btn-outline btn-sm" onclick="removeLogo()">Elimină logo</button>
-                </div>
-                <div class="settings-card">
-                  <div class="settings-card-title">🔐 Permisiuni pe roluri</div>
-                  <div style="font-size:11px;color:var(--mist);margin-bottom:10px">Controlează ce poate vedea fiecare
-                    rol
-                  </div>
-                  <div class="permission-row"><span>Admin Pat. poate aproba achiziții</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                  <div class="permission-row"><span>Profesor poate raporta defecte</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                  <div class="permission-row"><span>Contabil vede valori bunuri</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                  <div class="permission-row"><span>Informatician editează IT</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                  <div class="permission-row"><span>Mentenanță vede sarcinile sale</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                  <div class="permission-row"><span>Director aprobă casări</span>
-                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-                  </div>
-                </div>
-                <div class="settings-card">
-                  <div class="settings-card-title">📋 Prefix numere inventar</div>
-                  <div class="form-row"><label>Prefix clădire principală</label><input type="text" value="CNVG-A-">
-                  </div>
-                  <div class="form-row"><label>Prefix clădire secundară</label><input type="text" value="CNVG-B-"></div>
-                  <div class="form-row"><label>Număr de start</label><input type="number" value="1001"></div>
-                  <div class="form-row"><label>Format dată achiziție pe QR</label>
-                    <select>
-                      <option>ZZ/LL/AAAA</option>
-                      <option>AAAA-LL-ZZ</option>
-                    </select>
-                  </div>
-                  <button class="btn btn-primary" onclick="toast('✅ Setări prefix salvate!')">💾 Salvează
-                    prefix</button>
-                </div>
-              </div>
-              <div class="card" style="margin-top:16px">
-                <div class="card-header">
-                  <span class="card-title">🔗 Conexiune Supabase (bază de date permanentă)</span>
-                  <span id="sbStatusBadge" class="badge b-gray">Neconectat</span>
-                </div>
-                <div style="padding:16px">
-                  <div class="alert alert-info" style="margin-bottom:14px">
-                    ℹ️ Supabase salvează toate datele permanent în cloud. Fără Supabase, datele se pierd la închiderea
-                    browserului.
-                    <br>Pași: <strong>1)</strong> Creează cont gratuit pe <a href="https://supabase.com"
-                      target="_blank">supabase.com</a> →
-                    <strong>2)</strong> Creează proiect <em>patrimonet</em> →
-                    <strong>3)</strong> Rulează schema SQL →
-                    <strong>4)</strong> Completează URL și cheie de mai jos
-                  </div>
-                  <div class="form-row">
-                    <label>Supabase Project URL</label>
-                    <input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co"
-                      style="font-family:monospace;font-size:12px">
-                  </div>
-                  <div class="form-row">
-                    <label>Supabase Anon Key (public)</label>
-                    <textarea id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                      style="font-family:monospace;font-size:11px;height:70px"></textarea>
-                  </div>
-                  <div style="display:flex;gap:10px;flex-wrap:wrap">
-                    <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Salvează și conectează</button>
-                    <button class="btn btn-teal" onclick="testSupabaseConnection()">🔌 Testează conexiunea</button>
-                    <button class="btn btn-outline" onclick="syncAllToSupabase()">⬆️ Sincronizează datele locale →
-                      Supabase</button>
-                  </div>
-                  <div id="sbTestResult" style="margin-top:10px;font-size:12px"></div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- MUTARI BUNURI -->
-            <div class="section" id="section-mutari">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută mutare..."
-                    oninput="filterMutari(this.value)"></div>
-                <select id="filterMutareStatus" onchange="filterMutari()">
-                  <option value="">Toate</option>
-                  <option>Finalizată</option>
-                  <option>În așteptare aprobare</option>
-                  <option>Respinsă</option>
-                </select>
-                <button class="btn btn-primary" onclick="openModalMutare()">+ Înregistrează mutare</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">🔀 Evidență mutări bunuri</span><span
-                    style="font-size:11px;color:var(--mist)" id="mutariCount">0 mutări</span></div>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Bun</th>
-                      <th>De la</th>
-                      <th>La</th>
-                      <th>Motiv</th>
-                      <th>Solicitat de</th>
-                      <th>Status</th>
-                      <th>Acțiuni</th>
-                    </tr>
-                  </thead>
-                  <tbody id="mutariTable"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- REZERVARI SALI -->
-            <div class="section" id="section-rezervari">
-              <div class="tabs">
-                <div class="tab active" onclick="switchTabRez('rez-calendar',this)">📅 Calendar</div>
-                <div class="tab" onclick="switchTabRez('rez-lista',this)">📋 Listă rezervări</div>
-                <div class="tab" data-roles-tab="director,admin_pat" onclick="switchTabRez('rez-aprobari',this)">✅ De
-                  aprobat <span id="rezAprobCount" class="notif-count" style="margin-left:4px">0</span></div>
-              </div>
-              <div id="rez-calendar">
-                <div class="filters">
-                  <select id="filterRezCam" onchange="renderCalendarRez()">
-                    <option value="">Toate sălile</option>
-                  </select>
-                  <input type="date" id="filterRezData" onchange="renderCalendarRez()" style="padding:8px 12px">
-                  <button class="btn btn-primary" onclick="openModalRezervare()">+ Rezervare nouă</button>
-                </div>
-                <div id="calendarRezGrid"></div>
-              </div>
-              <div id="rez-lista" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📋 Toate rezervările</span></div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Data</th>
-                        <th>Orar</th>
-                        <th>Sală</th>
-                        <th>Materie / Scop</th>
-                        <th>Profesor</th>
-                        <th>Echipamente</th>
-                        <th>Status</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody id="rezListaTable"></tbody>
-                  </table>
-                </div>
-              </div>
-              <div id="rez-aprobari" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">✅ Rezervări ce necesită aprobare</span></div>
-                  <div id="rezAprobList" style="padding:8px 0"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- APROBARI -->
-            <div class="section" id="section-aprobari">
-              <div class="tabs">
-                <div class="tab active" onclick="switchTabAprob('aprob-pending',this)">⏳ În așteptare <span
-                    id="aprobPendingCount" class="notif-count" style="margin-left:4px">0</span></div>
-                <div class="tab" onclick="switchTabAprob('aprob-done',this)">✅ Procesate</div>
-              </div>
-              <div id="aprob-pending">
-                <div id="aprobPendingList"></div>
-              </div>
-              <div id="aprob-done" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">✅ Aprobări procesate</span></div>
-                  <div id="aprobDoneList" style="padding:8px 0"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ISTORIC & LOG -->
-            <div class="section" id="section-istoric">
-              <div class="filters">
-                <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută în istoric..."
-                    oninput="filterIstoric(this.value)"></div>
-                <select id="filterIstoricTip" onchange="filterIstoric()">
-                  <option value="">Toate evenimentele</option>
-                  <option value="mutare">Mutări bunuri</option>
-                  <option value="inventar">Inventar</option>
-                  <option value="rezervare">Rezervări</option>
-                  <option value="aprobare">Aprobări</option>
-                  <option value="mentenanta">Mentenanță</option>
-                  <option value="import">Import/Export</option>
-                  <option value="auth">Autentificare</option>
-                </select>
-                <select id="filterIstoricUser" onchange="filterIstoric()">
-                  <option value="">Toți utilizatorii</option>
-                </select>
-                <button class="btn btn-outline" onclick="exportAuditLog()">📥 Export log audit</button>
-              </div>
-              <div class="card">
-                <div class="card-header"><span class="card-title">📜 Istoric complet & Log activitate</span><span
-                    style="font-size:11px;color:var(--mist)" id="istoricCount">0 evenimente</span></div>
-                <div id="istoricList"></div>
-              </div>
-            </div>
-
-            <!-- AUDIT -->
-            <div class="section" id="section-audit">
-              <div class="alert alert-info">🔍 Rapoartele de audit sunt generate din logul complet de activitate și sunt
-                semnate digital cu marca temporală.</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📊 Raport audit — Mutări bunuri</span></div>
-                  <div style="padding:16px">
-                    <div class="form-row"><label>Perioadă</label>
-                      <div style="display:flex;gap:8px;align-items:center"><input type="date" id="auditDe"
-                          style="flex:1;min-height:38px;padding:8px"><input type="date" id="auditPana"
-                          style="flex:1;min-height:38px;padding:8px"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="genAudit('mutari')">Generează raport</button>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">👤 Raport audit — Activitate utilizator</span></div>
-                  <div style="padding:16px">
-                    <div class="form-row"><label>Utilizator</label><select id="auditUser" style="width:100%"></select>
-                    </div>
-                    <button class="btn btn-primary" onclick="genAudit('user')">Generează raport</button>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">🔀 Raport audit — Inventar modificat</span></div>
-                  <div style="padding:16px">
-                    <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Toate bunurile adăugate, modificate
-                      sau
-                      șterse în perioada selectată.</p>
-                    <button class="btn btn-primary" onclick="genAudit('inventar')">Generează raport</button>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📅 Raport audit — Utilizare săli</span></div>
-                  <div style="padding:16px">
-                    <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Gradul de ocupare pe fiecare sală, pe
-                      zile/săptămâni.</p>
-                    <button class="btn btn-primary" onclick="genAudit('sali')">Generează raport</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- RAPOARTE -->
-            <div class="section" id="section-rapoarte">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">📊 Bunuri pe categorii</span></div>
-                  <div style="padding:16px 20px" id="repCat"></div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">🏢 Valoare pe clădiri</span></div>
-                  <div style="padding:16px 20px" id="repCladiri"></div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">💰 Achiziții pe luni</span></div>
-                  <div style="padding:16px 20px" id="repAch"></div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">🔧 Sarcini mentenanță</span></div>
-                  <div style="padding:16px 20px" id="repTask"></div>
-                </div>
-              </div>
-              <div style="text-align:center;margin-top:8px">
-                <button class="btn btn-outline" onclick="window.print()">🖨️ Tipărește raport complet</button>
-                <button class="btn btn-gold" style="margin-left:8px" onclick="toast('📥 Export CSV generat!')">📥 Export
-                  CSV</button>
-              </div>
-            </div>
-
           </div>
+        </div>
+
+        <!-- CLADIRI -->
+        <div class="section" id="section-cladiri">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută clădire..."
+                oninput="filterCladiri(this.value)"></div>
+            <button class="btn btn-primary" onclick="openModal('modalCladire')">+ Adaugă clădire</button>
+          </div>
+          <div class="card-grid" id="cladiriGrid">
+          </div>
+        </div>
+
+        <!-- CAMERE -->
+        <div class="section" id="section-camere">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută cameră..."
+                oninput="filterCamere(this.value)" id="searchCam"></div>
+            <select id="filterCladireC" onchange="filterCamere()">
+              <option value="">Toate clădirile</option>
+            </select>
+            <select id="filterTipC" onchange="filterCamere()">
+              <option value="">Toate tipurile</option>
+              <option>Sală de clasă</option>
+              <option>Laborator</option>
+              <option>Birou</option>
+              <option>Depozit</option>
+              <option>Sală sport</option>
+              <option>Atelier</option>
+              <option>Bibliotecă</option>
+              <option>Cantină</option>
+              <option>Internat</option>
+              <option>Sală mese</option>
+              <option>Auxiliar</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModalCamera()">+ Adaugă cameră</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🚪 Camere & Săli</span><span
+                style="font-size:11px;color:var(--mist)" id="camCount">0 spații</span></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Cod</th>
+                  <th>Denumire</th>
+                  <th>Clădire</th>
+                  <th>Nivel</th>
+                  <th>Tip</th>
+                  <th>Responsabil</th>
+                  <th>Bunuri</th>
+                  <th>Acțiuni</th>
+                </tr>
+              </thead>
+              <tbody id="camTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- INVENTAR -->
+        <div class="section" id="section-inventar">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută după cod, denumire..."
+                oninput="filterInventar()" id="searchInv"></div>
+            <select onchange="filterInventar()" id="filterCat">
+              <option value="">Toate categoriile</option>
+              <option>Mobilier</option>
+              <option>Tehnologie IT</option>
+              <option>Echipament Sportiv</option>
+              <option>Laborator</option>
+              <option>Auxiliar</option>
+              <option>Carte & Publicație</option>
+            </select>
+            <select onchange="filterInventar()" id="filterStare">
+              <option value="">Toate stările</option>
+              <option>Funcțional</option>
+              <option>Necesită reparații</option>
+              <option>Casat</option>
+            </select>
+            <select onchange="filterInventar()" id="filterCladireI">
+              <option value="">Toate clădirile</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModalBun()">+ Adaugă bun</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📦 Inventar bunuri</span><span
+                style="font-size:11px;color:var(--mist)" id="invCount">0 bunuri</span></div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nr. Inv.</th>
+                    <th>Denumire</th>
+                    <th>Cat.</th>
+                    <th>Clădire / Cameră</th>
+                    <th>Cant.</th>
+                    <th>Valoare</th>
+                    <th>Stare</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="invTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR -->
+        <div class="section" id="section-qr">
+          <div class="alert alert-info">ℹ️ <span>Selectează un bun din inventar pentru a genera codul QR. Codul
+              conține
+              toate informațiile bunului și poate fi scanat cu orice telefon.</span></div>
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută bun pentru QR..."
+                oninput="filterQR(this.value)" id="searchQR"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📲 Generare coduri QR</span></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr. Inv.</th>
+                  <th>Denumire</th>
+                  <th>Cameră</th>
+                  <th>Stare</th>
+                  <th>Generează QR</th>
+                </tr>
+              </thead>
+              <tbody id="qrTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- IMPORT / EXPORT -->
+        <div class="section" id="section-import">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+            <!-- IMPORT CARD -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">📥 Import gestiune din Expert Bugetar</span>
+              </div>
+              <div style="padding:20px">
+                <div class="alert alert-info" style="margin-bottom:16px">
+                  ℹ️ Importă fișierul Excel exportat din <strong>Expert Bugetar</strong> (Lista mijloace fixe /
+                  obiecte
+                  inventar). Coloanele vor fi detectate automat.
+                </div>
+                <div class="logo-upload-area" id="importDropArea"
+                  onclick="document.getElementById('importFile').click()" style="margin-bottom:14px;padding:32px"
+                  ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
+                  ondragleave="this.style.borderColor=''" ondrop="handleImportDrop(event)">
+                  <div style="font-size:40px;margin-bottom:10px">📊</div>
+                  <div style="font-size:14px;font-weight:600;color:var(--ink)">Trage fișierul Excel aici</div>
+                  <div style="font-size:12px;color:var(--mist);margin-top:6px">sau click pentru a selecta</div>
+                  <div style="font-size:11px;color:var(--mist);margin-top:4px">.xlsx / .xls — Export Expert Bugetar
+                  </div>
+                </div>
+                <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none"
+                  onchange="handleImportFile(this)">
+
+                <div id="importPreview" style="display:none">
+                  <div style="font-weight:600;font-size:13px;margin-bottom:10px" id="importStats"></div>
+                  <div style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)">
+                    <table style="width:100%">
+                      <thead id="importHead"></thead>
+                      <tbody id="importBody"></tbody>
+                    </table>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
+                    <button class="btn btn-outline" onclick="cancelImport()">✕ Anulează</button>
+                    <button class="btn btn-teal" onclick="confirmImport()">✅ Importă <span id="importCountBtn">0</span>
+                      bunuri</button>
+                  </div>
+                </div>
+
+                <div
+                  style="margin-top:16px;padding:14px;background:var(--surface);border-radius:var(--r);font-size:12px">
+                  <div style="font-weight:700;margin-bottom:8px;font-size:13px">📋 Coloane recunoscute automat din
+                    Expert Bugetar:</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--slate)">
+                    <div>✓ Nr. inventar / Cod</div>
+                    <div>✓ Denumire mijloc fix</div>
+                    <div>✓ Cont contabil (211-214)</div>
+                    <div>✓ Data PIF / achiziție</div>
+                    <div>✓ Valoare de intrare</div>
+                    <div>✓ Amortizare cumulată</div>
+                    <div>✓ Valoare rămasă netă</div>
+                    <div>✓ Durata normală (ani)</div>
+                    <div>✓ Gestiune / Locație</div>
+                    <div>✓ Furnizor / Doc. intrare</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- EXPORT CARD -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">📤 Export date — Configurabil</span>
+              </div>
+              <div style="padding:20px">
+                <div class="alert alert-info" style="margin-bottom:16px">
+                  ℹ️ Selectează ce date și în ce format dorești să exporți. Administratorul de patrimoniu
+                  controlează
+                  complet ce se exportă.
+                </div>
+
+                <div style="font-weight:700;font-size:13px;margin-bottom:10px">📋 Exporturi Excel (compatibil Expert
+                  Bugetar)</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <input type="checkbox" id="expInvComplet" checked style="width:16px;height:16px">
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Inventar complet — toate bunurile</div>
+                      <div style="font-size:11px;color:var(--mist)">Nr.inv, denumire, cont, valoare, locație, stare
+                      </div>
+                    </div>
+                    <button class="btn btn-teal btn-sm" onclick="exportExpertBugetar('complet')">⬇️ CSV</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <input type="checkbox" id="expInvCladire" style="width:16px;height:16px">
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Inventar filtrat pe clădire</div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                        <select id="expCladireSelect"
+                          style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border)">${DB_CLADIRI_OPTIONS}</select>
+                      </div>
+                    </div>
+                    <button class="btn btn-teal btn-sm" onclick="exportExpertBugetar('cladire')">⬇️ CSV</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <input type="checkbox" id="expMutari" style="width:16px;height:16px">
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Registru mutări bunuri</div>
+                      <div style="font-size:11px;color:var(--mist)">Toate mutările cu data, utilizator, aprobare
+                      </div>
+                    </div>
+                    <button class="btn btn-teal btn-sm" onclick="exportMutariCSV()">⬇️ CSV</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <input type="checkbox" id="expMese" style="width:16px;height:16px">
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Registru mese cantină + prezențe internat</div>
+                      <div style="font-size:11px;color:var(--mist)">Lunar, pentru contabilitate și administrație
+                      </div>
+                    </div>
+                    <button class="btn btn-teal btn-sm" onclick="exportMese()">⬇️ CSV</button>
+                  </div>
+                </div>
+
+                <div style="font-weight:700;font-size:13px;margin-bottom:10px">📄 Rapoarte PDF (tipărire / semnare)
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🏛️</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Inventar complet pe clădiri și camere</div>
+                      <div style="font-size:11px;color:var(--mist)">Cu valori totale, semnat de admin patrimoniu
+                      </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="exportRaportPDF('complet')">🖨️ PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🗑️</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Proces verbal casare bunuri</div>
+                      <div style="font-size:11px;color:var(--mist)">Cu semnături director, contabil șef, admin
+                        patrimoniu</div>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="exportRaportPDF('casare')">🖨️ PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🚪</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Fișă inventar pe cameră / sală</div>
+                      <div style="font-size:11px;color:var(--mist)">Câte o pagină per spațiu, pentru afișare</div>
+                    </div>
+                    <button class="btn btn-gold btn-sm" onclick="exportRaportPDF('camera')">🖨️ PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🔧</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Raport bunuri ce necesită reparații</div>
+                      <div style="font-size:11px;color:var(--mist)">Pentru mentenanță și aprobare director</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="exportRaportPDF('reparatii')">🖨️ PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">📅</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Raport ocupare săli (lunar)</div>
+                      <div style="font-size:11px;color:var(--mist)">Statistici rezervări per sală, pentru conducere
+                      </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="exportRaportPDF('ocupare')">🖨️ PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🏠</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Raport lunar internat & cantină</div>
+                      <div style="font-size:11px;color:var(--mist)">Prezențe zilnice + mese + sesizări</div>
+                    </div>
+                    <button class="btn btn-outline btn-sm"
+                      onclick="nav('internat',null);setTimeout(()=>switchTabInternat('int-raport',document.querySelector('#section-internat .tab:last-child')),200)">🖨️
+                      PDF</button>
+                  </div>
+                  <div
+                    style="border:1px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px">
+                    <div style="font-size:22px">🔍</div>
+                    <div style="flex:1">
+                      <div style="font-weight:600;font-size:13px">Log audit complet</div>
+                      <div style="font-size:11px;color:var(--mist)">Toate acțiunile utilizatorilor, cu marcă
+                        temporală
+                      </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="exportAuditLog()">⬇️ CSV</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAPARE COLOANE (apare dupa upload) -->
+          <div class="card" id="mapareCard" style="display:none">
+            <div class="card-header"><span class="card-title">🔗 Mapare coloane — Expert Bugetar</span></div>
+            <div style="padding:20px" id="mapareBody"></div>
+          </div>
+
+        </div>
+
+        <!-- INTERNAT & CANTINA -->
+        <div class="section" id="section-internat">
+          <div class="tabs">
+            <div class="tab active" onclick="switchTabInternat('int-prezenta',this)">👥 Prezență elevi</div>
+            <div class="tab" onclick="switchTabInternat('int-mese',this)">🍽️ Mese cantină</div>
+            <div class="tab" onclick="switchTabInternat('int-probleme',this)">🔧 Sesizări probleme <span
+                id="intProblemeCount" class="notif-count" style="margin-left:4px">0</span></div>
+            <div class="tab" onclick="switchTabInternat('int-raport',this)">📊 Rapoarte</div>
+          </div>
+
+          <div id="int-prezenta">
+            <div class="card-grid">
+              <div class="card">
+                <div class="card-header"><span class="card-title">👥 Prezență zilnică internat</span></div>
+                <div style="padding:16px">
+                  <div class="form-row"><label>Data</label><input type="date" id="prezData" style="width:100%">
+                  </div>
+                  <div class="form-row"><label>Tip zi</label>
+                    <select id="prezTipZi" style="width:100%">
+                      <option value="saptamana">Zi lucrătoare (Lun–Vin)</option>
+                      <option value="weekend">Weekend (Sâm–Dum)</option>
+                      <option value="vacanta">Vacanță</option>
+                    </select>
+                  </div>
+                  <div class="form-row"><label>Elevi prezenți în internat</label><input type="number" id="prezElevi"
+                      min="0" max="200" placeholder="nr. elevi"></div>
+                  <div class="form-row"><label>Observații</label><textarea id="prezObs"
+                      placeholder="ex: 12 elevi plecați acasă, 3 absenți nemotivat..."></textarea></div>
+                  <button class="btn btn-primary" onclick="savePrezenta()">✅ Salvează prezența</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">📊 Statistici rapide internat</span></div>
+                <div style="padding:16px" id="intStatBox">
+                  <div class="stats-row" style="gap:10px">
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statPrezAzi">—</div>
+                      <div class="stat-label">Prezenți azi</div>
+                    </div>
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statPrezWeekend">—</div>
+                      <div class="stat-label">Weekend curent</div>
+                    </div>
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statMeseAzi">—</div>
+                      <div class="stat-label">Mese azi</div>
+                    </div>
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statProblemeOpen">0</div>
+                      <div class="stat-label">Sesizări deschise</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📋 Istoric prezență</span></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Zi</th>
+                    <th>Elevi prezenți</th>
+                    <th>Înregistrat de</th>
+                    <th>Observații</th>
+                  </tr>
+                </thead>
+                <tbody id="prezentaTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="int-mese" style="display:none">
+            <div class="card-grid">
+              <div class="card">
+                <div class="card-header"><span class="card-title">🍽️ Înregistrare mese</span></div>
+                <div style="padding:16px">
+                  <div class="form-row"><label>Data</label><input type="date" id="meseData" style="width:100%">
+                  </div>
+                  <div class="form-row"><label>Mic dejun (persoane)</label><input type="number" id="meseMicDejun"
+                      min="0" placeholder="0"></div>
+                  <div class="form-row"><label>Prânz (persoane)</label><input type="number" id="mesePranz" min="0"
+                      placeholder="0"></div>
+                  <div class="form-row"><label>Cină (persoane)</label><input type="number" id="meseCina" min="0"
+                      placeholder="0"></div>
+                  <div class="form-row"><label>Observații</label><textarea id="meseObs"
+                      placeholder="ex: meniu modificat, alergii, vizitatori..."></textarea></div>
+                  <button class="btn btn-primary" onclick="saveMese()">✅ Salvează</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">📊 Total mese luna curentă</span></div>
+                <div style="padding:16px" id="meseStatBox">
+                  <div class="stats-row" style="gap:10px">
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statMeseLunaMicDejun">—</div>
+                      <div class="stat-label">Mic dejun (luna curentă)</div>
+                    </div>
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statMeseLunaPranz">—</div>
+                      <div class="stat-label">Prânz (luna curentă)</div>
+                    </div>
+                    <div class="stat-card" style="padding:14px">
+                      <div class="stat-val" id="statMeseLunaCina">—</div>
+                      <div class="stat-label">Cină (luna curentă)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📋 Registru mese</span><button
+                  class="btn btn-outline btn-sm" onclick="exportMese()">📥 Export</button></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Mic dejun</th>
+                    <th>Prânz</th>
+                    <th>Cină</th>
+                    <th>Total</th>
+                    <th>Înregistrat de</th>
+                  </tr>
+                </thead>
+                <tbody id="meseTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="int-probleme" style="display:none">
+            <div class="filters">
+              <select id="filterProbStatus" onchange="renderProbleme()">
+                <option value="">Toate</option>
+                <option>Deschisă</option>
+                <option>În lucru</option>
+                <option>Rezolvată</option>
+              </select>
+              <select id="filterProbTip" onchange="renderProbleme()">
+                <option value="">Toate tipurile</option>
+                <option>Instalație sanitară</option>
+                <option>Instalație electrică</option>
+                <option>Mobilier deteriorat</option>
+                <option>Încălzire / AC</option>
+                <option>Geamuri / Uși</option>
+                <option>Altele</option>
+              </select>
+              <button class="btn btn-primary" onclick="openModalProblema()">+ Sesizare nouă</button>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🔧 Sesizări probleme internat</span></div>
+              <div id="problemeList" style="padding:8px 0"></div>
+            </div>
+          </div>
+
+          <div id="int-raport" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 Raport lunar internat & cantină</span></div>
+              <div style="padding:16px">
+                <div class="form-grid2">
+                  <div class="form-row"><label>Luna</label><input type="month" id="raportLuna" style="width:100%">
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="genRaportInternat()">📄 Generează raport PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL SESIZARE PROBLEMA INTERNAT -->
+        <div class="modal-overlay" id="modalProblema">
+          <div class="modal" style="width:520px">
+            <div class="modal-head"><span class="modal-title">🔧 Sesizare problemă internat</span><span
+                class="modal-close" onclick="closeModal('modalProblema')">✕</span></div>
+            <div class="modal-body">
+              <div class="form-row"><label>Tip problemă</label>
+                <select id="probTip" style="width:100%">
+                  <option>Instalație sanitară</option>
+                  <option>Instalație electrică</option>
+                  <option>Mobilier deteriorat</option>
+                  <option>Încălzire / AC</option>
+                  <option>Geamuri / Uși</option>
+                  <option>Altele</option>
+                </select>
+              </div>
+              <div class="form-row"><label>Locație (cameră/etaj)</label><input type="text" id="probLocatie"
+                  placeholder="ex: Camera 12 — Etaj 2, Baie comună etaj 1..."></div>
+              <div class="form-row"><label>Prioritate</label>
+                <select id="probPrio" style="width:100%">
+                  <option value="Înaltă">🔴 Înaltă — urgentă</option>
+                  <option value="Medie" selected>🟡 Medie</option>
+                  <option value="Scăzută">🟢 Scăzută</option>
+                </select>
+              </div>
+              <div class="form-row"><label>Descriere problemă</label><textarea id="probDesc"
+                  placeholder="Descrie problema cât mai detaliat..."></textarea></div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn btn-outline" onclick="closeModal('modalProblema')">Anulează</button>
+              <button class="btn btn-primary" onclick="saveProblema()">Trimite sesizarea</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FURNIZORI -->
+        <div class="section" id="section-furnizori">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută furnizor..."
+                oninput="filterFurnizori(this.value)"></div>
+            <button class="btn btn-primary"
+              onclick="document.getElementById('furnEditId').value='';document.getElementById('furnCuiSearch').value='';document.getElementById('anafStatus').textContent='Introdu CUI-ul și apasă Caută pentru completare automată';openModal('modalFurnizor')">+
+              Adaugă furnizor</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🤝 Furnizori</span><span
+                style="font-size:11px;color:var(--mist)" id="furnCount">0</span></div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Companie</th>
+                    <th>CUI</th>
+                    <th>Contact</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Categorie</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="furnTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACHIZITII -->
+        <div class="section" id="section-achizitii">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută achiziție..."
+                oninput="filterAchizitii(this.value)" id="searchAch"></div>
+            <select id="filterAchStatus" onchange="filterAchizitii()">
+              <option value="">Toate statusurile</option>
+              <option>Comandat</option>
+              <option>Livrat</option>
+              <option>În așteptare</option>
+              <option>Anulat</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModalAch()">+ Adaugă achiziție</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🛒 Achiziții</span><span id="achCount"
+                style="font-size:11px;color:var(--mist)">0</span></div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nr.</th>
+                    <th>Produs</th>
+                    <th>Furnizor</th>
+                    <th>Cant.</th>
+                    <th>Valoare</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Aprobat</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="achTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- MENTENANTA -->
+        <div class="section" id="section-mentenanta">
+          <div class="tabs">
+            <div class="tab active" onclick="switchTab('tasks-open',this)">Sarcini deschise</div>
+            <div class="tab" onclick="switchTab('tasks-done',this)">Finalizate</div>
+          </div>
+          <div id="tasks-open">
+            <div class="filters">
+              <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută sarcină..."
+                  oninput="filterTasks(this.value)"></div>
+              <select id="filterPriority" onchange="filterTasks()">
+                <option value="">Toate prioritățile</option>
+                <option>Înaltă</option>
+                <option>Medie</option>
+                <option>Scăzută</option>
+              </select>
+              <button class="btn btn-primary" onclick="openModalTask()">+ Adaugă sarcină</button>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🔧 Sarcini mentenanță deschise</span></div>
+              <div id="taskList"></div>
+            </div>
+          </div>
+          <div id="tasks-done" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">✅ Sarcini finalizate</span></div>
+              <div id="taskListDone"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLUXURI -->
+        <div class="section" id="section-fluxuri">
+          <div class="tabs">
+            <div class="tab active" onclick="switchTabFlux('flux-activ',this)">▶️ Fluxuri active <span
+                id="fluxActivCount" class="notif-count" style="margin-left:4px">0</span></div>
+            <div class="tab" onclick="switchTabFlux('flux-definite',this)">📋 Proceduri standard</div>
+            <div class="tab" onclick="switchTabFlux('flux-istoric',this)">✅ Finalizate</div>
+          </div>
+
+          <!-- FLUXURI ACTIVE -->
+          <div id="flux-activ">
+            <div class="filters">
+              <select id="filterFluxTip" onchange="renderFluxuri()">
+                <option value="">Toate tipurile</option>
+                <option>Achiziție</option>
+                <option>Reparație</option>
+                <option>Casare</option>
+                <option>Transfer</option>
+                <option>Comandă alimente</option>
+              </select>
+              <select id="filterFluxStatus" onchange="renderFluxuri()">
+                <option value="">Toate statusurile</option>
+                <option>În așteptare</option>
+                <option>În lucru</option>
+                <option>Blocat</option>
+              </select>
+              <button class="btn btn-primary" onclick="openModalFlux()">+ Flux nou</button>
+            </div>
+            <div id="fluxuriList" class="card-grid" style="margin-top:4px"></div>
+          </div>
+
+          <!-- PROCEDURI STANDARD -->
+          <div id="flux-definite" style="display:none">
+            <div class="card-grid">
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">📦 Flux: Achiziție bun nou</span><button
+                    class="btn btn-primary btn-sm" onclick="startFlux('Achiziție')">▶️ Pornește</button></div>
+                <div style="padding:16px 20px">
+                  <div class="workflow-step">
+                    <div class="ws-num">1</div>
+                    <div class="ws-text"><strong>Inițiere</strong> — Admin Patrimoniu completează formularul de
+                      necesitate</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">2</div>
+                    <div class="ws-text"><strong>Aprobare bugetară</strong> — Contabilul verifică disponibilul
+                      bugetar
+                    </div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">3</div>
+                    <div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă achiziția (peste
+                      5.000
+                      RON)</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">4</div>
+                    <div class="ws-text"><strong>Comandă furnizor</strong> — Admin Patrimoniu emite comanda</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">5</div>
+                    <div class="ws-text"><strong>Recepție</strong> — Comisia de recepție confirmă livrarea</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">6</div>
+                    <div class="ws-text"><strong>Inventariere</strong> — Se atribuie nr. inventar și se generează QR
+                    </div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">7</div>
+                    <div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează în
+                      evidențele contabile</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">🔧 Flux: Reparație bun defect</span><button
+                    class="btn btn-primary btn-sm" onclick="startFlux('Reparație')">▶️ Pornește</button></div>
+                <div style="padding:16px 20px">
+                  <div class="workflow-step">
+                    <div class="ws-num">1</div>
+                    <div class="ws-text"><strong>Sesizare defect</strong> — Profesorul/utilizatorul raportează
+                      defecțiunea</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">2</div>
+                    <div class="ws-text"><strong>Înregistrare sarcină</strong> — Admin Patrimoniu creează sarcina de
+                      mentenanță</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">3</div>
+                    <div class="ws-text"><strong>Evaluare tehnică</strong> — Personalul mentenanță evaluează
+                      defecțiunea
+                    </div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">4</div>
+                    <div class="ws-text"><strong>Decizie reparație/casare</strong> — Admin Patrimoniu decide</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">5</div>
+                    <div class="ws-text"><strong>Reparație</strong> — Mentenanță intern SAU service extern</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">6</div>
+                    <div class="ws-text"><strong>Confirmare remediere</strong> — Actualizare stare bun în inventar
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">🗑️ Flux: Casare bun</span><button
+                    class="btn btn-primary btn-sm" onclick="startFlux('Casare')">▶️ Pornește</button></div>
+                <div style="padding:16px 20px">
+                  <div class="workflow-step">
+                    <div class="ws-num">1</div>
+                    <div class="ws-text"><strong>Propunere casare</strong> — Admin Patrimoniu identifică bunul
+                      propus
+                      pentru casare</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">2</div>
+                    <div class="ws-text"><strong>Evaluare comisie</strong> — Comisia de inventariere verifică starea
+                      bunului</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">3</div>
+                    <div class="ws-text"><strong>Aprobare director</strong> — Directorul semnează procesul verbal de
+                      casare</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">4</div>
+                    <div class="ws-text"><strong>Aprobare contabil</strong> — Contabilul șef aprobă scoaterea din
+                      evidențe</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">5</div>
+                    <div class="ws-text"><strong>Scoatere din gestiune</strong> — Bunul este marcat casat în sistem
+                    </div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">6</div>
+                    <div class="ws-text"><strong>Valorificare/distrugere</strong> — Conform deciziei comisiei</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><span class="card-title">🔀 Flux: Transfer bun între clădiri</span><button
+                    class="btn btn-primary btn-sm" onclick="startFlux('Transfer')">▶️ Pornește</button></div>
+                <div style="padding:16px 20px">
+                  <div class="workflow-step">
+                    <div class="ws-num">1</div>
+                    <div class="ws-text"><strong>Solicitare transfer</strong> — Inițiator completează motivul și
+                      destinația</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">2</div>
+                    <div class="ws-text"><strong>Verificare disponibilitate</strong> — Admin Patrimoniu confirmă că
+                      spațiul destinație e disponibil</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">3</div>
+                    <div class="ws-text"><strong>Aprobare director</strong> — Necesară pentru transferuri între
+                      clădiri
+                    </div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">4</div>
+                    <div class="ws-text"><strong>Mutare fizică</strong> — Transportul bunului cu procesul verbal de
+                      predare-primire</div>
+                  </div>
+                  <div class="workflow-step">
+                    <div class="ws-num">5</div>
+                    <div class="ws-text"><strong>Actualizare inventar</strong> — Noua locație înregistrată în sistem
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="grid-column:1/-1">
+                <div class="card-header"><span class="card-title">🍽️ Flux: Comandă alimente cantină</span><button
+                    class="btn btn-primary btn-sm" onclick="startFlux('Comandă alimente')">▶️ Pornește</button>
+                </div>
+                <div style="padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:0">
+                  <div>
+                    <div class="workflow-step">
+                      <div class="ws-num">1</div>
+                      <div class="ws-text"><strong>Estimare pedagog</strong> — Pedagogul înregistrează nr. elevi
+                        prezenți pentru zilele următoare (5 zile în avans)</div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="ws-num">2</div>
+                      <div class="ws-text"><strong>Calcul necesar</strong> — Admin Patrimoniu calculează cantitățile
+                        necesare pe baza estimărilor</div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="ws-num">3</div>
+                      <div class="ws-text"><strong>Aprobare director</strong> — Directorul aprobă comanda (valoare
+                        estimată)</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="workflow-step">
+                      <div class="ws-num">4</div>
+                      <div class="ws-text"><strong>Transmitere furnizor</strong> — Admin Patrimoniu trimite comanda
+                        la
+                        furnizorul de alimente</div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="ws-num">5</div>
+                      <div class="ws-text"><strong>Recepție alimente</strong> — Comisia verifică cantitatea și
+                        calitatea
+                        la livrare</div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="ws-num">6</div>
+                      <div class="ws-text"><strong>Înregistrare contabilă</strong> — Contabilul înregistrează
+                        cheltuielile cu hrana</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- FINALIZATE -->
+          <div id="flux-istoric" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">✅ Fluxuri finalizate</span></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tip</th>
+                    <th>Titlu</th>
+                    <th>Pornit de</th>
+                    <th>Data start</th>
+                    <th>Data final</th>
+                    <th>Pași completați</th>
+                  </tr>
+                </thead>
+                <tbody id="fluxFinalizateTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL FLUX NOU -->
+        <div class="modal-overlay" id="modalFlux">
+          <div class="modal" style="width:560px">
+            <div class="modal-head"><span class="modal-title" id="modalFluxTitle">▶️ Flux nou</span><span
+                class="modal-close" onclick="closeModal('modalFlux')">✕</span></div>
+            <div class="modal-body">
+              <div class="form-row"><label>Tip flux</label><select id="fluxTip" onchange="updateFluxSteps()"
+                  style="width:100%">
+                  <option>Achiziție</option>
+                  <option>Reparație</option>
+                  <option>Casare</option>
+                  <option>Transfer</option>
+                  <option>Comandă alimente</option>
+                </select></div>
+              <div class="form-row"><label>Titlu / descriere scurtă</label><input type="text" id="fluxTitlu"
+                  placeholder="ex: Achiziție 5 scaune laborator chimie"></div>
+              <div class="form-row"><label>Responsabil principal</label><select id="fluxResponsabil"
+                  style="width:100%"></select></div>
+              <div class="form-row"><label>Termen estimat</label><input type="date" id="fluxTermen" style="width:100%">
+              </div>
+              <div class="form-row"><label>Observații</label><textarea id="fluxObs"
+                  placeholder="Detalii suplimentare..."></textarea></div>
+              <div class="alert alert-info" id="fluxStepsPreview" style="margin-top:8px;font-size:12px"></div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn btn-outline" onclick="closeModal('modalFlux')">Anulează</button>
+              <button class="btn btn-primary" onclick="saveFlux()">▶️ Pornește fluxul</button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- PERSONAL -->
+        <div class="section" id="section-personal">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută persoană..."
+                oninput="filterPersonal(this.value)"></div>
+            <select id="filterRolP" onchange="filterPersonal()">
+              <option value="">Toate rolurile</option>
+              <optgroup label="── Administrație ──">
+                <option value="admin_app">Admin Aplicație</option>
+                <option value="admin_pat">Admin Patrimoniu</option>
+              </optgroup>
+              <optgroup label="── Conducere ──">
+                <option value="director">Director</option>
+                <option value="dir_adj">Director Adjunct</option>
+              </optgroup>
+              <optgroup label="── Contabilitate ──">
+                <option value="contabil">Contabil Șef</option>
+                <option value="contabil_sec">Contabil</option>
+                <option value="casier">Casier</option>
+                <option value="economist">Economist</option>
+              </optgroup>
+              <optgroup label="── Personal ──">
+                <option value="informatician">Informatician</option>
+                <option value="profesor">Profesor</option>
+                <option value="mentenanta">Mentenanță</option>
+                <option value="pedagog">Pedagog Internat</option>
+              </optgroup>
+            </select>
+            <button class="btn btn-primary" onclick="openModal('modalPersonal')">+ Adaugă utilizator</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">👥 Utilizatori & Personal</span></div>
+            <div id="personalList"></div>
+          </div>
+        </div>
+
+        <!-- SETARI -->
+        <div class="section" id="section-setari">
+          <div class="settings-grid">
+            <div class="settings-card">
+              <div class="settings-card-title">🏫 Date instituție</div>
+              <div class="form-row"><label>Denumire instituție</label><input type="text" id="setNume"
+                  value="Colegiul Național „Vasile Goldiș" Arad"></div>
+              <div class="form-row"><label>CIF / CUI</label><input type="text" id="setCif" value="RO4262239"></div>
+              <div class="form-row"><label>Director</label><input type="text" id="setDirector"
+                  value="Prof. Ioja Petronela Angela — Director"></div>
+              <div class="form-row"><label>Telefon</label><input type="text" id="setTel" value="0257 231 726"></div>
+              <div class="form-row"><label>Email instituție</label><input type="text" id="setEmail"
+                  value="secretariat@cnvga.ro"></div>
+              <button class="btn btn-primary" onclick="saveSettings()">💾 Salvează date</button>
+            </div>
+            <div class="settings-card">
+              <div class="settings-card-title">🖼️ Logo instituție</div>
+              <div class="logo-upload-area" onclick="document.getElementById('logoUpload').click()" id="logoArea">
+                <img id="logoPreview" class="logo-preview">
+                <div id="logoPlaceholder">
+                  <div style="font-size:36px;margin-bottom:8px">🖼️</div>
+                  <div style="font-size:13px;color:var(--mist)">Click pentru a încărca logo</div>
+                  <div style="font-size:11px;color:var(--mist);margin-top:4px">PNG, JPG, SVG — max. 2MB</div>
+                </div>
+              </div>
+              <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="loadLogo(this)">
+              <button class="btn btn-outline btn-sm" onclick="removeLogo()">Elimină logo</button>
+            </div>
+            <div class="settings-card">
+              <div class="settings-card-title">🔐 Permisiuni pe roluri</div>
+              <div style="font-size:11px;color:var(--mist);margin-bottom:10px">Controlează ce poate vedea fiecare
+                rol
+              </div>
+              <div class="permission-row"><span>Admin Pat. poate aproba achiziții</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="permission-row"><span>Profesor poate raporta defecte</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="permission-row"><span>Contabil vede valori bunuri</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="permission-row"><span>Informatician editează IT</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="permission-row"><span>Mentenanță vede sarcinile sale</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="permission-row"><span>Director aprobă casări</span>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="settings-card">
+              <div class="settings-card-title">📋 Prefix numere inventar</div>
+              <div class="form-row"><label>Prefix clădire principală</label><input type="text" value="CNVG-A-">
+              </div>
+              <div class="form-row"><label>Prefix clădire secundară</label><input type="text" value="CNVG-B-"></div>
+              <div class="form-row"><label>Număr de start</label><input type="number" value="1001"></div>
+              <div class="form-row"><label>Format dată achiziție pe QR</label>
+                <select>
+                  <option>ZZ/LL/AAAA</option>
+                  <option>AAAA-LL-ZZ</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="toast('✅ Setări prefix salvate!')">💾 Salvează
+                prefix</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-header">
+              <span class="card-title">🔗 Conexiune Supabase (bază de date permanentă)</span>
+              <span id="sbStatusBadge" class="badge b-gray">Neconectat</span>
+            </div>
+            <div style="padding:16px">
+              <div class="alert alert-info" style="margin-bottom:14px">
+                ℹ️ Supabase salvează toate datele permanent în cloud. Fără Supabase, datele se pierd la închiderea
+                browserului.
+                <br>Pași: <strong>1)</strong> Creează cont gratuit pe <a href="https://supabase.com"
+                  target="_blank">supabase.com</a> →
+                <strong>2)</strong> Creează proiect <em>patrimonet</em> →
+                <strong>3)</strong> Rulează schema SQL →
+                <strong>4)</strong> Completează URL și cheie de mai jos
+              </div>
+              <div class="form-row">
+                <label>Supabase Project URL</label>
+                <input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxxxxxx.supabase.co"
+                  style="font-family:monospace;font-size:12px">
+              </div>
+              <div class="form-row">
+                <label>Supabase Anon Key (public)</label>
+                <textarea id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  style="font-family:monospace;font-size:11px;height:70px"></textarea>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-primary" onclick="saveSupabaseConfig()">💾 Salvează și conectează</button>
+                <button class="btn btn-teal" onclick="testSupabaseConnection()">🔌 Testează conexiunea</button>
+                <button class="btn btn-outline" onclick="syncAllToSupabase()">⬆️ Sincronizează datele locale →
+                  Supabase</button>
+              </div>
+              <div id="sbTestResult" style="margin-top:10px;font-size:12px"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- MUTARI BUNURI -->
+        <div class="section" id="section-mutari">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută mutare..."
+                oninput="filterMutari(this.value)"></div>
+            <select id="filterMutareStatus" onchange="filterMutari()">
+              <option value="">Toate</option>
+              <option>Finalizată</option>
+              <option>În așteptare aprobare</option>
+              <option>Respinsă</option>
+            </select>
+            <button class="btn btn-primary" onclick="openModalMutare()">+ Înregistrează mutare</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🔀 Evidență mutări bunuri</span><span
+                style="font-size:11px;color:var(--mist)" id="mutariCount">0 mutări</span></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Bun</th>
+                  <th>De la</th>
+                  <th>La</th>
+                  <th>Motiv</th>
+                  <th>Solicitat de</th>
+                  <th>Status</th>
+                  <th>Acțiuni</th>
+                </tr>
+              </thead>
+              <tbody id="mutariTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- REZERVARI SALI -->
+        <div class="section" id="section-rezervari">
+          <div class="tabs">
+            <div class="tab active" onclick="switchTabRez('rez-calendar',this)">📅 Calendar</div>
+            <div class="tab" onclick="switchTabRez('rez-lista',this)">📋 Listă rezervări</div>
+            <div class="tab" data-roles-tab="director,admin_pat" onclick="switchTabRez('rez-aprobari',this)">✅ De
+              aprobat <span id="rezAprobCount" class="notif-count" style="margin-left:4px">0</span></div>
+          </div>
+          <div id="rez-calendar">
+            <div class="filters">
+              <select id="filterRezCam" onchange="renderCalendarRez()">
+                <option value="">Toate sălile</option>
+              </select>
+              <input type="date" id="filterRezData" onchange="renderCalendarRez()" style="padding:8px 12px">
+              <button class="btn btn-primary" onclick="openModalRezervare()">+ Rezervare nouă</button>
+            </div>
+            <div id="calendarRezGrid"></div>
+          </div>
+          <div id="rez-lista" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📋 Toate rezervările</span></div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Orar</th>
+                    <th>Sală</th>
+                    <th>Materie / Scop</th>
+                    <th>Profesor</th>
+                    <th>Echipamente</th>
+                    <th>Status</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="rezListaTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="rez-aprobari" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">✅ Rezervări ce necesită aprobare</span></div>
+              <div id="rezAprobList" style="padding:8px 0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- APROBARI -->
+        <div class="section" id="section-aprobari">
+          <div class="tabs">
+            <div class="tab active" onclick="switchTabAprob('aprob-pending',this)">⏳ În așteptare <span
+                id="aprobPendingCount" class="notif-count" style="margin-left:4px">0</span></div>
+            <div class="tab" onclick="switchTabAprob('aprob-done',this)">✅ Procesate</div>
+          </div>
+          <div id="aprob-pending">
+            <div id="aprobPendingList"></div>
+          </div>
+          <div id="aprob-done" style="display:none">
+            <div class="card">
+              <div class="card-header"><span class="card-title">✅ Aprobări procesate</span></div>
+              <div id="aprobDoneList" style="padding:8px 0"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ISTORIC & LOG -->
+        <div class="section" id="section-istoric">
+          <div class="filters">
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută în istoric..."
+                oninput="filterIstoric(this.value)"></div>
+            <select id="filterIstoricTip" onchange="filterIstoric()">
+              <option value="">Toate evenimentele</option>
+              <option value="mutare">Mutări bunuri</option>
+              <option value="inventar">Inventar</option>
+              <option value="rezervare">Rezervări</option>
+              <option value="aprobare">Aprobări</option>
+              <option value="mentenanta">Mentenanță</option>
+              <option value="import">Import/Export</option>
+              <option value="auth">Autentificare</option>
+            </select>
+            <select id="filterIstoricUser" onchange="filterIstoric()">
+              <option value="">Toți utilizatorii</option>
+            </select>
+            <button class="btn btn-outline" onclick="exportAuditLog()">📥 Export log audit</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📜 Istoric complet & Log activitate</span><span
+                style="font-size:11px;color:var(--mist)" id="istoricCount">0 evenimente</span></div>
+            <div id="istoricList"></div>
+          </div>
+        </div>
+
+        <!-- AUDIT -->
+        <div class="section" id="section-audit">
+          <div class="alert alert-info">🔍 Rapoartele de audit sunt generate din logul complet de activitate și sunt
+            semnate digital cu marca temporală.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 Raport audit — Mutări bunuri</span></div>
+              <div style="padding:16px">
+                <div class="form-row"><label>Perioadă</label>
+                  <div style="display:flex;gap:8px;align-items:center"><input type="date" id="auditDe"
+                      style="flex:1;min-height:38px;padding:8px"><input type="date" id="auditPana"
+                      style="flex:1;min-height:38px;padding:8px"></div>
+                </div>
+                <button class="btn btn-primary" onclick="genAudit('mutari')">Generează raport</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">👤 Raport audit — Activitate utilizator</span></div>
+              <div style="padding:16px">
+                <div class="form-row"><label>Utilizator</label><select id="auditUser" style="width:100%"></select>
+                </div>
+                <button class="btn btn-primary" onclick="genAudit('user')">Generează raport</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🔀 Raport audit — Inventar modificat</span></div>
+              <div style="padding:16px">
+                <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Toate bunurile adăugate, modificate
+                  sau
+                  șterse în perioada selectată.</p>
+                <button class="btn btn-primary" onclick="genAudit('inventar')">Generează raport</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">📅 Raport audit — Utilizare săli</span></div>
+              <div style="padding:16px">
+                <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Gradul de ocupare pe fiecare sală, pe
+                  zile/săptămâni.</p>
+                <button class="btn btn-primary" onclick="genAudit('sali')">Generează raport</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RAPOARTE -->
+        <div class="section" id="section-rapoarte">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">📊 Bunuri pe categorii</span></div>
+              <div style="padding:16px 20px" id="repCat"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🏢 Valoare pe clădiri</span></div>
+              <div style="padding:16px 20px" id="repCladiri"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">💰 Achiziții pe luni</span></div>
+              <div style="padding:16px 20px" id="repAch"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">🔧 Sarcini mentenanță</span></div>
+              <div style="padding:16px 20px" id="repTask"></div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:8px">
+            <button class="btn btn-outline" onclick="window.print()">🖨️ Tipărește raport complet</button>
+            <button class="btn btn-gold" style="margin-left:8px" onclick="toast('📥 Export CSV generat!')">📥 Export
+              CSV</button>
+          </div>
+        </div>
+
+      </div>
     </main>
   </div>
 

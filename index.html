@@ -4662,7 +4662,10 @@
       informatician: 'Informatician Școlar',
       profesor: 'Profesor',
       mentenanta: 'Personal Mentenanță',
-      pedagog: 'Pedagog Internat'
+      pedagog: 'Pedagog Internat',
+      bucatar: 'Personal Cantină',
+      ingrijitor: 'Personal Curățenie',
+      paznic: 'Personal Pază'
     };
     const ROLE_COLORS = {
       admin_app: '#1a1f2e',
@@ -4676,7 +4679,10 @@
       informatician: '#0369a1',
       profesor: '#0891b2',
       mentenanta: '#d97706',
-      pedagog: '#0891b2'
+      pedagog: '#0891b2',
+      bucatar: '#f59e0b',
+      ingrijitor: '#84cc16',
+      paznic: '#64748b'
     };
 
     // ===== LOGIN =====
@@ -6746,7 +6752,7 @@
 
     // ===== NEED-TO-KNOW ROLE VISIBILITY =====
     const ROLE_PERMISSIONS = {
-      admin_app: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'fluxuri', 'personal', 'setari', 'rapoarte', 'istoric', 'audit'], canEdit: true, canApprove: true },
+      admin_app: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'internat', 'fluxuri', 'personal', 'setari', 'rapoarte', 'istoric', 'audit'], canEdit: true, canApprove: true },
       admin_pat: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'internat', 'fluxuri', 'rapoarte', 'istoric', 'audit'], canEdit: true, canApprove: true },
       director: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'rapoarte', 'istoric', 'audit'], canEdit: false, canApprove: true },
       dir_adj: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'rezervari', 'aprobari', 'rapoarte', 'istoric'], canEdit: false, canApprove: true },
@@ -6758,6 +6764,9 @@
       profesor: { sections: ['dashboard', 'camere', 'rezervari', 'mentenanta'], canEdit: false, canApprove: false },
       mentenanta: { sections: ['dashboard', 'mentenanta', 'camere'], canEdit: false, canApprove: false },
       pedagog: { sections: ['dashboard', 'mentenanta', 'camere', 'internat'], canEdit: false, canApprove: false },
+      bucatar: { sections: ['dashboard', 'internat', 'mentenanta'], canEdit: false, canApprove: false },
+      ingrijitor: { sections: ['dashboard', 'mentenanta'], canEdit: false, canApprove: false },
+      paznic: { sections: ['dashboard', 'cladiri', 'camere'], canEdit: false, canApprove: false },
     };
 
     function applyRolePermissions() {

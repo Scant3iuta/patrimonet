@@ -4086,6 +4086,13 @@
           <div class="form-row"><label>Data</label><input type="date" id="rezData"></div>
           <div class="form-row"><label>Ora început</label>
             <select id="rezOraStart" style="width:100%">
+              <option>00:00</option>
+              <option>01:00</option>
+              <option>02:00</option>
+              <option>03:00</option>
+              <option>04:00</option>
+              <option>05:00</option>
+              <option>06:00</option>
               <option>07:00</option>
               <option>08:00</option>
               <option>09:00</option>
@@ -4109,6 +4116,13 @@
         <div class="form-grid2">
           <div class="form-row"><label>Ora sfârșit</label>
             <select id="rezOraEnd" style="width:100%">
+              <option>01:00</option>
+              <option>02:00</option>
+              <option>03:00</option>
+              <option>04:00</option>
+              <option>05:00</option>
+              <option>06:00</option>
+              <option>07:00</option>
               <option>08:00</option>
               <option>09:00</option>
               <option>10:00</option>
@@ -4197,6 +4211,7 @@
             style="flex:1;min-width:180px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px">
             <option value="">📷 Selectează camera...</option>
           </select>
+          <button class="btn btn-outline btn-sm" onclick="closeQRScanner()" style="white-space:nowrap">Închide scanner</button>
         </div>
       </div>
     </div>
@@ -4432,11 +4447,13 @@
       if (ro) return `${ro[3]}-${ro[2].padStart(2, '0')}-${ro[1].padStart(2, '0')}`;
       // Deja ISO YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.split('T')[0];
+      // Doar an YYYY
+      if (/^\d{4}$/.test(s)) return `${s}-01-01`;
       return null;
     }
 
     const toSb = {
-      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: x.sup || x.supUtila || null, suprafata_construita: x.supUtila || null, suprafata_desfasurata: x.supDesfasurata || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, responsabil: x.resp || '', data_reabilitare: x.reabilitare || '', note: x.note || '' }),
+      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: x.sup || x.supUtila || null, suprafata_construita: x.supUtila || null, suprafata_desfasurata: x.supDesfasurata || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, responsabil: x.resp || '', data_reabilitare: toISODate(x.reabilitare) || null, note: x.note || '' }),
       camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null }),
       inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, qty: parseInt(x.qty) || 1, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', locatii: x.locatii ? JSON.stringify(x.locatii) : null }),
       furnizori: (x) => ({ nume: x.nume, cui: x.cui || '', adresa: x.adresa || '', tel: x.tel || '', email: x.email || '', persoana: x.persoana || '' }),
@@ -5054,6 +5071,9 @@
         sup: document.getElementById('camSup').value
       };
       if (!c.cod || !c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
+      // Verificare unicitate cod
+      const duplicat = DB.camere.find(x => x.cod === c.cod && x.id != c.id);
+      if (duplicat) { toast(`⚠️ Codul ${c.cod} este deja utilizat de "${duplicat.nume}"!`); return; }
       if (id) {
         const i = DB.camere.findIndex(x => x.id == id);
         const existing = DB.camere[i];
@@ -6314,7 +6334,7 @@
       const data = document.getElementById('filterRezData').value || new Date().toISOString().split('T')[0];
       const grid = document.getElementById('calendarRezGrid');
       const camere = camId ? DB.camere.filter(c => c.id == camId) : DB.camere.filter(c => ['Laborator', 'Sală sport', 'Atelier', 'Sală de clasă'].includes(c.tip));
-      const ore = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+      const ore = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
 
       grid.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:600px">
     <thead><tr><th style="padding:8px;background:var(--surface);border:1px solid var(--border);text-align:left;font-size:11px;min-width:120px">Sală / Oră</th>

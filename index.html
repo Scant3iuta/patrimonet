@@ -48,6 +48,8 @@
       background: var(--surface);
       color: var(--ink);
       min-height: 100vh;
+      width: 100%;
+      overflow-x: hidden;
     }
 
     input[type="date"] {
@@ -298,6 +300,7 @@
     #appShell {
       display: none;
       min-height: 100vh;
+      width: 100%;
     }
 
     /* SIDEBAR */
@@ -514,6 +517,8 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      flex: 1;
+      width: calc(100% - 256px);
     }
 
     .topbar {
@@ -573,6 +578,7 @@
     .content {
       padding: 24px 28px;
       flex: 1;
+      width: 100%;
     }
 
     .section {
@@ -657,7 +663,7 @@
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
       gap: 16px;
       margin-bottom: 16px;
     }
@@ -1127,7 +1133,7 @@
     /* BUILDING CARD */
     #cladiriGrid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
       gap: 20px;
     }
 
@@ -1486,6 +1492,7 @@
 
       .main {
         margin-left: 220px;
+        width: calc(100% - 220px);
       }
 
       .stats-row {
@@ -1516,6 +1523,7 @@
 
       .main {
         margin-left: 0;
+        width: 100%;
       }
 
       /* Topbar */
@@ -3725,8 +3733,6 @@
           <div class="form-row"><label>An construcție</label><input type="number" id="cladireAn" placeholder="ex: 1975">
           </div>
         </div>
-        <div class="form-row"><label>Responsabil clădire</label><input type="text" id="cladireResp"
-            placeholder="Numele persoanei responsabile"></div>
         <div class="form-grid2">
           <div class="form-row"><label>Supraf. Utilă (m²)</label><input type="number" id="cladireSupUtila" step="0.01">
           </div>
@@ -3742,8 +3748,6 @@
               <option>Necesită reparații</option>
             </select>
           </div>
-          <div class="form-row"><label>Ultima reabilitare</label><input type="text" id="cladireReabilitare"
-              placeholder="ex: 2018"></div>
         </div>
         <div class="form-row"><label>Cod SIIIR</label><input type="number" id="cladireSiiir"></div>
         <div class="form-row"><label>Note / Observații</label><textarea id="cladireNote"
@@ -4516,7 +4520,7 @@
     }
 
     const toSb = {
-      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: x.sup || x.supUtila || null, suprafata_construita: x.supUtila || null, suprafata_desfasurata: x.supDesfasurata || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, responsabil: x.resp || '', data_reabilitare: toISODate(x.reabilitare) || null, note: x.note || '' }),
+      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: parseFloat(x.supUtila) || null, suprafata_construita: parseFloat(x.supUtila) || null, suprafata_desfasurata: parseFloat(x.supDesfasurata) || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, observatii: x.note || '' }),
       camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null, destinatie: x.destinatie || '' }),
       inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, qty: parseInt(x.qty) || 1, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', locatii: x.locatii ? JSON.stringify(x.locatii) : null }),
       furnizori: (x) => ({ nume: x.nume, cui: x.cui || '', adresa: x.adresa || '', tel: x.tel || '', email: x.email || '', persoana: x.persoana || '' }),
@@ -4534,7 +4538,7 @@
 
     // Convert supabase row → local object
     const fromSb = {
-      cladiri: (x) => ({ _loaded: true, id: x.id, cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, supUtila: x.suprafata_construita || x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', resp: x.responsabil || '', reabilitare: x.data_reabilitare || '', note: x.note || '' }),
+      cladiri: (x) => ({ _loaded: true, id: x.id, cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, supUtila: x.suprafata_construita || x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', note: x.observatii || '' }),
       camere: (x) => ({ _loaded: true, id: x.id, cladireId: x.cladire_id, cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate, destinatie: x.destinatie || '' }),
       inventar: (x) => ({ _loaded: true, id: x.id, nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id, cameraId: x.camera_id, stare: x.stare, val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnId: x.furnizor_id, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs }),
       furnizori: (x) => ({ _loaded: true, id: x.id, nume: x.nume, cui: x.cui, adresa: x.adresa, tel: x.tel, email: x.email, persoana: x.persoana, contact: x.persoana, cat: x.categorie || 'General' }),
@@ -4837,8 +4841,8 @@
         return;
       }
       DB.cladiri = [
-        { id: 1, cod: 'CLD-A', nume: 'Clădirea A — Vasile Goldiș', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad (lângă Spitalul Județean)', etaje: 3, an: 1898, resp: 'Admin. patrimoniu' },
-        { id: 2, cod: 'CLD-B', nume: 'Clădirea B — Ioan Slavici', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)', etaje: 3, an: 1965, resp: 'Admin. patrimoniu' },
+        { id: 1, cod: 'CLD-A', nume: 'Clădire colegiu — Vasile Goldiș', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad (lângă Spitalul Județean)', etaje: 3, an: 1898, resp: 'Admin. patrimoniu' },
+        { id: 2, cod: 'CLD-B', nume: 'Liceul particular nr. 1 — Ioan Slavici', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)', etaje: 3, an: 1965, resp: 'Admin. patrimoniu' },
       ];
       DB.camere = [
         { id: 1, cod: 'A-P01', nr: 'P01', tip: 'Birou', nume: 'Birou Director', cladireId: 1, etaj: 0, resp: 'Dir. Ioja Petronela Angela', sup: 24 },
@@ -4990,14 +4994,14 @@
         const altele = camere.filter(x => !['Sală de clasă', 'SALĂ DE CLASĂ', 'Laborator', 'LABORATOR', 'Birou', 'BIROU', 'Sală sport', 'SALĂ SPORT', 'Depozit', 'DEPOZIT'].includes(x.tip));
         return `<div class="building-card">
       <div class="building-card-header" style="cursor:pointer" onclick="toggleCladireDetail(${c.id})">
-        <div class="building-card-name">🏢 ${c.cod} — ${c.nume}</div>
+        <div class="building-card-name">🏢 <span style="font-weight:400;color:var(--mist)">${c.cod} &mdash; </span>${c.nume}</div>
         <div class="building-card-addr">📍 ${c.adresa}</div>
         <div style="font-size:11px;color:var(--mist);margin-top:2px">
           ${c.an ? `🗓 Construit: ${c.an}` : ''}
           ${c.supUtila ? (c.an ? ' · ' : '') + c.supUtila + 'm² util' : ''}
           ${c.supDesfasurata ? (c.an || c.supUtila ? ' · ' : '') + c.supDesfasurata + 'm² desfășurat' : ''}
         </div>
-        ${c.stare ? `<div style="font-size:11px;margin-top:2px">Stare: <strong>${c.stare}</strong>${c.reabilitare ? ' · Reabilitat: ' + c.reabilitare : ''}</div>` : ''}
+        ${c.stare ? `<div style="font-size:11px;margin-top:2px">Stare: <strong>${c.stare}</strong></div>` : ''}
       </div>
       <div class="building-card-body">
         <div class="building-stat"><span>📦 Bunuri</span><span class="building-stat-val">${bunuri.length} (${val.toLocaleString('ro-RO')} RON)</span></div>
@@ -5008,7 +5012,6 @@
         ${depozite.length ? `<div class="building-stat"><span>📦 Depozite</span><span class="building-stat-val">${depozite.length}</span></div>` : ''}
         ${altele.length ? `<div class="building-stat"><span>📋 Alte spații</span><span class="building-stat-val">${altele.length}</span></div>` : ''}
         <div class="building-stat"><span>🏗 Etaje</span><span class="building-stat-val">${c.etaje || '—'}</span></div>
-        <div class="building-stat"><span>👤 Responsabil</span><span class="building-stat-val" style="font-size:11px">${c.resp || '—'}</span></div>
         <div id="cladire-detail-${c.id}" style="display:none;margin-top:10px;border-top:1px solid var(--surface);padding-top:10px">
           <div style="font-size:11px;font-weight:600;color:var(--mist);margin-bottom:6px">SPAȚII ÎNREGISTRATE (${camere.length})</div>
           ${camere.map(cam => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--surface)">
@@ -5032,16 +5035,17 @@
     }
 
     function importSIIIRData() {
-      if (DB.cladiri.find(c => c.cod === 'Cantina' || c.cod === 'Internat')) {
-        toast('⚠️ Datele din SIIIR au fost deja importate!');
-        return;
-      }
       toast('⏳ Se importă datele din SIIIR...');
 
       setTimeout(() => {
+        // Elimină clădirile și camerele vechi/duplicate asociate cu Cantina și Internat pentru a lăsa doar datele noi
+        const cladiriVechiIds = DB.cladiri.filter(c => c.nume.toLowerCase().includes('cantina') || c.nume.toLowerCase().includes('internat')).map(c => c.id);
+        DB.cladiri = DB.cladiri.filter(c => !cladiriVechiIds.includes(c.id));
+        DB.camere = DB.camere.filter(c => !cladiriVechiIds.includes(c.cladireId));
+
         // Date Cantina
         const cantina = {
-          id: Date.now() + 1, cod: 'Cantina', nume: 'Cantina', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad',
+          id: Date.now() + 1, cod: 'CLD-A-Cantina', nume: 'Cantina — Vasile Goldiș (CLD-A)', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad',
           etaje: 1, an: 1970, supUtila: 400, supDesfasurata: 400, stare: 'Bună', codSiiir: 10001,
           reabilitare: '2020', resp: 'Admin. patrimoniu', note: 'Importat din SIIIR'
         };
@@ -5068,7 +5072,7 @@
 
         // Date Internat
         const internat = {
-          id: Date.now() + 2, cod: 'Internat', nume: 'Internat', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad',
+          id: Date.now() + 2, cod: 'CLD-A-Internat', nume: 'Internat — Vasile Goldiș (CLD-A)', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad',
           etaje: 4, an: 1980, supUtila: 1200, supDesfasurata: 1200, stare: 'Bună', codSiiir: 10002,
           reabilitare: '2015', resp: 'Admin. patrimoniu', note: 'Importat din SIIIR (P+3 Etaje reale)'
         };
@@ -5115,8 +5119,6 @@
         supDesfasurata: document.getElementById('cladireSupDesfasurata').value,
         stare: document.getElementById('cladireStare').value,
         codSiiir: parseInt(document.getElementById('cladireSiiir').value) || null,
-        reabilitare: document.getElementById('cladireReabilitare').value,
-        resp: document.getElementById('cladireResp').value,
         note: document.getElementById('cladireNote').value
       };
       if (!c.cod || !c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
@@ -5148,8 +5150,6 @@
       if (document.getElementById('cladireSupDesfasurata')) document.getElementById('cladireSupDesfasurata').value = c.supDesfasurata || '';
       if (document.getElementById('cladireStare')) document.getElementById('cladireStare').value = c.stare || 'Bună';
       if (document.getElementById('cladireSiiir')) document.getElementById('cladireSiiir').value = c.codSiiir || '';
-      if (document.getElementById('cladireReabilitare')) document.getElementById('cladireReabilitare').value = c.reabilitare || '';
-      document.getElementById('cladireResp').value = c.resp || '';
       document.getElementById('cladireNote').value = c.note || '';
       openModal('modalCladire');
     }
@@ -5730,7 +5730,7 @@
         const bunuri = DB.inventar.filter(b => b.cladireId === c.id).length;
         return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--surface)">
       <div style="width:36px;height:36px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:16px">🏢</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:600">${c.cod} — ${c.nume.substring(0, 30)}</div><div style="font-size:11px;color:var(--mist)">📍 ${c.adresa.substring(0, 40)}</div></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600"><span style="font-weight:400;color:var(--mist)">${c.cod} &mdash; </span>${c.nume.substring(0, 40)}</div><div style="font-size:11px;color:var(--mist)">📍 ${c.adresa.substring(0, 40)}</div></div>
       <div style="text-align:right"><div style="font-weight:700">${bunuri}</div><div style="font-size:10px;color:var(--mist)">bunuri</div></div>
     </div>`;
       }).join('');

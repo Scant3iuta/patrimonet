@@ -2441,6 +2441,8 @@
           <div class="filters">
             <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută clădire..."
                 oninput="filterCladiri(this.value)"></div>
+            <button class="btn" style="background:var(--sky);color:white;border:none" onclick="importSIIIRData()">⬇️
+              Import din SIIIR</button>
             <button class="btn btn-primary" onclick="openModal('modalCladire')">+ Adaugă clădire</button>
           </div>
           <div class="card-grid" id="cladiriGrid">
@@ -2482,6 +2484,7 @@
                   <th>Clădire</th>
                   <th>Nivel</th>
                   <th>Tip</th>
+                  <th>Destinație / Utilizator</th>
                   <th>Responsabil</th>
                   <th>Bunuri</th>
                   <th>Acțiuni</th>
@@ -3779,6 +3782,8 @@
               <option>Auxiliar</option>
             </select>
           </div>
+          <div class="form-row"><label>Destinație / Utilizator</label><input type="text" id="camDestinatie"
+              placeholder="ex: Postliceală"></div>
         </div>
         <div class="form-row"><label>Denumire</label><input type="text" id="camNume" placeholder="ex: Sala de Fizică">
         </div>
@@ -4512,7 +4517,7 @@
 
     const toSb = {
       cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: x.sup || x.supUtila || null, suprafata_construita: x.supUtila || null, suprafata_desfasurata: x.supDesfasurata || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, responsabil: x.resp || '', data_reabilitare: toISODate(x.reabilitare) || null, note: x.note || '' }),
-      camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null }),
+      camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null, destinatie: x.destinatie || '' }),
       inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, qty: parseInt(x.qty) || 1, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', locatii: x.locatii ? JSON.stringify(x.locatii) : null }),
       furnizori: (x) => ({ nume: x.nume, cui: x.cui || '', adresa: x.adresa || '', tel: x.tel || '', email: x.email || '', persoana: x.persoana || '' }),
       achizitii: (x) => ({ descriere: x.produs || x.descriere || '', furnizor_id: x.furnId || null, cantitate: x.qty || 1, val: parseFloat(x.val) || 0, data_doc: toISODate(x.data || x.dataDoc) || null, status: x.status || 'Comandat', aprobare_necesara: x.aprobare || 'nu', note: x.note || '', user_id: x.userId || null }),
@@ -4530,7 +4535,7 @@
     // Convert supabase row → local object
     const fromSb = {
       cladiri: (x) => ({ _loaded: true, id: x.id, cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, supUtila: x.suprafata_construita || x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', resp: x.responsabil || '', reabilitare: x.data_reabilitare || '', note: x.note || '' }),
-      camere: (x) => ({ _loaded: true, id: x.id, cladireId: x.cladire_id, cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate }),
+      camere: (x) => ({ _loaded: true, id: x.id, cladireId: x.cladire_id, cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate, destinatie: x.destinatie || '' }),
       inventar: (x) => ({ _loaded: true, id: x.id, nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id, cameraId: x.camera_id, stare: x.stare, val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnId: x.furnizor_id, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs }),
       furnizori: (x) => ({ _loaded: true, id: x.id, nume: x.nume, cui: x.cui, adresa: x.adresa, tel: x.tel, email: x.email, persoana: x.persoana, contact: x.persoana, cat: x.categorie || 'General' }),
       achizitii: (x) => ({ _loaded: true, id: x.id, nrDoc: x.nr_doc, tipDoc: x.tip_doc, dataDoc: x.data_doc, data: x.data_doc, furnId: x.furnizor_id, descriere: x.descriere, produs: x.descriere, val: parseFloat(x.val) || 0, status: x.status, qty: x.qty || 1, userId: x.user_id }),
@@ -5026,6 +5031,77 @@
       renderCladiri(DB.cladiri.filter(c => !s || c.nume.toLowerCase().includes(s) || c.adresa.toLowerCase().includes(s)));
     }
 
+    function importSIIIRData() {
+      if (DB.cladiri.find(c => c.cod === 'Cantina' || c.cod === 'Internat')) {
+        toast('⚠️ Datele din SIIIR au fost deja importate!');
+        return;
+      }
+      toast('⏳ Se importă datele din SIIIR...');
+
+      setTimeout(() => {
+        // Date Cantina
+        const cantina = {
+          id: Date.now() + 1, cod: 'Cantina', nume: 'Cantina', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad',
+          etaje: 1, an: 1970, supUtila: 400, supDesfasurata: 400, stare: 'Bună', codSiiir: 10001,
+          reabilitare: '2020', resp: 'Admin. patrimoniu', note: 'Importat din SIIIR'
+        };
+        DB.cladiri.push(cantina);
+
+        const cantinaCamere = [
+          { cod: 'C-MESA', tip: 'Sală mese', nume: 'Sala de Mese', etaj: 0, destinatie: 'Elevi/Profesori' },
+          { cod: 'C-BUC', tip: 'Auxiliar', nume: 'Bucătărie', etaj: 0, destinatie: 'Personal Cantină' },
+          { cod: 'C-BIROU', tip: 'Birou', nume: 'Birou Administrator', etaj: 0, destinatie: 'Administrator' },
+          { cod: 'C-DEP', tip: 'Depozit', nume: 'Depozit Cantină', etaj: 0, destinatie: 'Personal Cantină' },
+          { cod: 'C-BAIE-P', tip: 'Auxiliar', nume: 'Baie Personal', etaj: 0, destinatie: 'Personal Cantină' },
+          { cod: 'C-BAIE-C', tip: 'Auxiliar', nume: 'Baie Serviciu (Clienți)', etaj: 0, destinatie: 'Elevi/Profesori' },
+          { cod: 'C-MAG', tip: 'Depozit', nume: 'Magazie Alimente', etaj: 0, destinatie: 'Personal Cantină' },
+          { cod: 'C-LAB1', tip: 'Laborator', nume: 'Laborator SMARTLAB 1', etaj: 0, destinatie: 'Elevi' },
+          { cod: 'C-LAB2', tip: 'Laborator', nume: 'Laborator SMARTLAB 2', etaj: 0, destinatie: 'Elevi' },
+          { cod: 'C-FESTIV', tip: 'Auxiliar', nume: 'Sală Festivă', etaj: 0, destinatie: 'Evenimente' },
+          { cod: 'C-ROBO', tip: 'Atelier', nume: 'Atelier Robotică', etaj: 0, destinatie: 'Elevi' },
+          { cod: 'C-AT-MENT', tip: 'Atelier', nume: 'Atelier Mentenanță', etaj: 0, destinatie: 'Personal Mentenanță' },
+          { cod: 'C-CENT', tip: 'Auxiliar', nume: 'Cameră Centrală Termică', etaj: 0, destinatie: 'Personal Mentenanță' }
+        ].map((c, i) => ({
+          ...c, id: Date.now() + 100 + i, cladireId: cantina.id, resp: 'Admin. patrimoniu', sup: ''
+        }));
+        DB.camere.push(...cantinaCamere);
+
+        // Date Internat
+        const internat = {
+          id: Date.now() + 2, cod: 'Internat', nume: 'Internat', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad',
+          etaje: 4, an: 1980, supUtila: 1200, supDesfasurata: 1200, stare: 'Bună', codSiiir: 10002,
+          reabilitare: '2015', resp: 'Admin. patrimoniu', note: 'Importat din SIIIR (P+3 Etaje reale)'
+        };
+        DB.cladiri.push(internat);
+
+        const internatCamere = [
+          { cod: 'I-P-SPORT1', tip: 'Sală sport', nume: 'Sală Sport', etaj: 'Parter', destinatie: 'Elevi' },
+          { cod: 'I-P-VEST1', tip: 'Auxiliar', nume: 'Vestiare Sport', etaj: 'Parter', destinatie: 'Elevi' },
+          { cod: 'I-P-SANIT1', tip: 'Sală de clasă', nume: 'Sala Postliceală 1', etaj: 'Parter', destinatie: 'Școala Postliceală Sanitară' },
+          { cod: 'I-P-SANIT2', tip: 'Sală de clasă', nume: 'Sala Postliceală 2', etaj: 'Parter', destinatie: 'Școala Postliceală Sanitară' },
+          { cod: 'I-1-SANIT1', tip: 'Sală de clasă', nume: 'Sala Postliceală 3', etaj: 'Etaj 1', destinatie: 'Școala Postliceală Sanitară' },
+          { cod: 'I-1-SANIT2', tip: 'Sală de clasă', nume: 'Sala Postliceală 4', etaj: 'Etaj 1', destinatie: 'Școala Postliceală Sanitară' },
+          { cod: 'I-1-SANIT3', tip: 'Sală de clasă', nume: 'Sala Postliceală 5', etaj: 'Etaj 1', destinatie: 'Școala Postliceală Sanitară' },
+          { cod: 'I-2-CAM1', tip: 'Internat', nume: 'Camera Internat 201', etaj: 'Etaj 2', destinatie: 'Elevi Internat' },
+          { cod: 'I-2-CAM2', tip: 'Internat', nume: 'Camera Internat 202', etaj: 'Etaj 2', destinatie: 'Elevi Internat' },
+          { cod: 'I-3-CAM1', tip: 'Internat', nume: 'Camera Internat 301', etaj: 'Etaj 3', destinatie: 'Elevi Internat' },
+          { cod: 'I-3-CAM2', tip: 'Internat', nume: 'Camera Internat 302', etaj: 'Etaj 3', destinatie: 'Elevi Internat' },
+        ].map((c, i) => ({
+          ...c, id: Date.now() + 200 + i, cladireId: internat.id, resp: 'Admin. patrimoniu', sup: ''
+        }));
+        DB.camere.push(...internatCamere);
+
+        toast('✅ Datele din SIIIR au fost importate cu succes!');
+        renderCladiri();
+        updateDashboard();
+        sbAutoSave('cladiri', cantina);
+        sbAutoSave('cladiri', internat);
+        cantinaCamere.forEach(c => sbAutoSave('camere', c));
+        internatCamere.forEach(c => sbAutoSave('camere', c));
+        addActivity('Import SIIIR finalizat (Cantina & Internat)', 'teal');
+      }, 1500);
+    }
+
     function saveCladire() {
       const id = document.getElementById('cladireEditId').value;
       const c = {
@@ -5101,6 +5177,7 @@
       <td>${cld ? '<span class="badge b-gray">' + cld.cod + '</span>' : '—'}</td>
       <td>${c.etaj}</td>
       <td><span class="badge b-blue">${c.tip}</span></td>
+      <td style="font-size:11px;color:var(--slate)">${c.destinatie || '—'}</td>
       <td style="font-size:12px">${c.resp}</td>
       <td><strong>${bunuri.length}</strong></td>
       <td style="display:flex;gap:4px;padding-top:9px">
@@ -5121,7 +5198,7 @@
       ));
     }
 
-    function openModalCamera() { populateCladireSelects(); document.getElementById('cameraEditId').value = ''; openModal('modalCamera'); }
+    function openModalCamera() { populateCladireSelects(); document.getElementById('cameraEditId').value = ''; document.getElementById('camDestinatie').value = ''; openModal('modalCamera'); }
 
     function saveCamera() {
       const id = document.getElementById('cameraEditId').value;
@@ -5134,7 +5211,8 @@
         cladireId: parseInt(document.getElementById('camCladire').value),
         etaj: document.getElementById('camEtaj').value,
         resp: document.getElementById('camResp').value,
-        sup: document.getElementById('camSup').value
+        sup: document.getElementById('camSup').value,
+        destinatie: document.getElementById('camDestinatie') ? document.getElementById('camDestinatie').value : ''
       };
       if (!c.cod || !c.nume) { toast('⚠️ Completează codul și denumirea!'); return; }
       // Verificare unicitate cod
@@ -5167,6 +5245,7 @@
       document.getElementById('camEtaj').value = c.etaj;
       document.getElementById('camResp').value = c.resp;
       document.getElementById('camSup').value = c.sup || '';
+      if (document.getElementById('camDestinatie')) document.getElementById('camDestinatie').value = c.destinatie || '';
       openModal('modalCamera');
     }
 

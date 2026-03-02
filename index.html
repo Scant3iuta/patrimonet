@@ -14,6 +14,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS for Excel import -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="/style.css">
 
   <!-- PWA -->
@@ -458,13 +460,57 @@
                   ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
                   ondragleave="this.style.borderColor=''" ondrop="handleImportDrop(event)">
                   <div style="font-size:40px;margin-bottom:10px">📊</div>
-                  <div style="font-size:14px;font-weight:600;color:var(--ink)">Trage fișierul Excel aici</div>
+                  <div style="font-size:14px;font-weight:600;color:var(--ink)">Trage fișierul Excel/CSV aici</div>
                   <div style="font-size:12px;color:var(--mist);margin-top:6px">sau click pentru a selecta</div>
-                  <div style="font-size:11px;color:var(--mist);margin-top:4px">.xlsx / .xls — Export Expert Bugetar
+                  <div style="font-size:11px;color:var(--mist);margin-top:4px">.xlsx / .xls / .csv din Expert Bugetar
                   </div>
                 </div>
                 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none"
                   onchange="handleImportFile(this)">
+
+                <div id="modalMapareImport" class="modal-overlay" style="display:none;z-index:9999;">
+                  <div class="modal" style="width:600px;height:auto;margin:auto">
+                    <div class="modal-head">
+                      <h3>🗺️ Mapare coloane din Excel</h3>
+                      <button class="modal-close" onclick="closeModal('modalMapareImport')">✕</button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="alert alert-info" style="margin-bottom:16px;">
+                        Am detectat coloanele din fișierul tău. Te rugăm să asociezi coloanele din fișier cu câmpurile
+                        din aplicație.
+                      </div>
+
+                      <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                        <thead>
+                          <tr style="border-bottom:1px solid var(--surface);">
+                            <th style="text-align:left; padding:8px 0;">Câmp Aplicație (PatrimoNet)</th>
+                            <th style="text-align:left; padding:8px 0;">Coloană din Fișier (Excel/CSV)</th>
+                          </tr>
+                        </thead>
+                        <tbody id="mapareTbody">
+                          <!-- Generat via JS -->
+                        </tbody>
+                      </table>
+
+                      <div style="margin-bottom:16px">
+                        <label>Locație implicită pentru bunurile noi:</label>
+                        <select id="mapareLocatieImplicit" class="input-field">
+                          <option value="neatribuit">📍 Fără locație (Neatribuit / De transferat)</option>
+                          <option value="arhiva_test">🗄️ Locație de test (Pentru verificare)</option>
+                        </select>
+                      </div>
+
+                    </div>
+                    <div class="modal-footer" style="display:flex;justify-content:space-between;">
+                      <span id="mapareStatus" style="font-size:13px;color:var(--mist);line-height:40px">Găsite X
+                        rânduri</span>
+                      <div>
+                        <button class="btn btn-secondary" onclick="closeModal('modalMapareImport')">Anulează</button>
+                        <button class="btn btn-primary" onclick="executeSmartImport()">Importă Datele</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <div id="importPreview" style="display:none">
                   <div style="font-weight:600;font-size:13px;margin-bottom:10px" id="importStats"></div>
@@ -3014,7 +3060,7 @@
             <span style="color:var(--mist)">${cam.tip || ''} · Et.${cam.etaj || 0}${cam.sup ? ' · ' + cam.sup + 'm²' : ''}</span>
           </div>`).join('') || '<div style="font-size:11px;color:var(--mist)">Nicio cameră înregistrată</div>'}
         </div>
-        <div style="display:flex;gap:6px;margin-top:10px">
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="toggleCladireDetail(${c.id})">📋 Spații</button>
           <button class="btn btn-sm" style="background:var(--sky);color:#fff" onclick="openFisaCladire(${c.id})">📋 Fișa clădirii</button>
           <button class="btn btn-sm" style="background:var(--gold);color:#fff" onclick="printFisaCladire(${c.id})">📄 Raport PDF</button>
@@ -4513,40 +4559,202 @@
       if (input.files && input.files[0]) processImportFile(input.files[0]);
     }
 
+    let importedHeaders = [];
+    let importedRawData = [];
+
     function processImportFile(file) {
       const name = file.name.toLowerCase();
       if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
         toast('⚠️ Selectează un fișier .xlsx, .xls sau .csv!'); return;
       }
-      // Use FileReader for CSV, SheetJS hint for Excel
+
       const reader = new FileReader();
       reader.onload = function (e) {
         try {
-          let rows = [];
-          if (name.endsWith('.csv')) {
-            rows = parseCSV(e.target.result);
-          } else {
-            // Parse as binary for Excel - basic tab/comma detection
-            const text = e.target.result;
-            rows = parseCSV(text);
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          // Convert sheet to array of arrays, header is first row
+          const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+          if (json.length < 2) {
+            toast('❌ Fișierul nu conține suficiente date.'); return;
           }
-          if (rows.length < 2) { toast('⚠️ Fișierul pare gol sau invalid!'); return; }
-          previewImport(rows);
+
+          // Găsește rândul cu headere (uneori exporturile FP3 au rânduri goale sus)
+          let headerRowIdx = 0;
+          for (let i = 0; i < Math.min(10, json.length); i++) {
+            // Daca randul are cel putin 3 coloane completate, il consideram header
+            const cols = json[i].filter(c => String(c).trim() !== '');
+            if (cols.length >= 3) { headerRowIdx = i; break; }
+          }
+
+          importedHeaders = json[headerRowIdx].map(h => String(h).trim());
+          importedRawData = json.slice(headerRowIdx + 1).filter(r => r.some(c => String(c).trim() !== '')); // remove empty rows
+
+          if (importedHeaders.length === 0) {
+            toast('❌ Nu am putut detecta coloanele fișierului.'); return;
+          }
+
+          showMappingModal();
         } catch (err) {
-          toast('⚠️ Eroare la citirea fișierului: ' + err.message);
+          console.error(err);
+          toast('❌ Eroare la citirea fișierului Excel: ' + err.message);
         }
       };
-      if (name.endsWith('.csv')) {
-        reader.readAsText(file, 'UTF-8');
-      } else {
-        // For demo purposes, read as text (real app would use SheetJS)
-        reader.readAsText(file, 'UTF-8');
-        // Show demo data since we can't parse real Excel without SheetJS in this demo
-        setTimeout(() => showDemoImport(file.name), 300);
+      reader.readAsArrayBuffer(file);
+    }
+
+    function showMappingModal() {
+      const fields = [
+        { id: 'nume', label: 'Denumire bun (Obligatoriu)', required: true },
+        { id: 'nrinv', label: 'Nr. Inventar (Obligatoriu)', required: true },
+        { id: 'val', label: 'Valoare (Obligatoriu)', required: true },
+        { id: 'qty', label: 'Cantitate', required: false },
+        { id: 'data', label: 'Data PIF / Achiziție', required: false },
+        { id: 'cont', label: 'Cont contabil', required: false }
+      ];
+
+      const tbody = document.getElementById('mapareTbody');
+      let html = '';
+
+      fields.forEach(f => {
+        let opts = '<option value="">(Ignoră acest câmp)</option>';
+        importedHeaders.forEach((h, idx) => {
+          // Auto-guess columns based on common names
+          let hLow = h.toLowerCase();
+          let selected = '';
+          if (f.id === 'nume' && (hLow.includes('denumire') || hLow.includes('mijloc fix') || hLow.includes('bun'))) selected = 'selected';
+          if (f.id === 'nrinv' && (hLow.includes('nr. inv') || hLow.includes('cod') || hLow === 'nr.')) selected = 'selected';
+          if (f.id === 'val' && (hLow.includes('valoare') || hLow.includes('pret') || hLow.includes('preț'))) selected = 'selected';
+          if (f.id === 'qty' && (hLow.includes('cantitat') || hLow.includes('stoc') || hLow.includes('buc'))) selected = 'selected';
+          if (f.id === 'data' && (hLow.includes('data') || hLow.includes('pif') || hLow.includes('achiziti'))) selected = 'selected';
+          if (f.id === 'cont' && (hLow.includes('cont'))) selected = 'selected';
+          opts += `<option value="${idx}" ${selected}>${h}</option>`;
+        });
+
+        html += `<tr>
+          <td style="padding:10px 0; font-weight:500;">
+            ${f.label} ${f.required ? '<span style="color:var(--danger)">*</span>' : ''}
+          </td>
+          <td style="padding:10px 0;">
+            <select id="map_${f.id}" class="input-field" style="width:100%">${opts}</select>
+          </td>
+        </tr>`;
+      });
+
+      tbody.innerHTML = html;
+      document.getElementById('mapareStatus').textContent = `Găsite ${importedRawData.length} rânduri de date.`;
+
+      // Update locatii test
+      const locOpt = DB.cladiri.find(c => c.cod === 'CLD-A') ? `<option value="clda">Clădirea A (Pentru testare)</option>` : '';
+      document.getElementById('mapareLocatieImplicit').innerHTML = `
+        <option value="neatribuit">📍 Fără locație (Neatribuit / De transferat)</option>
+        ${locOpt}
+      `;
+
+      openModal('modalMapareImport');
+    }
+
+    async function executeSmartImport() {
+      // Get mapped indices
+      const map = {
+        nume: document.getElementById('map_nume').value,
+        nrinv: document.getElementById('map_nrinv').value,
+        val: document.getElementById('map_val').value,
+        qty: document.getElementById('map_qty').value,
+        data: document.getElementById('map_data').value,
+        cont: document.getElementById('map_cont').value
+      };
+
+      if (map.nume === '' || map.nrinv === '' || map.val === '') {
+        toast('⚠️ Trebuie mapate obligatoriu Câmpurile: Denumire, Nr. Inventar și Valoare!');
         return;
       }
-      reader.readAsText(file, 'UTF-8');
+
+      const clLoc = document.getElementById('mapareLocatieImplicit').value;
+      let targetCladireId = null;
+      let targetCameraId = null;
+
+      if (clLoc === 'clda') {
+        const cldA = DB.cladiri.find(c => c.cod === 'CLD-A');
+        if (cldA) {
+          targetCladireId = cldA.id;
+          const cam = DB.camere.find(c => c.cladireId === cldA.id);
+          if (cam) targetCameraId = cam.id;
+        }
+      }
+
+      toast('⏳ Importăm datele... Vă rugăm așteptați.');
+      closeModal('modalMapareImport');
+      document.getElementById('importFile').value = '';
+
+      let importedCount = 0;
+      let errors = 0;
+
+      for (const row of importedRawData) {
+        // Extract values using map indices
+        const nume = map.nume !== '' ? String(row[map.nume] || '').trim() : '';
+        const nrInv = map.nrinv !== '' ? String(row[map.nrinv] || '').trim() : '';
+        let valRaw = map.val !== '' ? String(row[map.val] || '0').trim() : '0';
+        let qtyRaw = map.qty !== '' ? String(row[map.qty] || '1').trim() : '1';
+        let dataPif = map.data !== '' ? String(row[map.data] || '').trim() : new Date().toLocaleDateString('ro-RO');
+        const cont = map.cont !== '' ? String(row[map.cont] || '').trim() : '';
+
+        // Ignore rows that don't have basic required data
+        if (!nume || !nrInv || nume.toLowerCase() === 'report' || nume.toLowerCase() === 'de reportat') continue;
+
+        // Clean numbers
+        valRaw = valRaw.replace(/[^0-9,\.]/g, '').replace(',', '.');
+        qtyRaw = qtyRaw.replace(/[^0-9,\.]/g, '').replace(',', '.');
+
+        const val = parseFloat(valRaw) || 0;
+        const qty = parseInt(qtyRaw) || 1;
+
+        // Standardize date to DD.MM.YYYY if it looks like Excel date
+        if (!isNaN(dataPif) && dataPif > 1000) {
+          // Excel serial date to JS Date
+          const jsDate = new Date((dataPif - (25567 + 1)) * 86400 * 1000);
+          dataPif = jsDate.toLocaleDateString('ro-RO');
+        }
+
+        const bun = {
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          nrInv: nrInv,
+          nume: nume,
+          cat: cont ? `Gest.Cont ${cont}` : 'Necategorizat',
+          cladireId: targetCladireId,
+          cameraId: targetCameraId,
+          stare: 'Bun',
+          val: val,
+          qty: qty,
+          dataPIF: dataPif,
+          cont: cont,
+          furnId: null,
+          amortizare: 0,
+          obs: 'Importat automat din Excel/CSV'
+        };
+
+        DB.inventar.unshift(bun);
+        try {
+          await sbAutoSave('inventar', bun);
+          importedCount++;
+        } catch (e) {
+          console.error("Save error row", row, e);
+          errors++;
+        }
+      }
+
+      toast(`✅ Import finalizat! Adăugate: ${importedCount} bunuri.`);
+      if (errors > 0) toast(`⚠️ Au apărut ${errors} erori la salvarea în baza de date.`);
+      addIstoricEvent('import', `Import masiv gestiune: ${importedCount} bunuri dintr-un fișier.`, currentUser);
+
+      updateDashboard();
     }
+
+
 
     function parseCSV(text) {
       if (!text) return [];

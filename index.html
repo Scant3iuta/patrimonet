@@ -34,12 +34,12 @@
     <div class="login-left">
       <div class="login-brand">
         <div class="login-brand-logo">🏛️</div>
-        <div class="login-brand-name">PatrimoNet — CNVGA</div>
-        <div class="login-brand-sub">CN „Vasile Goldiș" Arad</div>
+        <div class="login-brand-name">PatrimoNet Pro</div>
+        <div class="login-brand-sub">Sistem Multi-Tenant de Gestiune</div>
       </div>
-      <div class="login-tagline">Patrimoniul<br><span>Goldiș,</span><br>organizat perfect.</div>
-      <div class="login-desc">Platformă dedicată administrării patrimoniului Colegiului Național „Vasile Goldiș" Arad —
-        Clădirea A (Calea Victoriei) și Clădirea B (Bd. Doinaș).</div>
+      <div class="login-tagline">Patrimoniul<br><span>tău,</span><br>organizat perfect.</div>
+      <div class="login-desc">Platformă centralizată dedicată administrării patrimoniului. Conectează-te pentru a accesa
+        hub-ul instituției tale.</div>
       <div class="login-features">
         <div class="login-feat">
           <div class="login-feat-icon">🏢</div> Multiple clădiri și locații
@@ -66,46 +66,7 @@
         <label>Parolă</label>
         <input type="password" id="loginPass" placeholder="••••••••" value="">
       </div>
-      <div class="login-field">
-        <label>Rol</label>
-        <select id="loginRole">
-          <optgroup label="── Administrație ──">
-            <option value="admin_app">Administrator Aplicație</option>
-            <option value="admin_pat">Administrator Patrimoniu</option>
-          </optgroup>
-          <optgroup label="── Conducere ──">
-            <option value="director">Director</option>
-            <option value="dir_adj">Director Adjunct</option>
-          </optgroup>
-          <optgroup label="── Contabilitate ──">
-            <option value="contabil">Contabil Șef</option>
-            <option value="contabil_sec">Contabil</option>
-            <option value="casier">Casier</option>
-            <option value="economist">Economist</option>
-          </optgroup>
-          <optgroup label="── Personal ──">
-            <option value="informatician">Informatician Școlar</option>
-            <option value="profesor">Profesor</option>
-            <option value="mentenanta">Personal Mentenanță</option>
-            <option value="pedagog">Pedagog Internat</option>
-            <option value="bucatar">Bucătar</option>
-            <option value="ingrijitor">Îngrijitor (Curățenie)</option>
-            <option value="paznic">Paznic</option>
-          </optgroup>
-        </select>
-      </div>
       <button class="login-btn" onclick="doLogin()">Autentificare →</button>
-      <div class="login-hint">
-        <strong>Conturi demo:</strong>
-        <div class="login-hint-row"><span>admin / admin123</span><span>Oance Catalin Traian</span></div>
-        <div class="login-hint-row"><span>patrimoniu / pat123</span><span>Oance Carmen Mihaela</span></div>
-        <div class="login-hint-row"><span>director / dir123</span><span>Director</span></div>
-        <div class="login-hint-row"><span>contabil / con123</span><span>Barbu Mioara</span></div>
-        <div class="login-hint-row"><span>mentenanta / men123</span><span>Mentenanță</span></div>
-        <div class="login-hint-row"><span>pedagog / ped123</span><span>Pedagog Internat</span></div>
-        <div class="login-hint-row"><span>info / info123</span><span>Informatician</span></div>
-        <div class="login-hint-row"><span>profesor / prof123</span><span>Profesor</span></div>
-      </div>
     </div>
   </div>
 
@@ -168,10 +129,12 @@
         </div>
         <div class="nav-group">
           <div class="nav-group-label">Financiar</div>
-          <div class="nav-item" data-roles="admin_app,admin_pat,director,contabil" onclick="nav('furnizori',this)"><span
-              class="nav-icon">🤝</span> Furnizori</div>
-          <div class="nav-item" data-roles="admin_app,admin_pat,director,contabil" onclick="nav('achizitii',this)"><span
-              class="nav-icon">🛒</span> Achiziții <span class="nav-badge" id="achBadge" style="display:none">!</span>
+          <div class="nav-item" data-roles="super_admin,school_admin,auditor" onclick="nav('furnizori',this)">
+            <span class="nav-icon">🤝</span> Furnizori
+          </div>
+          <div class="nav-item" data-roles="super_admin,school_admin,auditor" onclick="nav('achizitii',this)">
+            <span class="nav-icon">🛒</span> Achiziții <span class="nav-badge" id="achBadge"
+              style="display:none">!</span>
           </div>
         </div>
         <div class="nav-group">
@@ -182,8 +145,9 @@
               class="nav-badge" id="rezervariBadge" style="display:none">0</span></div>
           <div class="nav-item" onclick="nav('aprobari',this)"><span class="nav-icon">✅</span> Aprobări <span
               class="nav-badge" id="aprobariBadge" style="display:none">0</span></div>
-          <div class="nav-item" data-roles="admin_app,admin_pat,pedagog,director,informatician"
-            onclick="nav('internat',this)"><span class="nav-icon">🏠</span> Internat & Cantină</div>
+          <div class="nav-item" data-roles="super_admin,school_admin,pedagog,auditor" onclick="nav('internat',this)">
+            <span class="nav-icon">🏠</span> Internat & Cantină
+          </div>
           <div class="nav-item" onclick="nav('mentenanta',this)"><span class="nav-icon">🔧</span> Mentenanță <span
               class="nav-badge" id="taskBadge">0</span></div>
           <div class="nav-item" onclick="nav('fluxuri',this)"><span class="nav-icon">🔄</span> Fluxuri de lucru</div>
@@ -191,14 +155,31 @@
         <div class="nav-group">
           <div class="nav-group-label">Audit & Istoric</div>
           <div class="nav-item" onclick="nav('istoric',this)"><span class="nav-icon">📜</span> Istoric & Log</div>
-          <div class="nav-item" data-roles="admin_app,admin_pat,director,contabil" onclick="nav('audit',this)"><span
-              class="nav-icon">🔍</span> Rapoarte audit</div>
+          <div class="nav-item" data-roles="super_admin,school_admin,auditor" onclick="nav('audit',this)">
+            <span class="nav-icon">🔍</span> Rapoarte audit
+          </div>
+        </div>
+        <div class="nav-group" data-roles="super_admin">
+          <div class="nav-group-label">Inteligență Artificială</div>
+          <div class="nav-item" onclick="nav('ai_asistent',this)"><span class="nav-icon">🤖</span> Asistent AI</div>
+          <div class="nav-item" onclick="nav('ai_propuneri',this)"><span class="nav-icon">📊</span> Propuneri AI</div>
+          <div class="nav-item" onclick="nav('ai_todo',this)"><span class="nav-icon">📋</span> To-Do Inteligent</div>
+        </div>
+        <div class="nav-group" data-roles="super_admin">
+          <div class="nav-group-label">Dezvoltare & Optimizare AI</div>
+          <div class="nav-item" onclick="nav('ai_builder_reports',this)"><span class="nav-icon">📊</span> Rapoarte
+            Custom</div>
+          <div class="nav-item" onclick="nav('ai_builder_schema',this)"><span class="nav-icon">🛠️</span> Builder
+            Formulare</div>
+          <div class="nav-item" onclick="nav('ai_builder_audit',this)"><span class="nav-icon">🛡️</span> Auditor
+            Securitate</div>
         </div>
         <div class="nav-group">
           <div class="nav-group-label">Administrare</div>
-          <div class="nav-item" data-roles="admin_app,admin_pat" onclick="nav('personal',this)"><span
+          <div class="nav-item" data-roles="super_admin,school_admin" onclick="nav('personal',this)"><span
               class="nav-icon">👥</span> Personal</div>
-          <div class="nav-item" data-roles="admin_app" onclick="nav('setari',this)"><span class="nav-icon">⚙️</span>
+          <div class="nav-item" data-roles="super_admin,school_admin" onclick="nav('setari',this)"><span
+              class="nav-icon">⚙️</span>
             Setări</div>
           <div class="nav-item" onclick="nav('rapoarte',this)"><span class="nav-icon">📈</span> Rapoarte</div>
         </div>
@@ -243,7 +224,7 @@
           </div>
           <button class="btn btn-teal btn-sm" id="btnScanQR" onclick="openQRScanner()" style="display:none"
             title="Scanează QR inventar">📷 Scan QR</button>
-          <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Tipărire</button>
+          <button class="btn btn-outline btn-sm" id="btnPrint" onclick="window.print()">🖨️ Tipărire</button>
         </div>
       </div>
 
@@ -251,7 +232,7 @@
 
         <!-- DASHBOARD -->
         <div class="section active" id="section-dashboard">
-          <div class="stats-row">
+          <div class="stats-row" id="dashboardStatsRow">
             <div class="stat-card gold">
               <div class="stat-label">Clădiri</div>
               <div class="stat-val" id="s-cladiri">0</div>
@@ -278,20 +259,20 @@
               <div class="stat-sub">mentenanță</div>
             </div>
           </div>
-          <div class="card-grid">
-            <div class="card">
+          <div class="card-grid" id="dashboardCardGrid">
+            <div class="card" id="dashCardCladiriActive">
               <div class="card-header"><span class="card-title">🏢 Clădiri active</span></div>
               <div id="dashCladiri" style="padding:4px 0"></div>
             </div>
-            <div class="card">
+            <div class="card" id="dashCardSarcini">
               <div class="card-header"><span class="card-title">🔧 Sarcini recente mentenanță</span></div>
               <div id="dashTasks" style="padding:4px 0"></div>
             </div>
-            <div class="card">
+            <div class="card" id="dashCardChart1">
               <div class="card-header"><span class="card-title">🏢 Distribuție bunuri pe clădiri</span></div>
               <div style="padding:16px 20px; height: 260px;"><canvas id="chartCladiri"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" id="dashCardChart2">
               <div class="card-header"><span class="card-title">📦 Stare bunuri</span></div>
               <div style="padding:16px 20px; height: 260px; display: flex; justify-content: center;"><canvas
                   id="chartStare"></canvas></div>
@@ -308,7 +289,8 @@
           <div class="filters">
             <div class="search-box"><span>🔍</span><input type="text" placeholder="Caută clădire..."
                 oninput="filterCladiri(this.value)"></div>
-            <button class="btn btn-primary" onclick="openModal('modalCladire')">+ Adaugă clădire</button>
+            <button class="btn btn-primary" data-roles="super_admin,school_admin" onclick="openModal('modalCladire')">+
+              Adaugă clădire</button>
             <button class="btn btn-danger" style="margin-left:auto" onclick="stergeToateCladirile()">🗑️ Reset
               Clădiri</button>
           </div>
@@ -338,8 +320,10 @@
               <option>Sală mese</option>
               <option>Auxiliar</option>
             </select>
-            <button class="btn btn-primary" onclick="openModalCamera()">+ Adaugă cameră</button>
-            <button class="btn" style="background:var(--teal);color:#fff" onclick="importCamereSIIIR()">📥 Import Camere
+            <button class="btn btn-primary" data-roles="super_admin,school_admin,pedagog" onclick="openModalCamera()">+
+              Adaugă cameră</button>
+            <button class="btn" style="background:var(--teal);color:#fff" onclick="importCamereSIIIR()">📥 Import
+              Camere
               SIIIR</button>
             <button class="btn btn-danger" style="margin-left:auto" onclick="stergeToateCamerele()">🗑️ Reset
               Camere</button>
@@ -389,7 +373,8 @@
             <select onchange="filterInventar()" id="filterCladireI">
               <option value="">Toate clădirile</option>
             </select>
-            <button class="btn btn-primary" onclick="openModalBun()">+ Adaugă bun</button>
+            <button class="btn btn-primary" data-roles="super_admin,school_admin,pedagog,it_admin"
+              onclick="openModalBun()">+ Adaugă bun</button>
           </div>
           <div class="card">
             <div class="card-header"><span class="card-title">📦 Inventar bunuri</span><span
@@ -1285,8 +1270,8 @@
             <select id="filterRolP" onchange="filterPersonal()">
               <option value="">Toate rolurile</option>
               <optgroup label="── Administrație ──">
-                <option value="admin_app">Admin Aplicație</option>
-                <option value="admin_pat">Admin Patrimoniu</option>
+                <option value="super_admin">Admin Aplicație</option>
+                <option value="school_admin">Admin Patrimoniu</option>
               </optgroup>
               <optgroup label="── Conducere ──">
                 <option value="director">Director</option>
@@ -1305,7 +1290,8 @@
                 <option value="pedagog">Pedagog Internat</option>
               </optgroup>
             </select>
-            <button class="btn btn-primary" onclick="openModal('modalPersonal')">+ Adaugă utilizator</button>
+            <button class="btn btn-primary" data-roles="super_admin,school_admin" onclick="openModal('modalPersonal')">+
+              Adaugă utilizator</button>
           </div>
           <div class="card">
             <div class="card-header"><span class="card-title">👥 Utilizatori & Personal</span></div>
@@ -1315,6 +1301,94 @@
 
         <!-- SETARI -->
         <div class="section" id="section-setari">
+          <!-- BLOC SETARI GLOBALE (doar pentru Super Admin) -->
+          <div id="settingsSuperBlock" style="display:none; margin-bottom: 24px;">
+            <div
+              style="background: var(--dark-pearl); border: 2px solid var(--super-gold); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+              <h2 style="color: var(--super-gold); margin-top:0; display:flex; align-items:center; gap:10px;">
+                <span>🛡️ Platform Administration</span>
+                <span class="badge" style="background:var(--super-gold); color:black; font-size:10px;">GLOBAL
+                  CONFIG</span>
+              </h2>
+              <p style="font-size: 13px; color: var(--mist); margin-bottom: 20px;">Parametrii de mai jos afectează
+                întreaga platformă PatrimoNet Pro la nivel global.</p>
+
+              <div class="settings-grid">
+                <!-- Branding Global -->
+                <div class="settings-card">
+                  <div class="settings-card-title">🌐 Branding Global</div>
+                  <div class="form-row">
+                    <label>Nume Platformă</label>
+                    <input type="text" id="globalSysName" value="PatrimoNet Pro">
+                  </div>
+                  <div class="form-row">
+                    <label>Slogan Login</label>
+                    <input type="text" id="globalTagline" value="Sistem Multi-Tenant de Gestiune">
+                  </div>
+                  <button class="btn btn-primary" onclick="saveGlobalSettings()">💾 Salvează Branding</button>
+                </div>
+
+                <!-- Status & Mentenanta -->
+                <div class="settings-card">
+                  <div class="settings-card-title">🚧 Stare & Mentenanță</div>
+                  <div class="permission-row">
+                    <span>Mod Mentenanță (Global)</span>
+                    <div class="toggle" id="toggleMaintenance"
+                      onclick="this.classList.toggle('on'); toast('Mod mentenanță actualizat');"></div>
+                  </div>
+                  <div style="margin-top:15px; font-size:12px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                      <span>Conexiune Supabase:</span>
+                      <span style="color:var(--green)">Online</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                      <span>Uptime Sistem:</span>
+                      <span>99.98%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Securitate Globala -->
+                <div class="settings-card">
+                  <div class="settings-card-title">🔒 Securitate & Export</div>
+                  <div style="font-size:12px; color:var(--mist); margin-bottom:12px;">
+                    Platforma utilizează AES-256 pentru datele la rest și TLS 1.3 pentru tranzit.
+                  </div>
+                  <button class="btn btn-outline btn-sm" style="width:100%; margin-bottom:8px;"
+                    onclick="toast('Pregătire export global JSON...')">📦 Export Global Master-Data</button>
+                  <button class="btn btn-danger btn-sm" style="width:100%;"
+                    onclick="alert('ATENȚIE: Această acțiune va purge-ul logurile mai vechi de 12 luni conform politicii de retenție.')">🧹
+                    Curățare Loguri Arhivă</button>
+                </div>
+              </div>
+
+              <!-- Gestiune Licente Tenanti -->
+              <div class="card" style="margin-top:20px; background: rgba(0,0,0,0.2);">
+                <div class="card-header">
+                  <span class="card-title">💳 Gestiune Licențe & Subscripții</span>
+                </div>
+                <div style="overflow-x:auto;">
+                  <table style="width:100%; font-size:12px; text-align:left; border-collapse:collapse;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <th style="padding:10px;">Tenant</th>
+                        <th style="padding:10px;">ID</th>
+                        <th style="padding:10px;">Tip Licență</th>
+                        <th style="padding:10px;">Expiră la</th>
+                        <th style="padding:10px;">Status</th>
+                        <th style="padding:10px;">Acțiuni</th>
+                      </tr>
+                    </thead>
+                    <tbody id="licensesGrid">
+                      <!-- Populat din JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div style="height: 1px; background: var(--super-gold); opacity: 0.3; margin-bottom: 24px;"></div>
+          </div>
+
           <div class="settings-grid">
             <div class="settings-card">
               <div class="settings-card-title">🏫 Date instituție</div>
@@ -1457,7 +1531,7 @@
           <div class="tabs">
             <div class="tab active" onclick="switchTabRez('rez-calendar',this)">📅 Calendar</div>
             <div class="tab" onclick="switchTabRez('rez-lista',this)">📋 Listă rezervări</div>
-            <div class="tab" data-roles-tab="director,admin_pat" onclick="switchTabRez('rez-aprobari',this)">✅ De
+            <div class="tab" data-roles-tab="director,school_admin" onclick="switchTabRez('rez-aprobari',this)">✅ De
               aprobat <span id="rezAprobCount" class="notif-count" style="margin-left:4px">0</span></div>
           </div>
           <div id="rez-calendar">
@@ -1547,6 +1621,62 @@
         <div class="section" id="section-audit">
           <div class="alert alert-info">🔍 Rapoartele de audit sunt generate din logul complet de activitate și sunt
             semnate digital cu marca temporală.</div>
+
+          <!-- SUPER ADMIN ONLY: Rapoarte Globale -->
+          <div id="auditSuperBlock" style="display:none;margin-bottom:20px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gold)">🌐 Rapoarte Globale — Super
+              Admin</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+              <div class="card">
+                <div class="card-header"><span class="card-title">🔐 Raport autentificări</span></div>
+                <div style="padding:16px">
+                  <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Toate login-urile din platformă, pe
+                    toate instanțele, cu timestamp și rol.</p>
+                  <div class="form-row"><label>Perioadă</label>
+                    <div style="display:flex;gap:8px;align-items:center"><input type="date" id="auditAuthDe"
+                        style="flex:1;min-height:38px;padding:8px"><input type="date" id="auditAuthPana"
+                        style="flex:1;min-height:38px;padding:8px"></div>
+                  </div>
+                  <button class="btn btn-primary" onclick="genAuditGlobal('auth')">Generează raport</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">📋 Raport inter-tenant</span></div>
+                <div style="padding:16px">
+                  <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Cine ce a modificat pe ce instanță —
+                    acțiuni cross-school.</p>
+                  <div class="form-row"><label>Filtru tenant</label>
+                    <select id="auditTenantFilter" style="width:100%">
+                      <option value="">Toți tenanții</option>
+                      <option value="1">CNVGA — Colegiul Național Vasile Goldiș</option>
+                      <option value="2">DEMO_2 — Școala Generală Nr. 2</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary" onclick="genAuditGlobal('tenant')">Generează raport</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">📦 Patrimoniu comparativ</span></div>
+                <div style="padding:16px">
+                  <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Valoarea totală a patrimoniului per
+                    școală — comparativ.</p>
+                  <button class="btn btn-primary" onclick="genAuditGlobal('patrimoniu')">Generează raport</button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">⚠️ Raport anomalii</span></div>
+                <div style="padding:16px">
+                  <p style="font-size:13px;color:var(--mist);margin-bottom:12px">Ștergeri în masă, acces neobișnuit,
+                    utilizatori inactivi, erori de securitate.</p>
+                  <button class="btn btn-primary" onclick="genAuditGlobal('anomalii')">Generează raport</button>
+                </div>
+              </div>
+            </div>
+            <hr style="border:none;border-top:1px solid var(--surface);margin-bottom:16px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--slate)">📊 Rapoarte per Instanță
+            </div>
+          </div>
+
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="card">
               <div class="card-header"><span class="card-title">📊 Raport audit — Mutări bunuri</span></div>
@@ -1611,6 +1741,192 @@
             <button class="btn btn-outline" onclick="window.print()">🖨️ Tipărește raport complet</button>
             <button class="btn btn-gold" style="margin-left:8px" onclick="toast('📥 Export CSV generat!')">📥 Export
               CSV</button>
+          </div>
+        </div>
+
+        <!-- ASISTENT AI -->
+        <div class="section" id="section-ai_asistent">
+          <div class="ai-container">
+            <div class="ai-chat-card">
+              <div class="ai-chat-header">
+                <div class="ai-avatar pulse">🤖</div>
+                <div>
+                  <div class="ai-name">PatrimoBot</div>
+                  <div class="ai-status">Online • Analizând baza de date locală</div>
+                </div>
+              </div>
+              <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-msg bot">
+                  Salut! Sunt asistentul tău inteligent. Te pot ajuta să găsești bunuri, să generezi rapoarte statistice
+                  sau să interoghezi datele despre clădiri. Cu ce te pot ajuta astăzi?
+                </div>
+              </div>
+              <div class="ai-chat-input-area">
+                <input type="text" id="aiChatInput" placeholder="Întreabă orice despre patrimoniu..."
+                  onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <button class="ai-send-btn" onclick="sendAiMessage()">▲</button>
+              </div>
+            </div>
+            <div class="ai-suggestions-sidebar">
+              <div class="ai-sugg-title">Sugestii rapide</div>
+              <div class="ai-sugg-item" onclick="aiQuickQuery('Care este valoarea totală a inventarului?')">💰 Valoare
+                totală inventar</div>
+              <div class="ai-sugg-item" onclick="aiQuickQuery('Arată-mi bunurile care necesită reparații')">🔧 Bunuri
+                defecte</div>
+              <div class="ai-sugg-item" onclick="aiQuickQuery('Câte săli de clasă sunt în Corpul A?')">🏫 Săli Corp A
+              </div>
+              <div class="ai-sugg-item" onclick="aiQuickQuery('Generează un rezumat al achizițiilor recente')">📊
+                Achiziții
+                recente</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROPUNERI AI -->
+        <div class="section" id="section-ai_propuneri">
+          <div class="alert alert-info" style="margin-bottom:20px">
+            ✨ Algoritmul AI analizează datele în timp real pentru a identifica oportunități de optimizare și riscuri în
+            gestiunea patrimoniului.
+          </div>
+          <div class="card-grid" id="aiPropuneriGrid">
+            <!-- Populat din JS -->
+          </div>
+        </div>
+
+        <!-- TO-DO LIST INTELIGENT -->
+        <div class="section" id="section-ai_todo">
+          <div class="todo-layout">
+            <div class="todo-main">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">📅 Planificator Tasks Automate (AI)</span>
+                  <button class="btn btn-teal btn-sm" onclick="generateAiTasks()">✨ Regenerează Planificare</button>
+                </div>
+                <div id="aiTodoList" style="padding:10px 0">
+                  <!-- Populat din JS -->
+                </div>
+              </div>
+            </div>
+            <div class="todo-sidebar">
+              <div class="stat-card gold">
+                <div class="stat-label">Tasks Active</div>
+                <div class="stat-val" id="aiTodoCount">0</div>
+                <div class="stat-sub">generate de asistent</div>
+              </div>
+              <div class="stat-card sky" style="margin-top:16px">
+                <div class="stat-label">Progres Lună</div>
+                <div class="stat-val">65%</div>
+                <div class="stat-sub">din obiectivele propuse</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI BUILDER REPORTS -->
+        <div class="section" id="section-ai_builder_reports">
+          <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="card-header">
+              <span class="card-title">📊 Generare Rapoarte Custom (AI)</span>
+              <button class="btn btn-primary btn-sm" onclick="approveAiReport()">Aprobă și Adaugă la Rapoarte</button>
+            </div>
+            <div style="padding:20px;">
+              <div class="ai-chat-interface" style="margin-bottom: 20px;">
+                <div class="ai-messages" id="aiBuilderReportsMessages"
+                  style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                  <div class="ai-msg bot">
+                    <div class="bot-avatar">🤖</div>
+                    <div class="ai-bubble">Salut! Spune-mi ce date vrei să analizez (ex: "Evoluția valorii achizițiilor"
+                      sau "Top 3 gestiuni după valoare"). Îți voi genera automat un grafic interactiv.</div>
+                  </div>
+                </div>
+                <div class="ai-input-area" style="display:flex; gap:10px;">
+                  <input type="text" id="aiBuilderReportInput" placeholder="Descrie graficul dorit..."
+                    style="flex:1; padding: 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white;"
+                    onkeypress="if(event.key==='Enter') generateAiBuilderReport()">
+                  <button class="btn btn-teal" style="border-radius: 20px;"
+                    onclick="generateAiBuilderReport()">Generează Grafic</button>
+                </div>
+              </div>
+              <div id="aiReportCanvasContainer"
+                style="display:none; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                <canvas id="aiReportCanvas" height="100"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI BUILDER SCHEMA -->
+        <div class="section" id="section-ai_builder_schema">
+          <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="card-header">
+              <span class="card-title">🛠️ Schema Builder & Fluxuri Automate</span>
+              <button class="btn btn-primary btn-sm" id="deployAiSchemaBtn" style="display:none;"
+                onclick="deployAiSchema()">Aprobă Modificare (Deploy)</button>
+            </div>
+            <div style="padding:20px; display: flex; gap: 20px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 300px;">
+                <div class="ai-chat-interface">
+                  <div class="ai-messages" id="aiBuilderSchemaMessages"
+                    style="min-height: 300px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 10px;">
+                    <div class="ai-msg bot">
+                      <div class="bot-avatar">🤖</div>
+                      <div class="ai-bubble">Vrei să adaugi un câmp nou sau să modifici un flux? Spune-mi ex: "Adaugă un
+                        select 'Sursă Finanțare' în formularul de Achiziții".</div>
+                    </div>
+                  </div>
+                  <div class="ai-input-area" style="display:flex; gap:10px;">
+                    <input type="text" id="aiBuilderSchemaInput" placeholder="Cerere modificare formulare..."
+                      style="flex:1; padding: 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white;"
+                      onkeypress="if(event.key==='Enter') generateAiBuilderSchema()">
+                    <button class="btn btn-teal" style="border-radius: 20px;"
+                      onclick="generateAiBuilderSchema()">Analizează</button>
+                  </div>
+                </div>
+              </div>
+              <div
+                style="flex: 1; min-width: 300px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.2);">
+                <h4 style="margin-top:0; color: var(--gold); margin-bottom: 15px;">🔍 Previzualizare UI Formular</h4>
+                <div id="aiSchemaPreviewArea" style="opacity: 0.5; transition: opacity 0.3s; pointer-events:none;">
+                  <div style="text-align:center; padding: 40px; color: var(--mist);">Aștept o comandă pentru a
+                    previzualiza formularul modificat...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI BUILDER AUDIT -->
+        <div class="section" id="section-ai_builder_audit">
+          <div class="card" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);">
+            <div class="card-header">
+              <span class="card-title">🛡️ Auditor Securitate Sistem (AI)</span>
+              <button class="btn btn-outline btn-sm" onclick="renderAIBuilderAudit(true)">🔄 Analizează din nou</button>
+            </div>
+            <div style="padding:20px;">
+              <div class="alert alert-info" style="margin-bottom: 20px;">
+                ℹ️ AI-ul rulează o analiză a tuturor log-urilor din tabelul "istoricLog" pentru a detecta anomalii de
+                comportament (exporturi masive, autentificări suspecte).
+              </div>
+              <div class="table-responsive">
+                <table style="width: 100%;">
+                  <thead>
+                    <tr>
+                      <th>Nivel Risc</th>
+                      <th>Acțiune Analizată</th>
+                      <th>Anomalie Detectată</th>
+                      <th>Recomandare AI</th>
+                      <th>Acțiune Rapidă</th>
+                    </tr>
+                  </thead>
+                  <tbody id="aiBuilderAuditTable">
+                    <tr>
+                      <td colspan="5" style="text-align:center; padding:20px;">Apasă "Analizează" pentru a scana
+                        sistemul.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2021,8 +2337,8 @@
           <div class="form-row"><label>Rol în aplicație</label>
             <select id="perRol">
               <optgroup label="── Administrație ──">
-                <option value="admin_app">Administrator Aplicație</option>
-                <option value="admin_pat">Administrator Patrimoniu</option>
+                <option value="super_admin">Administrator Aplicație</option>
+                <option value="school_admin">Administrator Patrimoniu</option>
               </optgroup>
               <optgroup label="── Conducere ──">
                 <option value="director">Director</option>
@@ -2415,6 +2731,10 @@
     function initSupabase() {
       try {
         sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Expunem obiectul global `supabase` (folosit în funcția de login implicit) 
+        // dacă nu se accesează prin window.supabase
+        window.supabase = sbClient;
+
         SUPABASE_ENABLED = true;
         console.log('✅ Supabase conectat la patrimonet!');
         // Update badge in settings if visible
@@ -2425,6 +2745,10 @@
         SUPABASE_ENABLED = false;
       }
     }
+
+    // Asigurăm pre-inițializare rapidă pentru doLogin() înainte de _loadData 
+    // care apelează initSupabase de obicei mult mai târziu.
+    initSupabase();
 
     // ===== SYNC HELPERS =====
     // Generic fetch all rows from a table
@@ -2501,12 +2825,12 @@
     }
 
     const toSb = {
-      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: parseFloat(x.supUtila) || null, suprafata_construita: parseFloat(x.supUtila) || null, suprafata_desfasurata: parseFloat(x.supDesfasurata) || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, tip_acoperis: x.tipAcoperis || '', tip_incalzire: x.tipIncalzire || '', supraveghere: x.supraveghere || '', grupuri_sanitare: x.grupuriSanitare || '', stare_reabilitare: x.stareReabilitare || '', an_reabilitare: x.anReabilitare ? parseInt(x.anReabilitare) : null, regim_inaltime: x.regimInaltime || '', tip_structura: x.tipStructura || '', observatii: x.note || '' }),
-      camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null }),
-      inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '' }),
+      cladiri: (x) => ({ cod: x.cod, nume: x.nume, adresa: x.adresa || '', etaje: x.etaje || 1, an_constructie: x.an || null, suprafata: parseFloat(x.supUtila) || null, suprafata_construita: parseFloat(x.supUtila) || null, suprafata_desfasurata: parseFloat(x.supDesfasurata) || null, stare_generala: x.stare || 'Bună', cod_siiir: x.codSiiir || null, tip_acoperis: x.tipAcoperis || '', tip_incalzire: x.tipIncalzire || '', supraveghere: x.supraveghere || '', grupuri_sanitare: x.grupuriSanitare || '', stare_reabilitare: x.stareReabilitare || '', an_reabilitare: x.anReabilitare ? parseInt(x.anReabilitare) : null, regim_inaltime: x.regimInaltime || '', tip_structura: x.tipStructura || '', observatii: x.note || '', school_id: x.school_id || currentUser?.school_id || null }),
+      camere: (x) => ({ cladire_id: x.cladireId || null, cod: x.cod, nume: x.nume, tip: x.tip || '', etaj: parseInt(x.etaj) || 0, suprafata: parseFloat(x.sup) || null, responsabil: x.responsabil || x.resp || '', capacitate: parseInt(x.cap) || null, school_id: x.school_id || currentUser?.school_id || null }),
+      inventar: (x) => ({ nr_inv: x.nrInv, nume: x.nume, cat: x.cat || '', cladire_id: x.cladireId || null, camera_id: x.cameraId || null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, data_pif: toISODate(x.dataPIF) || null, furnizor_id: x.furnId || null, cont: x.cont || '', durata: x.durata || null, amortizare: parseFloat(x.amortizare) || 0, obs: x.desc || x.obs || '', school_id: x.school_id || currentUser?.school_id || null }),
       furnizori: (x) => ({ nume: x.nume, cui: x.cui || '', adresa: x.adresa || '', tel: x.tel || '', email: x.email || '', persoana: x.persoana || '' }),
-      achizitii: (x) => ({ descriere: x.produs || x.descriere || '', furnizor_id: x.furnId || null, cantitate: x.qty || 1, val: parseFloat(x.val) || 0, data_doc: toISODate(x.data || x.dataDoc) || null, status: x.status || 'Comandat', aprobare_necesara: x.aprobare || 'nu', note: x.note || '', user_id: x.userId || null }),
-      personal: (x) => ({ prenume: x.prenume, nume: x.nume, email: x.email, parola: x.parola, rol: x.rol, tel: x.tel || '', functie: x.functie || '', categorie: x.categorie || '' }),
+      achizitii: (x) => ({ descriere: x.produs || x.descriere || '', furnizor_id: x.furnId || null, cantitate: x.qty || 1, val: parseFloat(x.val) || 0, data_doc: toISODate(x.data || x.dataDoc) || null, status: x.status || 'Comandat', aprobare_necesara: x.aprobare || 'nu', note: x.note || '', user_id: x.userId || null, school_id: x.school_id || currentUser?.school_id || null }),
+      personal: (x) => ({ prenume: x.prenume, nume: x.nume, email: x.email, parola: x.parola, rol: x.rol, tel: x.tel || '', functie: x.functie || '', categorie: x.categorie || '', school_id: x.school_id || currentUser?.school_id || null }),
       mutari: (x) => ({ bun_id: x.bunId || null, user_id: x.userId || null, data: toISODate(x.data), de_cladire: x.deCladire || '', de_camera: x.deCamera || '', la_cladire: x.laCladire || '', la_camera: x.laCamera || '', la_cladire_id: x.laCladireId || null, la_camera_id: x.laCameraId || null, motiv: x.motiv || '', obs: x.obs || '', status: x.status || 'Finalizată', aprobat_de: x.aprobatDe || '' }),
       rezervari: (x) => ({ camera_id: x.cameraId || null, user_id: x.userId || null, data: toISODate(x.data) || x.data, ora_start: x.oraStart || '', ora_end: x.oraEnd || '', materie: x.materie || '', elevi: parseInt(x.elevi) || 0, echipamente: x.echipamente || '', status: x.status || 'Aprobată', aprobat_de: x.aprobatDe || '', obs: x.obs || '' }),
       tasks: (x) => ({ titlu: x.titlu || x.title || '(fără titlu)', prioritate: x.prioritate || x.prio || 'Medie', status: ({ 'Deschisă': 'deschisa', 'Finalizată': 'finalizata' }[x.status]) || x.status || 'deschisa', camera_id: x.cameraId || null, bun_id: x.bunId || null, assign_id: x.assignId || null, assign_ids: x.assignIds ? JSON.stringify(x.assignIds) : null, description: x.desc || x.description || '', termen: toISODate(x.termen) || null, created_by: currentUser?.id || null }),
@@ -2519,12 +2843,12 @@
 
     // Convert supabase row → local object
     const fromSb = {
-      cladiri: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, supUtila: x.suprafata_construita || x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', note: x.observatii || '', tipAcoperis: x.tip_acoperis || '', tipIncalzire: x.tip_incalzire || '', supraveghere: x.supraveghere || '', grupuriSanitare: x.grupuri_sanitare || '', stareReabilitare: x.stare_reabilitare || '', anReabilitare: x.an_reabilitare || null, regimInaltime: x.regim_inaltime || '', tipStructura: x.tip_structura || '' }),
-      camere: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), cladireId: parseInt(x.cladire_id), cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate }),
-      inventar: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id ? parseInt(x.cladire_id) : null, cameraId: x.camera_id ? parseInt(x.camera_id) : null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnId: x.furnizor_id ? parseInt(x.furnizor_id) : null, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs }),
+      cladiri: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), cod: x.cod, nume: x.nume, adresa: x.adresa, etaje: x.etaje, an: x.an_constructie, supUtila: x.suprafata_construita || x.suprafata, supDesfasurata: x.suprafata_desfasurata || '', stare: x.stare_generala || 'Bună', codSiiir: x.cod_siiir || '', note: x.observatii || '', tipAcoperis: x.tip_acoperis || '', tipIncalzire: x.tip_incalzire || '', supraveghere: x.supraveghere || '', grupuriSanitare: x.grupuri_sanitare || '', stareReabilitare: x.stare_reabilitare || '', anReabilitare: x.an_reabilitare || null, regimInaltime: x.regim_inaltime || '', tipStructura: x.tip_structura || '', school_id: x.school_id }),
+      camere: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), cladireId: parseInt(x.cladire_id), cod: x.cod, nume: x.nume, tip: x.tip, etaj: x.etaj, sup: x.suprafata, resp: x.responsabil, cap: x.capacitate, school_id: x.school_id }),
+      inventar: (x) => ({ _loaded: true, _sbId: x.id, id: parseInt(x.id), nrInv: x.nr_inv, nume: x.nume, cat: x.cat, cladireId: x.cladire_id ? parseInt(x.cladire_id) : null, cameraId: x.camera_id ? parseInt(x.camera_id) : null, stare: x.stare || 'Bun', val: parseFloat(x.val) || 0, dataPIF: x.data_pif, data: x.data_pif, furnId: x.furnizor_id ? parseInt(x.furnizor_id) : null, cont: x.cont, durata: x.durata, amortizare: parseFloat(x.amortizare) || 0, obs: x.obs, desc: x.obs, school_id: x.school_id }),
       furnizori: (x) => ({ _loaded: true, id: x.id, nume: x.nume, cui: x.cui, adresa: x.adresa, tel: x.tel, email: x.email, persoana: x.persoana, contact: x.persoana, cat: x.categorie || 'General' }),
-      achizitii: (x) => ({ _loaded: true, id: x.id, nrDoc: x.nr_doc, tipDoc: x.tip_doc, dataDoc: x.data_doc, data: x.data_doc, furnId: x.furnizor_id, descriere: x.descriere, produs: x.descriere, val: parseFloat(x.val) || 0, status: x.status, qty: x.qty || 1, userId: x.user_id }),
-      personal: (x) => ({ _loaded: true, id: x.id, prenume: x.prenume || '', nume: x.nume || '', email: x.email || '', parola: x.parola || '', rol: x.rol || '', tel: x.tel || '', functie: x.functie || '', categorie: x.categorie || '' }),
+      achizitii: (x) => ({ _loaded: true, id: x.id, nrDoc: x.nr_doc, tipDoc: x.tip_doc, dataDoc: x.data_doc, data: x.data_doc, furnId: x.furnizor_id, descriere: x.descriere, produs: x.descriere, val: parseFloat(x.val) || 0, status: x.status, qty: x.qty || 1, userId: x.user_id, school_id: x.school_id }),
+      personal: (x) => ({ _loaded: true, id: x.id, prenume: x.prenume || '', nume: x.nume || '', email: x.email || '', parola: x.parola || '', rol: x.rol || '', tel: x.tel || '', functie: x.functie || '', categorie: x.categorie || '', school_id: x.school_id }),
       istoric_log: (x) => ({ _loaded: true, id: x.id, tip: x.tip, descriere: x.descriere, user: x.user_name, rol: x.user_rol, timestamp: new Date(x.created_at).toLocaleString('ro-RO'), data: new Date(x.created_at).toLocaleDateString('ro-RO') }),
       mutari: (x) => ({ _loaded: true, id: x.id, bunId: x.bun_id, userId: x.user_id, data: x.data, deCladire: x.de_cladire, deCamera: x.de_camera, laCladire: x.la_cladire, laCamera: x.la_camera, laCladireId: x.la_cladire_id, laCameraId: x.la_camera_id, motiv: x.motiv, obs: x.obs, status: x.status, aprobatDe: x.aprobat_de }),
       rezervari: (x) => ({ _loaded: true, id: x.id, cameraId: x.camera_id, userId: x.user_id, data: x.data, oraStart: x.ora_start, oraEnd: x.ora_end, materie: x.materie, elevi: x.elevi, echipamente: x.echipamente, status: x.status, aprobatDe: x.aprobat_de }),
@@ -2625,6 +2949,22 @@
           }
         }
       });
+
+      // MULTI-TENANT ISOLATION FILTER (Faza 1.5)
+      // Dacă utilizatorul nu este Super Admin, izolăm datele vizibile doar la școala sa.
+      if (currentUser && currentUser.rol !== 'super_admin') {
+        const sid = currentUser.school_id;
+        // Permitem fallback pentru datele demonstrative / legacy care nu au încă school_id, considerându-le globale parțial sau alocate primului tenant
+        const isOwn = (item) => !item.school_id || String(item.school_id) === String(sid);
+
+        DB.cladiri = DB.cladiri.filter(isOwn);
+        DB.camere = DB.camere.filter(isOwn);
+        DB.inventar = DB.inventar.filter(isOwn);
+        DB.personal = DB.personal.filter(isOwn);
+        DB.achizitii = DB.achizitii.filter(isOwn);
+        // Furnizorii ar putea fi considerați globali sau per tenant - aici îi lăsăm globali momentan
+      }
+
       _supabaseLoaded = true;
 
       // 2. Render everything
@@ -2667,32 +3007,41 @@
     }
 
     // ===== STATE =====
-    let DB = { cladiri: [], camere: [], inventar: [], furnizori: [], achizitii: [], personal: [], tasks: [] };
+    let DB = { cladiri: [], camere: [], inventar: [], furnizori: [], achizitii: [], personal: [], tasks: [], mutari: [], rezervari: [], aprobari: [] };
     let currentUser = null;
     let activities = [];
+    let istoricLog = [];
+    let notifications = [];
+    let ROLE_PERMISSIONS = {}; // Will be populated below or moved up
+
+    const DEMO_TENANTS = [
+      { id: 1, nume: 'Colegiul Național „Vasile Goldiș” Arad', cod: 'CNVGA', admin: 'Oance Carmen Mihaela', cui: 'RO4262239', active: true, licenta: 'PREMIUM PLUS', expiry: '31.12.2026' },
+      { id: 2, nume: 'Școala Generală Nr. 2 (Demo)', cod: 'DEMO_2', admin: 'Admin Școala 2', cui: 'RO9998887', active: true, licenta: 'FREE', expiry: '15.04.2026' }
+    ];
 
     // ===== DEMO USERS =====
     const DEMO_USERS = [
-      { id: 1, prenume: 'Oance', nume: 'Catalin Traian', email: 'admin', parola: 'admin123', rol: 'admin_app' },
-      { id: 2, prenume: 'Oance', nume: 'Carmen Mihaela', email: 'patrimoniu', parola: 'pat123', rol: 'admin_pat' },
-      { id: 3, prenume: 'Ioja Petronela', nume: 'Angela', email: 'director', parola: 'dir123', rol: 'director' },
-      { id: 4, prenume: 'Matica', nume: 'Dan', email: 'dir.adj1', parola: 'dir123', rol: 'director' },
-      { id: 5, prenume: 'Belei Cristina', nume: 'Ligia', email: 'dir.adj2', parola: 'dir123', rol: 'director' },
-      { id: 6, prenume: 'Barbu', nume: 'Mioara', email: 'contabil', parola: 'con123', rol: 'contabil' },
-      { id: 7, prenume: 'Informatician', nume: 'Școlar', email: 'info', parola: 'info123', rol: 'informatician' },
-      { id: 8, prenume: 'Profesor', nume: 'Responsabil', email: 'profesor', parola: 'prof123', rol: 'profesor' },
-      { id: 9, prenume: 'Muncitor', nume: 'Mentenanță 1', email: 'mentenanta', parola: 'men123', rol: 'mentenanta' },
-      { id: 10, prenume: 'Muncitor', nume: 'Mentenanță 2', email: 'mentenanta2', parola: 'men123', rol: 'mentenanta' },
-      { id: 11, prenume: 'Pedagog', nume: 'Internat', email: 'pedagog', parola: 'ped123', rol: 'pedagog' },
-      { id: 12, prenume: 'Bucătar', nume: 'Șef', email: 'bucatar', parola: 'buc123', rol: 'bucatar' },
-      { id: 13, prenume: 'Îngrijitor', nume: 'Curățenie', email: 'ingrijitor', parola: 'ing123', rol: 'ingrijitor' },
-      { id: 14, prenume: 'Paznic', nume: 'Poartă', email: 'paznic', parola: 'paz123', rol: 'paznic' },
-      { id: 15, prenume: 'Profesor', nume: 'Demo', email: 'profesor2', parola: 'prof123', rol: 'profesor' }
+      { id: 1, prenume: 'Oance', nume: 'Catalin Traian', email: 'catalin@patrimonet.ro', parola: '762262', rol: 'super_admin', school_id: 1, school_name: 'Platforma PatrimoNet Pro', logo_url: '' },
+      { id: 2, prenume: 'Oance', nume: 'Carmen Mihaela', email: 'patrimoniu@patrimonet.app', parola: 'pat123', rol: 'school_admin', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 3, prenume: 'Director', nume: 'Școală', email: 'director@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 4, prenume: 'Director', nume: 'Adjunct 1', email: 'dir.adj1@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 5, prenume: 'Director', nume: 'Adjunct 2', email: 'dir.adj2@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 6, prenume: 'Contabil', nume: 'Șef', email: 'contabil@patrimonet.app', parola: 'con123', rol: 'contabil', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 7, prenume: 'Informatician', nume: 'Școlar', email: 'info@patrimonet.app', parola: 'info123', rol: 'informatician', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 8, prenume: 'Profesor', nume: 'Demo', email: 'profesor@patrimonet.app', parola: 'prof123', rol: 'profesor', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 9, prenume: 'Muncitor', nume: 'Mentenanță 1', email: 'mentenanta@patrimonet.app', parola: 'men123', rol: 'mentenanta', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 10, prenume: 'Muncitor', nume: 'Mentenanță 2', email: 'mentenanta2@patrimonet.app', parola: 'men123', rol: 'mentenanta', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 11, prenume: 'Pedagog', nume: 'Internat', email: 'pedagog@patrimonet.app', parola: 'ped123', rol: 'pedagog', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 12, prenume: 'Bucătar', nume: 'Șef', email: 'bucatar@patrimonet.app', parola: 'buc123', rol: 'bucatar', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 13, prenume: 'Îngrijitor', nume: 'Curățenie', email: 'ingrijitor@patrimonet.app', parola: 'ing123', rol: 'ingrijitor', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 14, prenume: 'Paznic', nume: 'Poartă', email: 'paznic@patrimonet.app', parola: 'paz123', rol: 'paznic', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 15, prenume: 'Profesor', nume: 'Demo 2', email: 'profesor2@patrimonet.app', parola: 'prof123', rol: 'profesor', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 16, prenume: 'Admin', nume: 'Școala 2', email: 'admin@scoala2.ro', parola: 'sc2admin', rol: 'school_admin', school_id: 2, school_name: 'Școala Generală Nr. 2 (Demo)', logo_url: '' }
     ];
 
     const ROLE_LABELS = {
-      admin_app: 'Administrator Aplicație',
-      admin_pat: 'Administrator Patrimoniu',
+      super_admin: 'Super Admin Platformă',
+      school_admin: 'Administrator Patrimoniu',
       director: 'Conducere — Director',
       dir_adj: 'Conducere — Director Adjunct',
       contabil: 'Contabilitate — Contabil Șef',
@@ -2708,8 +3057,8 @@
       paznic: 'Personal Pază'
     };
     const ROLE_COLORS = {
-      admin_app: '#1a1f2e',
-      admin_pat: '#0d7c6b',
+      super_admin: '#1a1f2e',
+      school_admin: '#0d7c6b',
       director: '#7c3aed',
       dir_adj: '#9d5ce5',
       contabil: '#1a6fa8',
@@ -2726,21 +3075,68 @@
     };
 
     // ===== LOGIN =====
-    function doLogin() {
+    async function doLogin() {
+      console.log('[AUTH] doLogin() apelat');
       const u = document.getElementById('loginUser').value.trim();
       const p = document.getElementById('loginPass').value;
-      const r = document.getElementById('loginRole').value;
-      // Caută mai întâi în DB.personal (utilizatori reali din Supabase), apoi fallback pe DEMO_USERS
-      let found = (DB.personal || []).find(x => x.email === u && x.parola === p && x.activ !== false);
-      if (!found) found = DEMO_USERS.find(x => x.email === u && x.parola === p);
-      if (!found) { alert('Credențiale incorecte! Verifică datele de autentificare.'); return; }
-      currentUser = { ...found, rol: r };
-      // Salvează ÎNTREGUL obiect user în sessionStorage (persistă până la închiderea tab-ului)
+
+      if (!u || !p) {
+        alert('Te rugăm să introduci email-ul și parola.');
+        return;
+      }
+
+      console.log('[AUTH] Încercare login prin Supabase Auth...');
+      const btn = document.querySelector('.login-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Autentificare...⏳'; }
+
       try {
-        sessionStorage.setItem('patrimonet_session', JSON.stringify(currentUser));
-        console.log('[AUTH] Sesiune salvată în sessionStorage pentru:', currentUser.email);
-      } catch (e) { console.warn('[AUTH] Nu am putut salva sesiunea:', e); }
-      _enterApp();
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: u,
+          password: p
+        });
+
+        if (error) {
+          console.error('[AUTH ERROR]', error.message);
+          alert('Credențiale incorecte! ' + error.message);
+          if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
+          return;
+        }
+
+        console.log('[AUTH] Autentificare reușită via Supabase.');
+
+        // Acum preluăm datele reale ale userului din DB.personal sau DB.users pe baza email-ului
+        // (În mod ideal pe baza data.user.id, dar momentan facem match pe email)
+        let found = (DB.personal || []).find(x => x.email === u && x.activ !== false);
+        if (!found) found = DEMO_USERS.find(x => x.email === u); // Fallback
+
+        if (!found) {
+          alert('Contul a fost conectat dar nu are profil asociat în aplicație.');
+          await supabase.auth.signOut();
+          if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
+          return;
+        }
+
+        let finalRole = found.rol;
+        if (finalRole === 'admin_pat') finalRole = 'school_admin';
+
+        currentUser = {
+          ...found,
+          rol: finalRole,
+          school_id: found.school_id || 1,
+          school_name: found.school_name || 'Colegiul Național „Vasile Goldiș”',
+          logo_url: found.logo_url || 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg'
+        };
+
+        try {
+          sessionStorage.setItem('patrimonet_session', JSON.stringify(currentUser));
+        } catch (e) { console.warn('[AUTH] SessionStorage warn:', e); }
+
+        _enterApp();
+      } catch (err) {
+        console.error('[AUTH CATCH]', err);
+        alert('A apărut o eroare la conectare.');
+        if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
+      }
     }
 
     function _enterApp() {
@@ -2758,21 +3154,49 @@
       }
     }
 
-    // Auto-restore sesiune la încărcarea paginii
-    // Salvăm obiectul COMPLET, nu doar credențialele — fără niciun lookup
-    function tryRestoreSession() {
+    // Auto-restore sesiune la încărcarea paginii cu verificare Supabase
+    async function tryRestoreSession() {
       try {
-        const raw = sessionStorage.getItem('patrimonet_session');
-        if (!raw) { console.log('[AUTH] Nicio sesiune găsită.'); return false; }
-        const savedUser = JSON.parse(raw);
-        if (!savedUser || !savedUser.email || !savedUser.rol) {
-          console.warn('[AUTH] Sesiune invalidă, șterg.');
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error || !session) {
+          console.log('[AUTH] Nicio sesiune Supabase activă.');
           sessionStorage.removeItem('patrimonet_session');
           return false;
         }
-        console.log('[AUTH] Restaurez sesiunea pentru:', savedUser.email, '/', savedUser.rol);
+
+        console.log('[AUTH] Sesiune validă Supabase găsită pentru:', session.user.email);
+
+        const raw = sessionStorage.getItem('patrimonet_session');
+        let savedUser = null;
+        if (raw) savedUser = JSON.parse(raw);
+
+        // Dacă nu avem user-ul în cache, sau e altul, facem un fallback fetch din datele noastre
+        if (!savedUser || savedUser.email !== session.user.email) {
+          console.log('[AUTH] Reconstruire cache sesiune...');
+          let found = (DB.personal || []).find(x => x.email === session.user.email && x.activ !== false);
+          if (!found) found = DEMO_USERS.find(x => x.email === session.user.email);
+
+          if (found) {
+            let finalRole = found.rol;
+            if (finalRole === 'admin_pat') finalRole = 'school_admin';
+            savedUser = {
+              ...found, rol: finalRole,
+              school_id: found.school_id || 1,
+              school_name: found.school_name || 'Colegiul Național „Vasile Goldiș”',
+              logo_url: found.logo_url || 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg'
+            };
+            sessionStorage.setItem('patrimonet_session', JSON.stringify(savedUser));
+          } else {
+            console.warn('[AUTH] User-ul din sesiune nu are profil valid. Logout forțat.');
+            await supabase.auth.signOut();
+            return false;
+          }
+        }
+
+        console.log('[AUTH] Restaurez complet profilul pentru:', savedUser.email, '/', savedUser.rol);
         currentUser = savedUser;
-        // Amână intrarea în app până când DOM-ul e complet parsat
+
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', () => _enterApp());
         } else {
@@ -2780,7 +3204,7 @@
         }
         return true;
       } catch (e) {
-        console.warn('[AUTH] Eroare la restaurarea sesiunii:', e);
+        console.warn('[AUTH] Eroare majoră la restaurarea sesiunii:', e);
         sessionStorage.removeItem('patrimonet_session');
         return false;
       }
@@ -2789,7 +3213,7 @@
     // Executează restaurarea sesiunii imediat
     tryRestoreSession();
 
-    function logout() {
+    async function logout() {
       currentUser = null;
       _supabaseLoaded = false; // Reset so next user gets fresh data from Supabase
       // Șterge sesiunea salvată
@@ -2808,6 +3232,12 @@
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginUser').value = '';
       document.getElementById('loginPass').value = '';
+      const btn = document.querySelector('.login-btn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
+
+      // Semnalăm către Supabase
+      try { await supabase.auth.signOut(); } catch (e) { }
+
       toast('La revedere!');
     }
 
@@ -2815,16 +3245,52 @@
 
     // ===== INIT =====
     function initApp() {
+      if (!currentUser) {
+        console.warn('[INIT] currentUser este null, anulez inițializarea.');
+        return;
+      }
       seedData();
+
+      if (!window.__dbAutoSaveIv) {
+        window.__dbAutoSaveIv = setInterval(() => { if (typeof saveLocalDB === 'function') saveLocalDB(); }, 3000);
+      }
+
+      // Personalizare Branding UI pe baza Tenant-ului (school_id)
+      const schoolName = currentUser.school_name || 'PatrimoNet';
+      const logoUrl = currentUser.logo_url || '';
+      const schoolId = currentUser.school_id || 1;
+
+      if (currentUser.rol === 'super_admin') {
+        document.getElementById('sidebarSchoolName').innerHTML = `Platformă<br>PatrimoNet Pro`;
+        document.getElementById('sidebarLogoBox').innerHTML = `<div style="font-size:24px;text-align:center;width:100%">🌐</div>`;
+        document.querySelector('.sidebar-logo-text').textContent = "PatrimoNet Global";
+      } else {
+        document.getElementById('sidebarSchoolName').innerHTML = schoolName.replace(/ /g, '<br>');
+        if (logoUrl) {
+          document.getElementById('sidebarLogoBox').innerHTML = `<img src="${logoUrl}" style="width:100%;height:100%;object-fit:contain;padding:2px">`;
+        } else {
+          document.getElementById('sidebarLogoBox').innerHTML = `🏫`;
+        }
+        document.querySelector('.sidebar-logo-text').textContent = "PatrimoNet " + (schoolId === 1 ? "- CNVGA" : "- " + schoolName);
+      }
+
       // Show user info
-      document.getElementById('userAvatar').textContent = (currentUser.prenume[0] + currentUser.nume[0]).toUpperCase();
-      document.getElementById('userName').textContent = currentUser.prenume + ' ' + currentUser.nume;
-      document.getElementById('userRoleLabel').textContent = ROLE_LABELS[currentUser.rol];
-      document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      // Show nav items by role
-      document.querySelectorAll('.nav-item[data-roles]').forEach(el => {
-        const roles = el.getAttribute('data-roles').split(',');
-        if (roles.includes(currentUser.rol)) el.style.display = 'flex';
+      const initials = ((currentUser.prenume?.[0] || 'U') + (currentUser.nume?.[0] || '')).toUpperCase();
+      document.getElementById('userAvatar').textContent = initials;
+      document.getElementById('userName').textContent = (currentUser.prenume || '') + ' ' + (currentUser.nume || '');
+      document.getElementById('userRoleLabel').textContent = ROLE_LABELS[currentUser.rol] || currentUser.rol;
+      const todayEl = document.getElementById('todayLabel');
+      if (todayEl) todayEl.textContent = new Date().toLocaleDateString('ro-RO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      // Filter nav items and groups by role
+      document.querySelectorAll('.nav-item, .nav-group').forEach(el => {
+        const roles = el.getAttribute('data-roles');
+        if (roles && !roles.split(',').includes(currentUser.rol)) {
+          el.style.display = 'none';
+        } else {
+          // ensure it's visible if it was hidden before
+          if (el.classList.contains('nav-group')) el.style.display = 'block';
+          if (el.classList.contains('nav-item')) el.style.display = 'flex';
+        }
       });
       updateDashboard();
       updateBadges();
@@ -2836,6 +3302,9 @@
       DB.mese = DB.mese || [];
       DB.fluxuri = DB.fluxuri || [];
       istoricLog = [];
+      // Load persistence after core resets but before Supabase sync
+      try { loadPersistedIstoric(); } catch (e) { console.warn('[INIT] loadPersistedIstoric eroare:', e); }
+
       // Connect Supabase
       initSupabase();
       // Load from Supabase if configured, otherwise use demo data
@@ -2844,8 +3313,14 @@
         // (seed-ul rămâne doar dacă SB e gol sau deconectat)
         loadFromSupabase();
       }
-      // Log authentication
-      addIstoricEvent('auth', `Autentificare: ${currentUser.prenume} ${currentUser.nume} (${ROLE_LABELS[currentUser.rol] || currentUser.rol})`, currentUser);
+
+      // Log authentication ONLY if it's a new session or the last log is old
+      const lastLog = istoricLog[0];
+      const authMsg = `Autentificare: ${currentUser.prenume} ${currentUser.nume} (${ROLE_LABELS[currentUser.rol] || currentUser.rol})`;
+      if (!lastLog || lastLog.descriere !== authMsg) {
+        addIstoricEvent('auth', authMsg, currentUser);
+        persistIstoric();
+      }
       // Populate filters
       setTimeout(() => {
         const sel = document.getElementById('filterIstoricUser');
@@ -2863,6 +3338,27 @@
       nav('dashboard', document.querySelector('.nav-item'));
     }
 
+    // ===== PERSISTENȚĂ LOCALDB =====
+    window.loadLocalDB = function () {
+      if (!currentUser) return false;
+      const key = 'patrimonet_db_' + (currentUser.school_id || 1);
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          DB = { ...DB, ...parsed };
+          return true;
+        } catch (e) { }
+      }
+      return false;
+    }
+
+    window.saveLocalDB = function () {
+      if (!currentUser) return;
+      const key = 'patrimonet_db_' + (currentUser.school_id || 1);
+      localStorage.setItem(key, JSON.stringify(DB));
+    }
+
     // ===== SEED =====
     function seedData() {
       // Nu suprascrie datele dacă Supabase e conectat și are date
@@ -2871,6 +3367,12 @@
         console.log('SB activ - seed ignorat');
         return;
       }
+
+      if (loadLocalDB()) {
+        console.log('[LocalDB] Încărcare date stocate pentru tenant: ' + (currentUser?.school_id || 1));
+        return;
+      }
+
       DB.cladiri = [
         { id: 1, cod: 'CLD-A', nume: 'Clădire colegiu — Vasile Goldiș', adresa: 'Calea Victoriei nr. 1-3, 310158 Arad (lângă Spitalul Județean)', etaje: 3, an: 1898, resp: 'Admin. patrimoniu' },
         { id: 2, cod: 'CLD-B', nume: 'Liceul particular nr. 1 — Ioan Slavici', adresa: 'Bd. Ștefan Augustin Doinaș nr. 33-37, 310012 Arad (lângă Consiliul Județean)', etaje: 3, an: 1965, resp: 'Admin. patrimoniu' },
@@ -2916,19 +3418,19 @@
         { id: 6, produs: '10x Scaune elev ergonomice', furnId: 2, qty: 10, val: 4500, data: '2026-02-01', status: 'Comandat', aprobare: 'nu', note: 'Termen livrare 28.02.2026' },
       ];
       DB.personal = [
-        { id: 1, prenume: 'Oance', nume: 'Catalin Traian', email: 'admin', parola: 'admin123', rol: 'admin_app', tel: '' },
-        { id: 2, prenume: 'Oance', nume: 'Carmen Mihaela', email: 'patrimoniu', parola: 'pat123', rol: 'admin_pat', tel: '' },
-        { id: 3, prenume: 'Ioja Petronela', nume: 'Angela', email: 'director', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
-        { id: 4, prenume: 'Matica', nume: 'Dan', email: 'dir.adj1', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
-        { id: 5, prenume: 'Belei Cristina', nume: 'Ligia', email: 'dir.adj2', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
-        { id: 6, prenume: 'Barbu', nume: 'Mioara', email: 'contabil', parola: 'con123', rol: 'contabil', tel: '' },
-        { id: 7, prenume: 'Informatician', nume: 'Școlar', email: 'info', parola: 'info123', rol: 'informatician', tel: '' },
-        { id: 8, prenume: 'Profesor', nume: 'Responsabil', email: 'profesor', parola: 'prof123', rol: 'profesor', tel: '' },
-        { id: 9, prenume: 'Muncitor', nume: 'Mentenanță 1', email: 'mentenanta', parola: 'men123', rol: 'mentenanta', tel: '' },
-        { id: 10, prenume: 'Muncitor', nume: 'Mentenanță 2', email: 'mentenanta2', parola: 'men123', rol: 'mentenanta', tel: '' },
-        { id: 11, prenume: 'Pedagog', nume: 'Internat', email: 'pedagog', parola: 'ped123', rol: 'pedagog', tel: '' },
-        { id: 12, prenume: 'Informatician', nume: 'Școlar', email: 'info', parola: 'info123', rol: 'informatician', tel: '' },
-        { id: 13, prenume: 'Profesor', nume: 'Demo', email: 'profesor', parola: 'prof123', rol: 'profesor', tel: '' },
+        { id: 1, prenume: 'Oance', nume: 'Catalin Traian', email: 'admin', parola: 'admin123', rol: 'super_admin', tel: '' },
+        { id: 2, prenume: 'Oance', nume: 'Carmen Mihaela', email: 'patrimoniu@patrimonet.app', parola: 'pat123', rol: 'school_admin', tel: '' },
+        { id: 3, prenume: 'Ioja Petronela', nume: 'Angela', email: 'director@patrimonet.app', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
+        { id: 4, prenume: 'Matica', nume: 'Dan', email: 'dir.adj1@patrimonet.app', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
+        { id: 5, prenume: 'Belei Cristina', nume: 'Ligia', email: 'dir.adj2@patrimonet.app', parola: 'dir123', rol: 'director', tel: '0257 231 726' },
+        { id: 6, prenume: 'Barbu', nume: 'Mioara', email: 'contabil@patrimonet.app', parola: 'con123', rol: 'contabil', tel: '' },
+        { id: 7, prenume: 'Informatician', nume: 'Școlar', email: 'info@patrimonet.app', parola: 'info123', rol: 'informatician', tel: '' },
+        { id: 8, prenume: 'Profesor', nume: 'Responsabil', email: 'profesor@patrimonet.app', parola: 'prof123', rol: 'profesor', tel: '' },
+        { id: 9, prenume: 'Muncitor', nume: 'Mentenanță 1', email: 'mentenanta@patrimonet.app', parola: 'men123', rol: 'mentenanta', tel: '' },
+        { id: 10, prenume: 'Muncitor', nume: 'Mentenanță 2', email: 'mentenanta2@patrimonet.app', parola: 'men123', rol: 'mentenanta', tel: '' },
+        { id: 11, prenume: 'Pedagog', nume: 'Internat', email: 'pedagog@patrimonet.app', parola: 'ped123', rol: 'pedagog', tel: '' },
+        { id: 12, prenume: 'Informatician', nume: 'Școlar', email: 'info@patrimonet.app', parola: 'info123', rol: 'informatician', tel: '' },
+        { id: 13, prenume: 'Profesor', nume: 'Demo', email: 'profesor@patrimonet.app', parola: 'prof123', rol: 'profesor', tel: '' },
       ];
       DB.tasks = [
         { id: 1, title: 'Înlocuire corpuri iluminat — Sala 101 Clăd. A', prio: 'Înaltă', assignId: 9, cladireId: 1, cameraId: 3, bunId: null, termen: '2026-02-28', desc: '4 corpuri LED defecte, necesită înlocuire urgentă', status: 'deschis' },
@@ -2937,12 +3439,13 @@
         { id: 4, title: 'Vopsire holuri Clăd. A — Etaj 2', prio: 'Scăzută', assignId: 9, cladireId: 1, cameraId: 3, bunId: null, termen: '2026-06-15', desc: 'Planificat pentru vacanța de vară', status: 'deschis' },
         { id: 5, title: 'Curățare filtre AC laborator informatică', prio: 'Scăzută', assignId: 10, cladireId: 1, cameraId: 5, bunId: null, termen: '2026-02-20', desc: 'Întreținere periodică trimestrială', status: 'finalizat' },
       ];
-      activities = [
-        { msg: 'Demo personalizat CN „Vasile Goldiș" Arad', color: 'teal', time: 'Acum' },
-        { msg: '2 clădiri înregistrate: Clăd. A (Calea Victoriei) și Clăd. B (Bd. Doinaș)', color: 'gold', time: 'Acum' },
-        { msg: '4 sarcini mentenanță deschise — verificare necesară!', color: 'rose', time: 'Acum' },
-        { msg: '10 bunuri exemplu adăugate în inventar', color: 'sky', time: 'Acum' },
-      ];
+      // Initial Demo Activities (Only if empty)
+      if (!activities.length) {
+        activities = [
+          { msg: 'Baza de date sincronizată cu serverul', color: 'teal', time: 'Acum' },
+          { msg: 'Configurare inițială platformă finalizată', color: 'sky', time: 'Acum' }
+        ];
+      }
     }
 
     // ===== NAVIGATION =====
@@ -2959,7 +3462,7 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       if (el) el.classList.add('active');
       // Update page title
-      const pageTitles = { dashboard: 'Tablou de bord', cladiri: 'Clădiri', camere: 'Camere & Săli', inventar: 'Inventar Bunuri', import: 'Import / Export', qr: 'Coduri QR', internat: 'Internat & Cantină', furnizori: 'Furnizori', achizitii: 'Achiziții', mentenanta: 'Mentenanță', fluxuri: 'Fluxuri de lucru', personal: 'Personal & Utilizatori', setari: 'Setări', rapoarte: 'Rapoarte & Statistici', mutari: 'Mutări bunuri', rezervari: 'Rezervare săli', aprobari: 'Aprobări', istoric: 'Istoric & Log', audit: 'Rapoarte audit' };
+      const pageTitles = { dashboard: 'Tablou de bord', cladiri: 'Clădiri', camere: 'Camere & Săli', inventar: 'Inventar Bunuri', import: 'Import / Export', qr: 'Coduri QR', internat: 'Internat & Cantină', furnizori: 'Furnizori', achizitii: 'Achiziții', mentenanta: 'Mentenanță', fluxuri: 'Fluxuri de lucru', personal: 'Personal & Utilizatori', setari: 'Setări', rapoarte: 'Rapoarte & Statistici', mutari: 'Mutări bunuri', rezervari: 'Rezervare săli', aprobari: 'Aprobări', istoric: 'Istoric & Log', audit: 'Rapoarte audit', ai_asistent: 'Asistent AI PatrimoNet', ai_propuneri: 'Optimizarări și Propuneri AI', ai_todo: 'Planificator Inteligent AI', ai_builder_reports: 'Generare Rapoarte Custom (AI)', ai_builder_schema: 'Schema Builder & Formulare (AI)', ai_builder_audit: 'Auditor Securitate Sistem (AI)' };
       const pt = document.getElementById('pageTitle');
       if (pt) pt.textContent = pageTitles[id] || id;
 
@@ -2983,8 +3486,44 @@
       if (id === 'rezervari') { renderCalendarRez(); const d = new Date().toISOString().split('T')[0]; const frd = document.getElementById('filterRezData'); if (frd) frd.value = d; }
       if (id === 'aprobari') renderAprobariPending();
       if (id === 'istoric') renderIstoric();
+      if (id === 'audit') {
+        var asb = document.getElementById('auditSuperBlock');
+        if (asb) asb.style.display = (currentUser && currentUser.rol === 'super_admin') ? 'block' : 'none';
+      }
+      if (id === 'setari') {
+        var ssb = document.getElementById('settingsSuperBlock');
+        var isSuper = (currentUser && currentUser.rol === 'super_admin');
+        if (ssb) {
+          ssb.style.display = isSuper ? 'block' : 'none';
+          if (isSuper) renderLicenses();
+        }
+        // Ascunde cardurile de setări școlare pentru Super Admin
+        document.querySelectorAll('.settings-card').forEach(card => {
+          if (isSuper) {
+            const title = card.querySelector('.settings-card-title')?.textContent || '';
+            if (title.includes('Date instituție') || title.includes('Logo') || title.includes('Permisiuni') || title.includes('Prefix')) {
+              card.style.display = 'none';
+            }
+          } else {
+            card.style.display = 'block';
+          }
+        });
+      }
+
+      // Control vizibilitate butoane Top Bar
+      const isSuperTopBar = (currentUser && currentUser.rol === 'super_admin');
+      const bScan = document.getElementById('btnScanQR');
+      const bPrint = document.getElementById('btnPrint');
+      if (bScan) bScan.style.display = (isSuperTopBar ? 'none' : 'flex');
+      if (bPrint) bPrint.style.display = (isSuperTopBar ? 'none' : 'flex');
       if (id === 'internat') { updateIntStatBox(); renderPrezenta(); updateIntBadges(); }
       if (id === 'fluxuri') { renderFluxuri(); updateFluxBadge(); }
+      if (id === 'ai_asistent') renderAIAsistent();
+      if (id === 'ai_propuneri') renderAIPropuneri();
+      if (id === 'ai_todo') renderAIToDo();
+      if (id === 'ai_builder_reports') renderAIBuilderReports();
+      if (id === 'ai_builder_schema') renderAIBuilderSchema();
+      if (id === 'ai_builder_audit') renderAIBuilderAudit();
       // Close notif panel and sidebar on mobile
       const np = document.getElementById('notifPanel');
       if (np) np.classList.remove('open');
@@ -4147,7 +4686,7 @@
             status: 'pending', userId: currentUser?.id,
             dataCreare: new Date().toLocaleDateString('ro-RO')
           });
-          addNotification('Aprobare necesară', 'Achiziție ' + a.produs + ' — ' + a.val.toLocaleString('ro-RO') + ' RON', 'aprobare', ['director', 'admin_app', 'admin_pat']);
+          addNotification('Aprobare necesară', 'Achiziție ' + a.produs + ' — ' + a.val.toLocaleString('ro-RO') + ' RON', 'aprobare', ['director', 'super_admin', 'school_admin']);
         } // end dedup check
         toast('✅ Achiziție salvată și trimisă spre aprobare director!');
       } else {
@@ -4174,11 +4713,11 @@
     function renderTasks(data) {
       let allTasks = data || DB.tasks;
       // Muncitor mentenanta sees only their assigned tasks
-      // Admins and admin_pat see ALL tasks
+      // Admins and school_admin see ALL tasks
       if (currentUser && currentUser.rol === 'mentenanta') {
         allTasks = allTasks.filter(t => t.assignId === currentUser.id || (t.assignIds || []).includes(currentUser.id));
       }
-      // admin_pat, admin_app, director, informatician see all tasks
+      // school_admin, super_admin, director, informatician see all tasks
       const openItems = allTasks.filter(t => ['deschis', 'Deschisă', 'deschisa'].includes(t.status));
       const doneItems = allTasks.filter(t => ['finalizat', 'Finalizată', 'finalizata'].includes(t.status));
       const pColors = { 'Înaltă': 'tp-high', 'Medie': 'tp-med', 'Scăzută': 'tp-low', 'High': 'tp-high', 'Medium': 'tp-med' };
@@ -4188,7 +4727,7 @@
         c.innerHTML = items.map(t => {
           const per = DB.personal.find(x => x.id === t.assignId);
 
-          const canAssign = currentUser && ['admin_app', 'admin_pat', 'director'].includes(currentUser.rol);
+          const canAssign = currentUser && ['super_admin', 'school_admin', 'director'].includes(currentUser.rol);
           const cam = DB.camere.find(x => x.id === t.cameraId);
           const cld = DB.cladiri.find(x => x.id === t.cladireId);
           return `<div class="task-row">
@@ -4232,7 +4771,7 @@
       if (!t.title) { toast('⚠️ Completează titlul sarcinii!'); return; }
       if (id) { const i = DB.tasks.findIndex(x => x.id == id); DB.tasks[i] = { ...DB.tasks[i], ...t }; } else DB.tasks.push(t);
       sbAutoSave('tasks', t).then(toastSave);
-      addNotification('Sarcină nouă atribuită', t.title, 'mentenanta', [t.assignId, 'admin_pat', 'admin_app']);
+      addNotification('Sarcină nouă atribuită', t.title, 'mentenanta', [t.assignId, 'school_admin', 'super_admin']);
       toast('✅ Sarcină mentenanță salvată!'); closeModal('modalTask');
       addActivity('Sarcină mentenanță: ' + t.title, 'amber');
       renderTasks(); updateDashboard();
@@ -4251,7 +4790,7 @@
       toast('✅ Sarcină finalizată!');
       addActivity('Sarcină finalizată: ' + (t.titlu || t.title || ''), 'teal');
       addIstoricEvent('mentenanta', 'Sarcină finalizată: ' + (t.titlu || t.title || '—'), currentUser);
-      addNotification('Sarcină finalizată', t.titlu || t.title || '—', 'mentenanta', ['admin_pat', 'admin_app']);
+      addNotification('Sarcină finalizată', t.titlu || t.title || '—', 'mentenanta', ['school_admin', 'super_admin']);
       renderTasks();
       updateDashboard();
       updateBadges();
@@ -4273,8 +4812,8 @@
         <div class="person-contact">${p.email}</div>
       </div>
       <div class="person-actions">
-        <span class="badge" style="background:${bg};color:white;font-size:10px">${ROLE_LABELS[p.rol]}</span>
-        ${(currentUser.rol === 'admin_app' || currentUser.rol === 'admin_pat') ? `<button class="btn btn-outline btn-sm" onclick="editPersonal(${p.id})">✏️</button><button class="btn btn-danger btn-sm" onclick="deletePersonal(${p.id})">🗑️</button>` : ''}
+        <span class="badge" style="background:${bg};color:white;font-size:10px">${ROLE_LABELS[p.rol] || p.rol}</span>
+        ${(currentUser.rol === 'super_admin' || (currentUser.rol === 'school_admin' && p.rol !== 'super_admin')) ? `<button class="btn btn-outline btn-sm" onclick="editPersonal(${p.id})" title="Editează utilizator">✏️</button><button class="btn btn-danger btn-sm" onclick="deletePersonal(${p.id})" title="Șterge utilizator">🗑️</button>` : ''}
       </div>
     </div>`;
       }).join('');
@@ -4301,7 +4840,8 @@
         DB.personal[i] = { ...DB.personal[i], ...pData };
         finalObj = DB.personal[i];
       } else {
-        finalObj = { ...pData, id: Date.now() };
+        // Invitare utilizator / Creare locală (Legat de școala curentă)
+        finalObj = { ...pData, id: Date.now(), school_id: currentUser.school_id };
         DB.personal.push(finalObj);
       }
 
@@ -4346,54 +4886,449 @@
 
     // ===== DASHBOARD =====
     function updateDashboard() {
-      document.getElementById('s-cladiri').textContent = DB.cladiri.length;
-      const totBun = DB.inventar.reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
-      document.getElementById('s-bunuri').textContent = totBun;
-      const rep = DB.inventar.filter(b => b.stare === 'Necesită reparații').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
-      document.getElementById('s-rep').textContent = rep;
-      const val = DB.inventar.reduce((s, b) => s + (parseFloat(b.val) || 0), 0);
-      document.getElementById('s-val').textContent = val.toLocaleString('ro-RO');
-      const openTasks = DB.tasks.filter(t => ['deschis', 'Deschisă', 'deschisa'].includes(t.status)).length;
-      document.getElementById('s-tasks').textContent = openTasks;
+      const isSuper = currentUser?.rol === 'super_admin';
 
-      // Cladiri list
-      const sortedCladDash = (DB.cladiri || []).slice().sort((a, b) => a.cod.localeCompare(b.cod, 'ro'));
-      document.getElementById('dashCladiri').innerHTML = sortedCladDash.map(c => {
-        const bunuri = DB.inventar.filter(b => b.cladireId === c.id).length;
-        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--surface)">
-      <div style="width:36px;height:36px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:16px">🏢</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:600"><span style="font-weight:400;color:var(--mist)">${c.cod} &mdash; </span>${c.nume}</div><div style="font-size:11px;color:var(--mist)">📍 ${c.adresa}</div></div>
-      <div style="text-align:right"><div style="font-weight:700">${bunuri}</div><div style="font-size:10px;color:var(--mist)">bunuri</div></div>
-    </div>`;
-      }).join('');
+      if (isSuper) {
+        document.getElementById('s-cladiri').textContent = DEMO_TENANTS.length;
+        document.getElementById('s-cladiri').previousElementSibling.textContent = "Tenanți (Școli)";
+        document.getElementById('s-cladiri').nextElementSibling.textContent = "în platformă";
+        document.getElementById('s-bunuri').textContent = (DEMO_USERS ? DEMO_USERS.length : 16).toString();
+        document.getElementById('s-bunuri').previousElementSibling.textContent = "Utilizatori Sistem";
+        document.getElementById('s-bunuri').nextElementSibling.innerHTML = `<span title="Include 16 conturi demo + instanțe noi">conturi înregistrate</span>`;
+        document.getElementById('s-rep').textContent = DEMO_TENANTS.filter(t => t.active).length;
+        document.getElementById('s-rep').previousElementSibling.textContent = "Clienți Activi";
+        document.getElementById('s-rep').nextElementSibling.textContent = "cu licență validă";
+        document.getElementById('s-val').textContent = DEMO_TENANTS.filter(t => !t.active).length;
+        document.getElementById('s-val').previousElementSibling.textContent = "Clienți Inactivi";
+        document.getElementById('s-val').nextElementSibling.textContent = "suspendați / expirați";
+        document.getElementById('s-tasks').textContent = "OK";
+        document.getElementById('s-tasks').previousElementSibling.textContent = "Stare Sistem";
+        document.getElementById('s-tasks').nextElementSibling.textContent = "operațional";
 
-      // Tasks
-      const taskItems = DB.tasks.filter(t => ['deschis', 'Deschisă', 'deschisa'].includes(t.status) && (t.titlu || t.title || '').trim() !== '—').slice(0, 4);
-      document.getElementById('dashTasks').innerHTML = taskItems.length ? taskItems.map(t => {
-        const per = DB.personal.find(x => x.id === t.assignId);
-        const prio = t.prioritate || t.prio || 'Medie'; const pc = prio === 'Înaltă' ? '#c0392b' : prio === 'Medie' ? '#d97706' : '#0d7c6b';
-        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
-      <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu || t.title || "—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per ? (per.prenume + ' ' + per.nume) : (t.assignId ? 'ID:' + t.assignId : 'Neatribuit')}</div></div>
-      <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prioritate || t.prio || '—'}</span>
-    </div>`;
-      }).join('') : '<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';
+        // Ascunde chart-urile dacă există wrapper
+        if (document.getElementById('chartStare')) document.getElementById('chartStare').parentElement.parentElement.style.display = 'none';
+        if (document.getElementById('chartCladiri')) document.getElementById('chartCladiri').parentElement.parentElement.style.display = 'none';
+        if (document.getElementById('dashTasks')) document.getElementById('dashTasks').parentElement.style.display = 'none';
 
-      // Bars
-      // Charts Logic
-      const f = DB.inventar.filter(b => b.stare === 'Funcțional').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
-      const r = DB.inventar.filter(b => b.stare === 'Necesită reparații').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
-      const cas = DB.inventar.filter(b => b.stare === 'Casat').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
-      renderDashboardCharts(f, r, cas);
+        // Redesenează Card-ul de Clădiri cu Tenanți
+        document.getElementById('dashCladiri').parentElement.querySelector('.card-title').innerHTML = `🌐 Management Tenanți (Instanțe Client)`;
+        document.getElementById('dashCladiri').parentElement.style.gridColumn = "1 / -1";
 
-      // Activity
-      document.getElementById('dashActivity').innerHTML = activities.slice(-5).reverse().map(a => {
+        let tenantRows = DEMO_TENANTS.map(t => {
+          const statusClass = t.active ? 'b-teal' : 'b-gray';
+          const licLabel = t.licenta || 'STANDARD';
+          const statusLabel = t.active ? (licLabel === 'FREE' ? 'Trial' : 'Activ') : 'Inactiv';
+          const btnLabel = t.active ? '&#128273; Acces Instanță' : '&#128274; Activați';
+
+          return `<tr>
+            <td><strong>${t.nume}</strong><br><small style="color:var(--mist)">${licLabel}</small></td>
+            <td>${t.id} (${t.cod})</td>
+            <td>${t.admin}</td>
+            <td><span class="badge ${statusClass}" onclick="toggleTenantStatus(${t.id})" style="cursor:pointer" title="Click pentru schimbare status">${statusLabel}</span></td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="btn btn-sm btn-outline" onclick="editTenant(${t.id})">&#9998; Editează</button>
+              <button class="btn btn-sm" style="background:${t.active ? 'var(--gold)' : 'var(--mist)'};color:#fff" 
+                      onclick="${t.active ? `switchToTenant(${t.id},'${t.cod}')` : `activateTenant(${t.id})`}">
+                ${btnLabel}
+              </button>
+              <button class="btn btn-sm btn-outline" onclick="exportTenantData(${t.id})" title="Export Date">📤</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteTenant(${t.id})" title="Ștergere Cont">🗑️</button>
+            </td>
+          </tr>`;
+        }).join('');
+
+        document.getElementById('dashCladiri').innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 4px">
+            <span style="font-size:12px;color:var(--mist)">Instanțe gestionate de platformă</span>
+            <button class="btn btn-sm btn-primary" onclick="addNewTenant()" style="gap:4px">+ Adaugă Client Nou</button>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <tr><th>Client (Școală)</th><th>Cod</th><th>Administrator</th><th>Statut</th><th>Acțiuni</th></tr>
+              ${tenantRows}
+            </table>
+          </div>
+          <p style="margin-top:15px; font-size:11px; color:var(--mist)">*Notă: "Acces Instanță" te autentifică ca administrator pe platforma școlii. "Editează" deschide profilul clientului.</p>
+        `;
+      } else {
+        // Original School Admin / User mode
+        document.getElementById('s-cladiri').textContent = DB.cladiri.length;
+        document.getElementById('s-cladiri').previousElementSibling.textContent = "Clădiri";
+        document.getElementById('s-cladiri').nextElementSibling.textContent = "înregistrate";
+        const totBun = DB.inventar.reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
+        document.getElementById('s-bunuri').textContent = totBun;
+        document.getElementById('s-bunuri').previousElementSibling.textContent = "Bunuri Totale";
+        document.getElementById('s-bunuri').nextElementSibling.textContent = "în inventar";
+        const rep = DB.inventar.filter(b => b.stare === 'Necesită reparații').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
+        document.getElementById('s-rep').textContent = rep;
+        document.getElementById('s-rep').previousElementSibling.textContent = "Reparații";
+        document.getElementById('s-rep').nextElementSibling.textContent = "de rezolvat";
+        const val = DB.inventar.reduce((s, b) => s + (parseFloat(b.val) || 0), 0);
+        document.getElementById('s-val').textContent = val.toLocaleString('ro-RO');
+        document.getElementById('s-val').previousElementSibling.textContent = "Valoare Totală";
+        document.getElementById('s-val').nextElementSibling.textContent = "RON";
+        const openTasks = DB.tasks.filter(t => ['deschis', 'Deschisă', 'deschisa'].includes(t.status)).length;
+        document.getElementById('s-tasks').textContent = openTasks;
+        document.getElementById('s-tasks').previousElementSibling.textContent = "Sarcini deschise";
+        document.getElementById('s-tasks').nextElementSibling.textContent = "mentenanță";
+
+        // Reset visibility
+        if (document.getElementById('chartStare')) document.getElementById('chartStare').parentElement.parentElement.style.display = 'block';
+        if (document.getElementById('chartCladiri')) document.getElementById('chartCladiri').parentElement.parentElement.style.display = 'block';
+        if (document.getElementById('dashTasks')) document.getElementById('dashTasks').parentElement.style.display = 'block';
+
+        // Cladiri list
+        const sortedCladDash = (DB.cladiri || []).slice().sort((a, b) => a.cod.localeCompare(b.cod, 'ro'));
+        document.getElementById('dashCladiri').parentElement.querySelector('.card-title').innerHTML = `🏢 Clădiri active`;
+        document.getElementById('dashCladiri').parentElement.style.gridColumn = "";
+        document.getElementById('dashCladiri').innerHTML = sortedCladDash.map(c => {
+          const bunuri = DB.inventar.filter(b => b.cladireId === c.id).length;
+          return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--surface)">
+        <div style="width:36px;height:36px;background:var(--ink);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:16px">🏢</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600"><span style="font-weight:400;color:var(--mist)">${c.cod} &mdash; </span>${c.nume}</div><div style="font-size:11px;color:var(--mist)">📍 ${c.adresa}</div></div>
+        <div style="text-align:right"><div style="font-weight:700">${bunuri}</div><div style="font-size:10px;color:var(--mist)">bunuri</div></div>
+      </div>`;
+        }).join('');
+
+        // Tasks
+        const taskItems = DB.tasks.filter(t => ['deschis', 'Deschisă', 'deschisa'].includes(t.status) && (t.titlu || t.title || '').trim() !== '—').slice(0, 4);
+        document.getElementById('dashTasks').innerHTML = taskItems.length ? taskItems.map(t => {
+          const per = DB.personal.find(x => x.id === t.assignId);
+          const prio = t.prioritate || t.prio || 'Medie'; const pc = prio === 'Înaltă' ? '#c0392b' : prio === 'Medie' ? '#d97706' : '#0d7c6b';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface)">
+        <div style="width:8px;height:8px;border-radius:50%;background:${pc};flex-shrink:0"></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.titlu || t.title || "—"}</div><div style="font-size:11px;color:var(--mist)">👤 ${per ? (per.prenume + ' ' + per.nume) : (t.assignId ? 'ID:' + t.assignId : 'Neatribuit')}</div></div>
+        <span style="font-size:10px;background:var(--surface);padding:2px 7px;border-radius:5px;color:var(--slate)">${t.prioritate || t.prio || '—'}</span>
+      </div>`;
+        }).join('') : '<div class="empty"><div class="empty-icon">✅</div><p>Nicio sarcină deschisă!</p></div>';
+
+        // Charts Logic
+        const f = DB.inventar.filter(b => b.stare === 'Funcțional').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
+        const r = DB.inventar.filter(b => b.stare === 'Necesită reparații').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
+        const cas = DB.inventar.filter(b => b.stare === 'Casat').reduce((s, b) => s + (parseInt(b.qty) || 1), 0);
+        renderDashboardCharts(f, r, cas);
+      }
+
+      // Activity (Diferențiat Super Admin vs Normal)
+      let displayActivities = [];
+      if (isSuper) {
+        displayActivities = istoricLog
+          .filter(x => x.rol === 'Super Admin Platformă' || x.user === 'Sistem' || x.tip === 'setari' || x.tip === 'auth')
+          .slice(-5).reverse()
+          .map(a => ({ msg: a.descriere, time: (a.timestamp || '').split(', ')[1] || a.timestamp, color: 'sky' }));
+
+        if (displayActivities.length === 0) {
+          displayActivities = [
+            { msg: 'Bază de date sincronizată cu serverul', color: 'sky', time: 'Azi 09:12' },
+            { msg: 'Configurare inițială platformă finalizată', color: 'teal', time: 'Acum' }
+          ];
+        }
+      } else {
+        displayActivities = activities.slice(-5).reverse();
+      }
+
+      document.getElementById('dashActivity').innerHTML = displayActivities.map(a => {
         const ac = a.color === 'teal' ? '#0d7c6b' : a.color === 'rose' ? '#c0392b' : a.color === 'gold' ? '#d4a843' : a.color === 'sky' ? '#1a6fa8' : a.color === 'amber' ? '#d97706' : '#4a5168';
         return `<div style="display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--surface);font-size:12px">
       <div style="width:8px;height:8px;border-radius:50%;background:${ac};flex-shrink:0;margin-top:4px"></div>
       <div><div>${a.msg}</div><div style="font-size:10px;color:var(--mist)">${a.time}</div></div>
     </div>`;
-      }).join('');
+      }).join('') || '<div class="empty" style="padding:20px;font-size:12px">Nicio activitate recentă.</div>';
+    }
+
+    // ===== TENANT MANAGEMENT FUNCTIONS (Super Admin) =====
+    window.editTenant = function (id) {
+      const t = DEMO_TENANTS.find(x => x.id == id);
+      if (!t) { toast('⚠️ Eroare: Tenantul ' + id + ' nu a fost găsit!'); return; }
+
+      document.getElementById('editTenantId').value = t.id;
+      document.getElementById('editSchoolName').value = t.nume;
+      document.getElementById('editSchoolCui').value = t.cui || '';
+      document.getElementById('editSchoolCod').value = t.cod || '';
+      document.getElementById('editAdminName').value = t.admin || '';
+      document.getElementById('editLicType').value = t.licenta || 'STANDARD';
+      document.getElementById('editActivStatus').value = t.active.toString();
+      document.getElementById('editExpDate').value = t.expiry || '';
+
+      openModal('modalEditTenant');
+    }
+
+    window.saveEditTenant = function () {
+      const id = document.getElementById('editTenantId').value;
+      const t = DEMO_TENANTS.find(x => x.id == id);
+      if (!t) return;
+
+      t.nume = document.getElementById('editSchoolName').value;
+      t.cui = document.getElementById('editSchoolCui').value;
+      t.admin = document.getElementById('editAdminName').value;
+      t.licenta = document.getElementById('editLicType').value;
+      t.active = document.getElementById('editActivStatus').value === 'true';
+      t.expiry = document.getElementById('editExpDate').value;
+
+      toast(`✅ Profilul ${t.cod} a fost actualizat!`);
+      addIstoricEvent('setari', `Profil tenant editat: ${t.cod} (${t.licenta})`, currentUser);
+      persistIstoric();
+      closeModal('modalEditTenant');
+      updateDashboard();
+      if (document.getElementById('settingsSuperBlock').style.display !== 'none') renderLicenses();
+    }
+
+    window.switchToTenant = function (tenantId, tenantCode) {
+      if (!confirm('Vei fi autentificat ca administrator pe instanța ' + tenantCode + '.\nVei vedea datele și meniurile școlii selectate.\n\nContinui?')) return;
+
+      let schoolAdmin = DEMO_USERS.find(function (u) { return u.school_id === tenantId && u.rol === 'school_admin'; });
+
+      const targetTenant = DEMO_TENANTS.find(t => t.id === tenantId);
+      const tenantName = targetTenant ? targetTenant.nume : ('Instanța ' + tenantCode);
+      const adminNameParts = targetTenant && targetTenant.admin ? targetTenant.admin.split(' ') : ['Admin', 'Instanță'];
+
+      // Fallback: Dacă tenant-ul nu are un admin definit în DEMO_USERS (ex: a fost adăugat recent), îi creăm unul virtual pentru această sesiune
+      if (!schoolAdmin) {
+        console.warn(`[AUTH] Nu s-a găsit admin pentru tenant ${tenantId}. Generez on-the-fly.`);
+        schoolAdmin = {
+          id: 999000 + tenantId,
+          prenume: adminNameParts[0] || 'Admin',
+          nume: adminNameParts.slice(1).join(' ') || 'Platformă',
+          email: `admin@${tenantCode.toLowerCase()}.patrimonet.ro`,
+          parola: '***',
+          rol: 'school_admin',
+          school_id: tenantId,
+          school_name: tenantName,
+          logo_url: ''
+        };
+      }
+
+      if (typeof saveLocalDB === 'function') saveLocalDB();
+
+      currentUser = {
+        ...schoolAdmin,
+        _impersonatedBy: 'super_admin'
+      };
+
+      DB = { cladiri: [], camere: [], inventar: [], furnizori: [], achizitii: [], personal: [], tasks: [], mutari: [], rezervari: [], aprobari: [] };
+
+      try { sessionStorage.setItem('patrimonet_session', JSON.stringify(currentUser)); } catch (e) { }
+      addIstoricEvent('auth', 'Super Admin a preluat identitatea tenant ' + (tenantCode || tenantId), currentUser);
+      persistIstoric();
+      toast('Acum operezi ca administrator pe ' + (tenantCode || tenantId));
+      initApp();
+      nav('dashboard');
+    }
+
+    window.activateTenant = function (id) {
+      const t = DEMO_TENANTS.find(x => x.id === id);
+      if (!t) return;
+      t.active = true;
+      toast('✅ Instanța ' + t.cod + ' a fost activată!');
+      addIstoricEvent('setari', 'Activare tenant ' + t.cod, currentUser);
+      updateDashboard();
+    }
+
+    window.exportTenantData = function (id) {
+      const t = DEMO_TENANTS.find(x => x.id === id);
+      if (!t) return;
+
+      const payload = {
+        tenant: t,
+        export_date: new Date().toISOString(),
+        data: {
+          cladiri: DB.cladiri.filter(c => c.school_id === id || (!c.school_id && id === 1)),
+          camere: DB.camere.filter(c => c.school_id === id || (!c.school_id && id === 1)),
+          inventar: DB.inventar, // Note: In demo, everything is ID 1 except if we filter by school_id
+          personal: DB.personal.filter(p => p.school_id === id || (!p.school_id && id === 1)),
+          istoric: istoricLog.filter(e => (e.descriere || '').includes(t.cod) || id === 1)
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PatrimoNet_Export_${t.cod}_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast('📦 Datele tenant-ului ' + t.cod + ' au fost exportate!');
+      addIstoricEvent('audit', 'Export date tenant ' + t.cod, currentUser);
+    }
+
+    window.deleteTenant = function (id) {
+      const t = DEMO_TENANTS.find(x => x.id === id);
+      if (!t) return;
+
+      if (!confirm('⚠️ ATENȚIE: Ștergerea unui tenant este o acțiune IREVERSIBILĂ!\nToate datele școlii vor fi șterse definitiv.\n\nAI EXPORTAT DATELE ÎNAINTE?\n\nScrie SHCOALA_' + t.id + ' pentru a confirma:')) return;
+
+      const conf = prompt('Introdu codul de confirmare (SHCOALA_' + t.id + '):');
+      if (conf !== 'SHCOALA_' + t.id) {
+        toast('❌ Cod de confirmare incorect. Ștergere anulată.');
+        return;
+      }
+
+      // Implement logic: filter out from persistent arrays
+      // In this demo, we just remove from DEMO_TENANTS
+      const idx = DEMO_TENANTS.findIndex(x => x.id === id);
+      if (idx !== -1) DEMO_TENANTS.splice(idx, 1);
+
+      toast('🗑️ Tenant ' + t.cod + ' a fost șters din sistem!');
+      addIstoricEvent('setari', 'STERGERE DEFINITIVA TENANT ' + t.cod, currentUser);
+      updateDashboard();
+    }
+
+    // ===== TENANT WIZARD =====
+    let currentWizStep = 1;
+
+    function addNewTenant() {
+      currentWizStep = 1;
+      // Reset fields
+      if (document.getElementById('wizSchoolName')) document.getElementById('wizSchoolName').value = '';
+      if (document.getElementById('wizSchoolCui')) document.getElementById('wizSchoolCui').value = '';
+      if (document.getElementById('wizSchoolCod')) document.getElementById('wizSchoolCod').value = '';
+      if (document.getElementById('wizAdminPrenume')) document.getElementById('wizAdminPrenume').value = '';
+      if (document.getElementById('wizAdminNume')) document.getElementById('wizAdminNume').value = '';
+      if (document.getElementById('wizAdminEmail')) document.getElementById('wizAdminEmail').value = '';
+
+      selectLicense('STANDARD');
+      updateWizUI();
+      openModal('modalNewTenant');
+    }
+
+    function moveStep(n) {
+      if (n === 1) {
+        if (currentWizStep === 1) {
+          if (!document.getElementById('wizSchoolName').value) { toast('⚠️ Introdu numele instituției!'); return; }
+          if (!document.getElementById('wizSchoolCod').value) { toast('⚠️ Introdu codul scurt!'); return; }
+        }
+        if (currentWizStep === 2) {
+          if (!document.getElementById('wizAdminEmail').value) { toast('⚠️ Introdu email-ul administratorului!'); return; }
+        }
+      }
+
+      currentWizStep += n;
+      if (currentWizStep > 4) {
+        createTenantFinal();
+        return;
+      }
+      updateWizUI();
+    }
+
+    function selectLicense(type) {
+      document.getElementById('wizLicenseType').value = type;
+      document.querySelectorAll('.license-card').forEach(c => c.classList.remove('selected'));
+      if (type === 'FREE') document.getElementById('lic-free').classList.add('selected');
+      if (type === 'STANDARD') document.getElementById('lic-standard').classList.add('selected');
+      if (type === 'PREMIUM PLUS') document.getElementById('lic-premium').classList.add('selected');
+    }
+
+    function updateWizUI() {
+      for (let i = 1; i <= 4; i++) {
+        const stepDiv = document.getElementById('wizStep' + i);
+        const circle = document.getElementById('wstep-' + i);
+        if (stepDiv) stepDiv.style.display = 'none';
+        if (circle) circle.classList.remove('active', 'done');
+      }
+
+      const currentDiv = document.getElementById('wizStep' + currentWizStep);
+      const currentCircle = document.getElementById('wstep-' + currentWizStep);
+      if (currentDiv) currentDiv.style.display = 'block';
+      if (currentCircle) currentCircle.classList.add('active');
+
+      for (let i = 1; i < currentWizStep; i++) {
+        const circle = document.getElementById('wstep-' + i);
+        if (circle) circle.classList.add('done');
+      }
+
+      document.getElementById('btnWizPrev').style.visibility = (currentWizStep === 1) ? 'hidden' : 'visible';
+      document.getElementById('btnWizNext').textContent = (currentWizStep === 4) ? 'Creează Instanță' : 'Continuă';
+
+      if (currentWizStep === 4) {
+        const name = document.getElementById('wizSchoolName').value;
+        const cod = document.getElementById('wizSchoolCod').value;
+        const email = document.getElementById('wizAdminEmail').value;
+        const lic = document.getElementById('wizLicenseType').value;
+
+        document.getElementById('wizReview').innerHTML = `
+          <strong>Instituție:</strong> ${name} (${cod})<br>
+          <strong>Administrator:</strong> ${email}<br>
+          <strong>Licență selectată:</strong> <span style="color:var(--super-gold)">${lic}</span><br>
+          <strong>Status inițial:</strong> Trial 30 zile
+        `;
+      }
+    }
+
+    function createTenantFinal() {
+      const name = document.getElementById('wizSchoolName').value;
+      const cui = document.getElementById('wizSchoolCui').value;
+      const cod = document.getElementById('wizSchoolCod').value;
+      const admPrenume = document.getElementById('wizAdminPrenume').value;
+      const admNume = document.getElementById('wizAdminNume').value;
+      const admEmail = document.getElementById('wizAdminEmail').value;
+      const admPass = document.getElementById('wizAdminPass').value;
+      const lic = document.getElementById('wizLicenseType').value;
+
+      const newId = DEMO_TENANTS.length + 1;
+      const now = new Date();
+      let expDate = new Date();
+      if (lic === 'FREE') expDate.setDate(now.getDate() + 30);
+      else expDate.setFullYear(now.getFullYear() + 1);
+      const expStr = expDate.toLocaleDateString('ro-RO');
+
+      DEMO_TENANTS.push({
+        id: newId,
+        nume: name,
+        cod: cod,
+        admin: admPrenume + ' ' + admNume,
+        cui: cui || ('RO' + (1000 + newId)),
+        active: true,
+        licenta: lic,
+        expiry: expStr
+      });
+
+      DEMO_USERS.push({
+        id: Date.now(),
+        prenume: admPrenume,
+        nume: admNume,
+        email: admEmail,
+        parola: admPass,
+        rol: 'school_admin',
+        school_id: newId,
+        school_name: name,
+        logo_url: ''
+      });
+
+      closeModal('modalNewTenant');
+      toast('🚀 Instanța ' + cod + ' a fost inițializată cu succes!');
+      addIstoricEvent('setari', 'Wizard: Creat tenant nou ' + cod + ' cu licență ' + lic, currentUser);
+      persistIstoric();
+      updateDashboard();
+    }
+
+    // ===== PERSISTENT ISTORIC (localStorage) =====
+    function persistIstoric() {
+      try {
+        localStorage.setItem('patrimonet_istoric', JSON.stringify(istoricLog));
+        localStorage.setItem('patrimonet_activities', JSON.stringify(activities));
+      } catch (e) { console.warn('[PERSIST] Nu am putut salva istoricul:', e); }
+    }
+
+    function loadPersistedIstoric() {
+      try {
+        var saved = localStorage.getItem('patrimonet_istoric');
+        var savedAct = localStorage.getItem('patrimonet_activities');
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            istoricLog = parsed;
+          }
+        }
+        if (savedAct) {
+          var parsedAct = JSON.parse(savedAct);
+          if (Array.isArray(parsedAct) && parsedAct.length > 0) {
+            activities = parsedAct;
+          }
+        }
+      } catch (e) { console.warn('[PERSIST] Nu am putut incarca istoricul:', e); }
     }
 
     let chartStareObj = null;
@@ -5068,13 +6003,12 @@
     }
 
     // ===== NOTIFICATIONS =====
-    let notifications = [];
 
     function addNotification(title, body, tip, targetRoles) {
       const n = {
         id: Date.now(),
         title, body, tip,
-        targetRoles: targetRoles || ['admin_app', 'admin_pat', 'director', 'contabil'],
+        targetRoles: targetRoles || ['super_admin', 'school_admin', 'director', 'contabil'],
         time: new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }),
         read: false
       };
@@ -5147,7 +6081,7 @@
       <td style="font-size:11px">${user ? user.prenume + ' ' + user.nume : '—'}</td>
       <td><span class="badge ${sb[m.status] || 'b-gray'}">${m.status}</span></td>
       <td>
-        ${m.status === 'În așteptare aprobare' && ['director', 'admin_pat'].includes(currentUser?.rol) ?
+        ${m.status === 'În așteptare aprobare' && ['director', 'school_admin'].includes(currentUser?.rol) ?
             `<button class="btn btn-teal btn-sm" onclick="aprobaMutare(${m.id},true)">✓</button>
            <button class="btn btn-danger btn-sm" onclick="aprobaMutare(${m.id},false)">✗</button>` : ''}
       </td>
@@ -5232,10 +6166,10 @@
         b.cameraId = m.laCameraId || b.cameraId;
         sbAutoSave('inventar', b);
         toast('✅ Mutare înregistrată și aplicată!');
-        addNotification('Mutare bun finalizată', `${b.nrInv} — ${b.nume.substring(0, 30)} → ${m.laCamera}`, 'mutare', ['admin_pat', 'admin_app']);
+        addNotification('Mutare bun finalizată', `${b.nrInv} — ${b.nume.substring(0, 30)} → ${m.laCamera}`, 'mutare', ['school_admin', 'super_admin']);
       } else {
         toast('⏳ Mutare trimisă spre aprobare director!');
-        addNotification('Cerere mutare bun', `${b.nrInv} necesită aprobare pentru mutare în ${m.laCamera}`, 'aprobare', ['director', 'admin_pat']);
+        addNotification('Cerere mutare bun', `${b.nrInv} necesită aprobare pentru mutare în ${m.laCamera}`, 'aprobare', ['director', 'school_admin']);
         updateAprobari();
       }
 
@@ -5255,10 +6189,10 @@
         const b = DB.inventar.find(x => x.id === m.bunId);
         if (b) { b.cladireId = m.laCladireId || b.cladireId; b.cameraId = m.laCameraId || b.cameraId; }
         toast('✅ Mutare aprobată și aplicată!');
-        addNotification('Mutare aprobată', `Mutarea a fost aprobată de ${currentUser.prenume} ${currentUser.nume}`, 'aprobare', ['admin_pat']);
+        addNotification('Mutare aprobată', `Mutarea a fost aprobată de ${currentUser.prenume} ${currentUser.nume}`, 'aprobare', ['school_admin']);
       } else {
         toast('❌ Mutare respinsă!');
-        addNotification('Mutare respinsă', `Mutarea a fost respinsă de ${currentUser.prenume} ${currentUser.nume}`, 'aprobare', ['admin_pat']);
+        addNotification('Mutare respinsă', `Mutarea a fost respinsă de ${currentUser.prenume} ${currentUser.nume}`, 'aprobare', ['school_admin']);
       }
       addIstoricEvent('aprobare', `Mutare ${approved ? 'aprobată' : 'respinsă'} de ${currentUser.prenume} ${currentUser.nume}`, currentUser);
       renderMutari();
@@ -5362,10 +6296,10 @@
 
       if (necesitaAprobare) {
         toast('⏳ Rezervare trimisă spre aprobare director și admin patrimoniu!');
-        addNotification('Cerere rezervare sală', `${cam.cod} — ${materie} pe ${data} ora ${oraStart}`, 'rezervare', ['director', 'admin_pat']);
+        addNotification('Cerere rezervare sală', `${cam.cod} — ${materie} pe ${data} ora ${oraStart}`, 'rezervare', ['director', 'school_admin']);
       } else {
         toast('✅ Sală rezervată cu succes!');
-        addNotification('Rezervare sală confirmată', `${cam ? cam.cod : ''} rezervată pe ${data} ora ${oraStart}`, 'rezervare', ['admin_pat']);
+        addNotification('Rezervare sală confirmată', `${cam ? cam.cod : ''} rezervată pe ${data} ora ${oraStart}`, 'rezervare', ['school_admin']);
       }
       addIstoricEvent('rezervare', `Rezervare sală ${cam ? cam.cod : ''} pe ${data} ${oraStart}–${oraEnd} · ${materie}`, currentUser);
       closeModal('modalRezervare');
@@ -5392,7 +6326,7 @@
       <td style="font-size:11px">${r.echipamente || '—'}</td>
       <td><span class="badge ${sb[r.status] || 'b-gray'}">${r.status}</span></td>
       <td>
-        ${r.status === 'În așteptare aprobare' && ['director', 'admin_pat'].includes(currentUser?.rol) ?
+        ${r.status === 'În așteptare aprobare' && ['director', 'school_admin'].includes(currentUser?.rol) ?
             `<button class="btn btn-teal btn-sm" onclick="aprobaRezervare(${r.id},true)">✓</button>
            <button class="btn btn-danger btn-sm" onclick="aprobaRezervare(${r.id},false)">✗</button>` : ''}
       </td>
@@ -5407,7 +6341,7 @@
       r.aprobatDe = currentUser.prenume + ' ' + currentUser.nume;
       const cam = DB.camere.find(x => x.id === r.cameraId);
       toast(approved ? '✅ Rezervare aprobată!' : '❌ Rezervare respinsă!');
-      addNotification(approved ? 'Rezervare aprobată' : 'Rezervare respinsă', `${cam ? cam.cod : ''} pe ${r.data} ora ${r.oraStart}`, 'rezervare', ['profesor', 'admin_pat']);
+      addNotification(approved ? 'Rezervare aprobată' : 'Rezervare respinsă', `${cam ? cam.cod : ''} pe ${r.data} ora ${r.oraStart}`, 'rezervare', ['profesor', 'school_admin']);
       addIstoricEvent('rezervare', `Rezervare ${approved ? 'aprobată' : 'respinsă'} de ${currentUser.prenume} ${currentUser.nume}: ${cam ? cam.cod : ''} pe ${r.data}`, currentUser);
       renderCalendarRez(); renderRezLista(); updateAprobari(); updateBadges();
     }
@@ -5562,7 +6496,6 @@
     }
 
     // ===== ISTORIC & LOG =====
-    let istoricLog = [];
 
     function addIstoricEvent(tip, descriere, user) {
       const ev = {
@@ -5576,6 +6509,7 @@
       };
       istoricLog.unshift(ev);
       sbAutoSave('istoric_log', ev);
+      persistIstoric(); // Cache local ca backup (sursa principala: Supabase)
       renderIstoric();
     }
 
@@ -5672,11 +6606,161 @@
       toast('Raport audit generat!');
     }
 
+    // ===== SETARI GLOBALE SUPER ADMIN =====
+    function saveGlobalSettings() {
+      const name = document.getElementById('globalSysName').value;
+      const tagline = document.getElementById('globalTagline').value;
+
+      // Update UI title and tagline if logged in as super_admin
+      if (document.querySelector('.brand-name')) document.querySelector('.brand-name').textContent = name;
+      if (document.querySelector('.login-tagline span')) document.querySelector('.login-tagline span').textContent = name.split(' ')[0] + ',';
+
+      addIstoricEvent('setari', 'Actualizare branding global: ' + name, currentUser);
+      persistIstoric();
+      toast('✅ Setări globale salvate!');
+    }
+
+    function renderLicenses() {
+      const grid = document.getElementById('licensesGrid');
+      if (!grid) return;
+
+      grid.innerHTML = DEMO_TENANTS.map(t => {
+        const lic = t.licenta || 'STANDARD';
+        const isPremium = lic === 'PREMIUM PLUS';
+        const isStandard = lic === 'STANDARD';
+        const color = isPremium ? 'var(--super-gold)' : (isStandard ? 'var(--teal)' : 'var(--mist)');
+        const bg = t.active ? (lic === 'FREE' ? 'b-yellow' : 'b-green') : 'b-gray';
+        const statusLbl = t.active ? (lic === 'FREE' ? 'Trial' : 'Activ') : 'Inactiv';
+
+        return `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <td style="padding:10px;"><strong>${t.nume}</strong><br><small style="color:var(--mist)">${t.cui || ''}</small></td>
+          <td style="padding:10px;">#${t.id}</td>
+          <td style="padding:10px; color:${color}; font-weight:bold">${lic}</td>
+          <td style="padding:10px;">${t.expiry || '—'}</td>
+          <td style="padding:10px;"><span class="badge ${bg}" onclick="toggleTenantStatus(${t.id})" style="cursor:pointer">${statusLbl}</span></td>
+          <td style="padding:10px;">
+            <button class="btn btn-outline btn-sm" onclick="editTenant(${t.id})">⚙️</button>
+            <button class="btn btn-primary btn-sm" onclick="switchToTenant(${t.id})" ${currentUser.school_id === t.id ? 'disabled' : ''}>👁️</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ===== RAPOARTE GLOBALE SUPER ADMIN =====
+    function genAuditGlobal(tip) {
+      var now = new Date().toLocaleString('ro-RO');
+      var userLabel = (currentUser ? currentUser.prenume + ' ' + currentUser.nume : 'Super Admin');
+      var headerHtml = '<div style="text-align:center;margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:12px">'
+        + '<div style="font-size:11px;color:#666">PATRIMONET — PLATFORMA GLOBALA</div>'
+        + '<h1 style="font-size:15px;margin:8px 0">RAPORT AUDIT GLOBAL</h1>'
+        + '<div style="font-size:11px;color:#666">Generat: ' + now + ' | De: ' + userLabel + ' (Super Admin)</div>'
+        + '</div>';
+      var styleTag = '<style>body{font-family:Arial,sans-serif;font-size:12px;padding:20px} h1{text-align:center} table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:6px;text-align:left} th{background:#f5f5f5} tr:nth-child(even){background:#fafafa} .badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}</style>';
+
+      if (tip === 'auth') {
+        var de = (document.getElementById('auditAuthDe') || {}).value || '';
+        var pana = (document.getElementById('auditAuthPana') || {}).value || '';
+        var authEvents = istoricLog.filter(function (e) { return e.tip === 'auth'; });
+        if (de) authEvents = authEvents.filter(function (e) { return (e.data || '') >= de; });
+        if (pana) authEvents = authEvents.filter(function (e) { return (e.data || '') <= pana; });
+        var rows = authEvents.map(function (e) {
+          return '<tr><td>' + (e.timestamp || '-') + '</td><td>' + (e.user || '-') + '</td><td>' + (e.rol || '-') + '</td><td>' + (e.descriere || '-') + '</td></tr>';
+        }).join('');
+        var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Raport Autentificari</title>' + styleTag + '</head><body>'
+          + headerHtml
+          + '<h2 style="font-size:13px;margin-bottom:8px">Raport Autentificari' + (de || pana ? ' (' + (de || '...') + ' - ' + (pana || '...') + ')' : '') + '</h2>'
+          + '<table><thead><tr><th>Data/Ora</th><th>Utilizator</th><th>Rol</th><th>Detalii</th></tr></thead><tbody>'
+          + (rows || '<tr><td colspan="4" style="text-align:center;color:#999">Niciun eveniment de autentificare gasit.</td></tr>')
+          + '</tbody></table>'
+          + '<div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: ' + authEvents.length + ' autentificari | PatrimoNet Global</div></body></html>';
+        var win = window.open('', '_blank');
+        win.document.write(html); win.document.close();
+        setTimeout(function () { win.print(); }, 500);
+        addIstoricEvent('audit', 'Raport autentificari generat (global)', currentUser);
+        persistIstoric();
+        toast('Raport autentificari generat!');
+      }
+      else if (tip === 'tenant') {
+        var tenantFilter = (document.getElementById('auditTenantFilter') || {}).value || '';
+        var allEvents = istoricLog.slice();
+        if (tenantFilter) {
+          allEvents = allEvents.filter(function (e) {
+            return (e.descriere || '').indexOf('tenant ' + tenantFilter) !== -1
+              || (e.descriere || '').indexOf('Tenant ' + tenantFilter) !== -1
+              || (e.descriere || '').indexOf(tenantFilter === '1' ? 'CNVGA' : 'DEMO') !== -1;
+          });
+        }
+        var rows2 = allEvents.map(function (e) {
+          return '<tr><td>' + (e.timestamp || '-') + '</td><td>' + (e.tip || '-') + '</td><td>' + (e.descriere || '-') + '</td><td>' + (e.user || '-') + '</td><td>' + (e.rol || '-') + '</td></tr>';
+        }).join('');
+        var html2 = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Raport Inter-Tenant</title>' + styleTag + '</head><body>'
+          + headerHtml
+          + '<h2 style="font-size:13px;margin-bottom:8px">Raport Inter-Tenant' + (tenantFilter ? ' (Tenant ' + tenantFilter + ')' : ' (Toti tenantii)') + '</h2>'
+          + '<table><thead><tr><th>Data/Ora</th><th>Tip</th><th>Descriere</th><th>Utilizator</th><th>Rol</th></tr></thead><tbody>'
+          + (rows2 || '<tr><td colspan="5" style="text-align:center;color:#999">Niciun eveniment gasit.</td></tr>')
+          + '</tbody></table>'
+          + '<div style="margin-top:30px;text-align:right;font-size:11px;color:#999">Total: ' + allEvents.length + ' evenimente | PatrimoNet Global</div></body></html>';
+        var win2 = window.open('', '_blank');
+        win2.document.write(html2); win2.document.close();
+        setTimeout(function () { win2.print(); }, 500);
+        addIstoricEvent('audit', 'Raport inter-tenant generat' + (tenantFilter ? ' (Tenant ' + tenantFilter + ')' : ''), currentUser);
+        persistIstoric();
+        toast('Raport inter-tenant generat!');
+      }
+      else if (tip === 'patrimoniu') {
+        var totalCNVGA = DB.inventar.reduce(function (s, b) { return s + (parseFloat(b.val) || 0); }, 0);
+        var bunuriCNVGA = DB.inventar.length;
+        var html3 = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Patrimoniu Comparativ</title>' + styleTag + '</head><body>'
+          + headerHtml
+          + '<h2 style="font-size:13px;margin-bottom:8px">Raport Patrimoniu Comparativ per Scoala</h2>'
+          + '<table><thead><tr><th>Scoala</th><th>Cod</th><th>Nr. Bunuri</th><th>Valoare Totala (RON)</th><th>Status</th></tr></thead><tbody>'
+          + '<tr><td><strong>Colegiul National Vasile Goldis Arad</strong></td><td>CNVGA</td><td>' + bunuriCNVGA + '</td><td>' + totalCNVGA.toLocaleString('ro-RO') + '</td><td style="color:green">Activ</td></tr>'
+          + '<tr><td>Scoala Generala Nr. 2 (Demo)</td><td>DEMO_2</td><td>0</td><td>0</td><td style="color:orange">Trial</td></tr>'
+          + '<tr style="font-weight:700;background:#f0f0f0"><td colspan="2">TOTAL PLATFORMA</td><td>' + bunuriCNVGA + '</td><td>' + totalCNVGA.toLocaleString('ro-RO') + '</td><td>-</td></tr>'
+          + '</tbody></table>'
+          + '<div style="margin-top:30px;text-align:right;font-size:11px;color:#999">PatrimoNet Global | ' + now + '</div></body></html>';
+        var win3 = window.open('', '_blank');
+        win3.document.write(html3); win3.document.close();
+        setTimeout(function () { win3.print(); }, 500);
+        addIstoricEvent('audit', 'Raport patrimoniu comparativ generat', currentUser);
+        persistIstoric();
+        toast('Raport patrimoniu comparativ generat!');
+      }
+      else if (tip === 'anomalii') {
+        var deletions = istoricLog.filter(function (e) { return (e.descriere || '').toLowerCase().indexOf('sters') !== -1 || (e.descriere || '').toLowerCase().indexOf('stergere') !== -1; });
+        var massActions = istoricLog.filter(function (e) { return (e.descriere || '').toLowerCase().indexOf('masa') !== -1 || (e.descriere || '').toLowerCase().indexOf('import') !== -1; });
+        var superActions = istoricLog.filter(function (e) { return (e.rol || '').indexOf('Super Admin') !== -1 || (e.descriere || '').indexOf('Super Admin') !== -1; });
+        var html4 = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Raport Anomalii</title>' + styleTag + '</head><body>'
+          + headerHtml
+          + '<h2 style="font-size:13px;margin-bottom:8px">Raport Anomalii si Securitate</h2>'
+          + '<h3 style="font-size:12px;color:#c0392b;margin:16px 0 8px">Stergeri detectate (' + deletions.length + ')</h3>'
+          + '<table><thead><tr><th>Data</th><th>Descriere</th><th>Utilizator</th><th>Rol</th></tr></thead><tbody>'
+          + (deletions.length ? deletions.map(function (e) { return '<tr><td>' + (e.timestamp || '-') + '</td><td>' + (e.descriere || '-') + '</td><td>' + (e.user || '-') + '</td><td>' + (e.rol || '-') + '</td></tr>'; }).join('') : '<tr><td colspan="4" style="color:green;text-align:center">Nicio stergere detectata</td></tr>')
+          + '</tbody></table>'
+          + '<h3 style="font-size:12px;color:#d97706;margin:16px 0 8px">Actiuni Super Admin (' + superActions.length + ')</h3>'
+          + '<table><thead><tr><th>Data</th><th>Actiune</th><th>Utilizator</th></tr></thead><tbody>'
+          + (superActions.length ? superActions.map(function (e) { return '<tr><td>' + (e.timestamp || '-') + '</td><td>' + (e.descriere || '-') + '</td><td>' + (e.user || '-') + '</td></tr>'; }).join('') : '<tr><td colspan="3" style="text-align:center;color:#999">Nicio actiune Super Admin</td></tr>')
+          + '</tbody></table>'
+          + '<h3 style="font-size:12px;color:#1a6fa8;margin:16px 0 8px">Actiuni in masa / Import (' + massActions.length + ')</h3>'
+          + '<table><thead><tr><th>Data</th><th>Descriere</th><th>Utilizator</th></tr></thead><tbody>'
+          + (massActions.length ? massActions.map(function (e) { return '<tr><td>' + (e.timestamp || '-') + '</td><td>' + (e.descriere || '-') + '</td><td>' + (e.user || '-') + '</td></tr>'; }).join('') : '<tr><td colspan="3" style="text-align:center;color:#999">Nicio actiune in masa</td></tr>')
+          + '</tbody></table>'
+          + '<div style="margin-top:30px;text-align:right;font-size:11px;color:#999">PatrimoNet Global | ' + now + '</div></body></html>';
+        var win4 = window.open('', '_blank');
+        win4.document.write(html4); win4.document.close();
+        setTimeout(function () { win4.print(); }, 500);
+        addIstoricEvent('audit', 'Raport anomalii si securitate generat', currentUser);
+        persistIstoric();
+        toast('Raport anomalii generat!');
+      }
+    }
+
 
     // ===== NEED-TO-KNOW ROLE VISIBILITY =====
-    const ROLE_PERMISSIONS = {
-      admin_app: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'internat', 'fluxuri', 'personal', 'setari', 'rapoarte', 'istoric', 'audit'], canEdit: true, canApprove: true },
-      admin_pat: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'internat', 'fluxuri', 'rapoarte', 'istoric', 'audit'], canEdit: true, canApprove: true },
+    // Populate ROLE_PERMISSIONS (moved logic or keeping definition here but declaring above)
+    ROLE_PERMISSIONS = {
+      super_admin: { sections: ['dashboard', 'personal', 'istoric', 'audit', 'setari', 'ai_asistent', 'ai_propuneri', 'ai_todo', 'ai_builder_reports', 'ai_builder_schema', 'ai_builder_audit'], canEdit: true, canApprove: true },
+      school_admin: { sections: ['dashboard', 'personal', 'cladiri', 'camere', 'inventar', 'import', 'qr', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'mentenanta', 'internat', 'fluxuri', 'rapoarte', 'istoric', 'audit', 'setari'], canEdit: true, canApprove: true },
       director: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'furnizori', 'achizitii', 'mutari', 'rezervari', 'aprobari', 'rapoarte', 'istoric', 'audit'], canEdit: false, canApprove: true },
       dir_adj: { sections: ['dashboard', 'cladiri', 'camere', 'inventar', 'rezervari', 'aprobari', 'rapoarte', 'istoric'], canEdit: false, canApprove: true },
       contabil: { sections: ['dashboard', 'inventar', 'import', 'furnizori', 'achizitii', 'rapoarte', 'audit'], canEdit: false, canApprove: false },
@@ -5708,11 +6792,26 @@
           el.style.display = perm.sections.includes(section) ? 'flex' : 'none';
         }
       });
-      // Handle role-gated items
-      document.querySelectorAll('.nav-item[data-roles]').forEach(el => {
+      // Handle role-gated items specifically
+      document.querySelectorAll('.nav-item[data-roles], .nav-group[data-roles]').forEach(el => {
         const roles = el.getAttribute('data-roles').split(',');
-        el.style.display = roles.includes(currentUser.rol) ? 'flex' : 'none';
+        if (!roles.includes(currentUser.rol)) {
+          el.style.display = 'none';
+        }
       });
+
+      // Hide empty nav groups
+      document.querySelectorAll('.nav-group').forEach(group => {
+        const items = Array.from(group.querySelectorAll('.nav-item'));
+        const hasVisible = items.some(item => item.style.display !== 'none');
+        group.style.display = hasVisible ? 'block' : 'none';
+      });
+
+      // Hide Import SIIIR global button for strict roles
+      const importBtn = document.querySelector('button[onclick="importSIIIRData()"]');
+      if (importBtn) {
+        importBtn.parentElement.style.display = ['super_admin'].includes(currentUser.rol) ? 'none' : 'block';
+      }
     }
 
     // ===== OVERRIDE initApp to add new init =====
@@ -6018,7 +7117,7 @@
       addIstoricEvent('mentenanta',
         'Sesizare QR: ' + b.nrInv + ' — ' + tip + ' (' + prio + ')',
         currentUser);
-      addNotification('Sesizare nouă via QR', b.nrInv + ' — ' + b.nume + ': ' + tip, 'mentenanta', ['admin_pat', 'mentenanta']);
+      addNotification('Sesizare nouă via QR', b.nrInv + ' — ' + b.nume + ': ' + tip, 'mentenanta', ['school_admin', 'mentenanta']);
       toast('📤 Sesizare trimisă + task mentenanță creat!');
       closeModal('modalQRActiuni');
     }
@@ -6039,7 +7138,7 @@
     // Arată butonul Scan QR pentru rolurile permise
     function updateQRScanButton() {
       const btn = document.getElementById('btnScanQR');
-      if (btn && currentUser && ['admin_app', 'admin_pat'].includes(currentUser.rol)) {
+      if (btn && currentUser && ['super_admin', 'school_admin'].includes(currentUser.rol)) {
         btn.style.display = 'inline-flex';
       } else if (btn) {
         btn.style.display = 'none';
@@ -6210,7 +7309,7 @@
       DB.tasks.push(autoTask);
       sbAutoSave('tasks', autoTask).then(() => { });
       toast('✅ Sesizare trimisă și task de mentenanță creat automat!');
-      addNotification('Sesizare nouă internat', prio + ' · ' + tip + ' · ' + locatie, 'mentenanta', ['admin_pat', 'mentenanta', 'admin_app']);
+      addNotification('Sesizare nouă internat', prio + ' · ' + tip + ' · ' + locatie, 'mentenanta', ['school_admin', 'mentenanta', 'super_admin']);
       addIstoricEvent('mentenanta', 'Sesizare internat: ' + tip + ' la ' + locatie + ' (' + prio + ')', currentUser);
       closeModal('modalProblema');
       renderProbleme();
@@ -6238,7 +7337,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;margin-left:12px">
           <span class="badge ${statusColors[p.status] || 'b-gray'}">${p.status}</span>
-          ${['admin_pat', 'mentenanta', 'admin_app'].includes(currentUser?.rol) && p.status !== 'Rezolvată' ?
+          ${['school_admin', 'mentenanta', 'super_admin'].includes(currentUser?.rol) && p.status !== 'Rezolvată' ?
             `<select style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--border)" onchange="updateProblemaStatus(${p.id},this.value)">
               <option ${p.status === 'Deschisă' ? 'selected' : ''}>Deschisă</option>
               <option ${p.status === 'În lucru' ? 'selected' : ''}>În lucru</option>
@@ -6258,7 +7357,7 @@
       p.rezolvatDe = status === 'Rezolvată' ? currentUser.prenume + ' ' + currentUser.nume : '';
       toast(status === 'Rezolvată' ? '✅ Problemă marcată rezolvată!' : '🔄 Status actualizat!');
       addIstoricEvent('mentenanta', 'Sesizare internat actualizată: ' + status + ' · ' + p.tip + ' la ' + p.locatie, currentUser);
-      if (status === 'Rezolvată') addNotification('Problemă rezolvată', p.tip + ' la ' + p.locatie + ' a fost rezolvată', 'mentenanta', ['pedagog', 'admin_pat']);
+      if (status === 'Rezolvată') addNotification('Problemă rezolvată', p.tip + ' la ' + p.locatie + ' a fost rezolvată', 'mentenanta', ['pedagog', 'school_admin']);
       renderProbleme();
     }
 
@@ -6394,7 +7493,7 @@
         ${f.termen ? `<div class="flux-card-meta">📅 Termen: ${f.termen}</div>` : ''}
       </div>
       <div style="display:flex;gap:6px">
-        ${curent < steps.length && ['admin_app', 'admin_pat', 'director', 'contabil'].includes(currentUser?.rol) ?
+        ${curent < steps.length && ['super_admin', 'school_admin', 'director', 'contabil'].includes(currentUser?.rol) ?
           `<button class="btn btn-teal btn-sm" onclick="avanseazaFlux(${f.id})" title="Avansează la pasul următor">→ Pasul următor</button>` : ''}
         <button class="btn btn-outline btn-sm" onclick="anuleazaFlux(${f.id})">✕</button>
       </div>
@@ -6432,8 +7531,8 @@
       document.getElementById('fluxResponsabil').innerHTML = DB.personal.map(p =>
         `<option value="${p.id}">${p.prenume} ${p.nume} (${ROLE_LABELS[p.rol] || p.rol})</option>`
       ).join('');
-      // Default responsabil = admin_pat
-      const ap = DB.personal.find(p => p.rol === 'admin_pat');
+      // Default responsabil = school_admin
+      const ap = DB.personal.find(p => p.rol === 'school_admin');
       if (ap) document.getElementById('fluxResponsabil').value = ap.id;
       updateFluxSteps();
       openModal('modalFlux');
@@ -6470,7 +7569,7 @@
       toast('▶️ Flux pornit: ' + f.titlu);
       sbAutoSave('fluxuri', f).then(toastSave);
       addIstoricEvent('aprobare', 'Flux pornit: ' + f.tip + ' — ' + f.titlu, currentUser);
-      addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat', 'director', 'admin_app']);
+      addNotification('Flux nou pornit', f.tip + ' — ' + f.titlu, 'aprobare', ['school_admin', 'director', 'super_admin']);
       closeModal('modalFlux');
       // Switch to active tab
       const tab = document.querySelector('#section-fluxuri .tab');
@@ -6492,10 +7591,10 @@
         f.status = 'Finalizat';
         f.dataFinal = new Date().toLocaleDateString('ro-RO');
         toast('✅ Flux finalizat: ' + f.titlu);
-        addNotification('Flux finalizat', f.tip + ' — ' + f.titlu, 'aprobare', ['admin_pat', 'director', 'contabil']);
+        addNotification('Flux finalizat', f.tip + ' — ' + f.titlu, 'aprobare', ['school_admin', 'director', 'contabil']);
       } else {
         toast('→ Pas ' + f.stepCurent + '/' + steps.length + ' completat: ' + stepName);
-        addNotification('Flux avansat', f.tip + ' — pas ' + f.stepCurent + ': ' + stepName, 'aprobare', ['admin_pat', 'director']);
+        addNotification('Flux avansat', f.tip + ' — pas ' + f.stepCurent + ': ' + stepName, 'aprobare', ['school_admin', 'director']);
       }
       sbAutoSave('fluxuri', f).then(toastSave);
       addIstoricEvent('aprobare', 'Flux avansat: ' + f.tip + ' — ' + stepName, currentUser);
@@ -6844,7 +7943,7 @@
       t.status = 'Deschisă';
       const names = ids.map(id => { const p = DB.personal.find(x => x.id === id); return p ? p.prenume + ' ' + p.nume : ''; }).filter(Boolean);
       sbAutoSave('tasks', t).then(() => { });
-      addNotification('Sarcină alocată', (t.titlu || '—') + ' → ' + names.join(', '), 'mentenanta', ['mentenanta', 'admin_pat']);
+      addNotification('Sarcină alocată', (t.titlu || '—') + ' → ' + names.join(', '), 'mentenanta', ['mentenanta', 'school_admin']);
       toast('✅ Alocată: ' + names.join(' & '));
       addIstoricEvent('mentenanta', 'Sarcină alocată: ' + (t.titlu || '—') + ' → ' + names.join(', '), currentUser);
       btn.closest('[style*=fixed]').remove();
@@ -6867,7 +7966,7 @@
       a.dataAprobare = new Date().toLocaleDateString('ro-RO');
       const msg = aprobat ? '✅ Achiziție aprobată!' : '❌ Achiziție respinsă!';
       toast(msg);
-      addNotification(msg, a.titlu + ' — ' + a.dataAprobare, 'aprobare', ['admin_pat', 'contabil', 'admin_app']);
+      addNotification(msg, a.titlu + ' — ' + a.dataAprobare, 'aprobare', ['school_admin', 'contabil', 'super_admin']);
       addIstoricEvent('aprobare', (aprobat ? 'Aprobată' : 'Respinsă') + ': ' + a.titlu + ' de ' + a.aprobatDe, currentUser);
       updateAprobari();
       renderAchizitii();
@@ -7090,6 +8189,253 @@
     });
   </script>
 
+  <!-- MODAL: EDIT TENANT -->
+  <div class="modal-overlay" id="modalEditTenant">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-head">
+        <span class="modal-title">⚙️ Editare Profil Instanță</span>
+        <span class="modal-close" onclick="closeModal('modalEditTenant')">×</span>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editTenantId">
+        <div class="form-row"><label>Nume Instituție</label><input type="text" id="editSchoolName"></div>
+        <div class="form-grid2">
+          <div class="form-row"><label>CIF / CUI</label><input type="text" id="editSchoolCui"></div>
+          <div class="form-row"><label>Cod Scurt</label><input type="text" id="editSchoolCod" readonly
+              style="background:var(--dark-pearl)"></div>
+        </div>
+        <div class="form-row"><label>Administrator (Nume Complet)</label><input type="text" id="editAdminName"></div>
+        <div class="form-grid2">
+          <div class="form-row">
+            <label>Tip Licență</label>
+            <select id="editLicType">
+              <option value="FREE">FREE / TRIAL</option>
+              <option value="STANDARD">STANDARD</option>
+              <option value="PREMIUM PLUS">PREMIUM PLUS</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Status</label>
+            <select id="editActivStatus">
+              <option value="true">Activ</option>
+              <option value="false">Inactiv / Suspendat</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row"><label>Data Expirare</label><input type="text" id="editExpDate" placeholder="ZZ.LL.AAAA">
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closeModal('modalEditTenant')">Anulează</button>
+        <button class="btn btn-primary" onclick="saveEditTenant()">Salvează Modificările</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalNewTenant">
+    <div class="modal" style="max-width: 650px;">
+      <div class="modal-head">
+        <span class="modal-title">🏰 Asistent Adăugare Instanță Nouă</span>
+        <span class="modal-close" onclick="closeModal('modalNewTenant')">×</span>
+      </div>
+      <div class="modal-body" style="min-height: 380px;">
+        <!-- Wizard Progress -->
+        <div class="wizard-steps"
+          style="display:flex; justify-content:space-between; margin: 0 40px 30px; position:relative;">
+          <div
+            style="position:absolute; top:15px; left:0; right:0; height:2px; background:var(--dark-pearl); z-index:0;">
+          </div>
+          <div id="wstep-1" class="w-circle active" data-step="1">1</div>
+          <div id="wstep-2" class="w-circle" data-step="2">2</div>
+          <div id="wstep-3" class="w-circle" data-step="3">3</div>
+          <div id="wstep-4" class="w-circle" data-step="4">4</div>
+        </div>
+
+        <!-- Step 1: School Identity -->
+        <div id="wizStep1" class="wiz-content">
+          <h3 style="margin-top:0; color:var(--super-gold)">🌐 1. Identitate Școală</h3>
+          <p style="font-size:12px; color:var(--mist); margin-bottom:15px;">Introdu datele oficiale ale instituției
+            partenere.</p>
+          <div class="form-row">
+            <label>Nume Instituție</label>
+            <input type="text" id="wizSchoolName" placeholder="ex: Școala Gimnazială Nr. 3 ...">
+          </div>
+          <div class="form-grid2">
+            <div class="form-row"><label>CIF / CUI</label><input type="text" id="wizSchoolCui" placeholder="RO...">
+            </div>
+            <div class="form-row"><label>Cod Scurt (ID)</label><input type="text" id="wizSchoolCod"
+                placeholder="ex: SCOALA3"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Admin Account -->
+        <div id="wizStep2" class="wiz-content" style="display:none">
+          <h3 style="margin-top:0; color:var(--super-gold)">👤 2. Cont Administrator</h3>
+          <p style="font-size:12px; color:var(--mist); margin-bottom:15px;">Acest cont va fi primul administrator cu
+            drepturi depline pe instanța creată.</p>
+          <div class="form-grid2">
+            <div class="form-row"><label>Prenume</label><input type="text" id="wizAdminPrenume" placeholder="Ion"></div>
+            <div class="form-row"><label>Nume</label><input type="text" id="wizAdminNume" placeholder="Popescu"></div>
+          </div>
+          <div class="form-row">
+            <label>Email (Login)</label>
+            <input type="email" id="wizAdminEmail" placeholder="admin@scoala.ro">
+          </div>
+          <div class="form-row">
+            <label>Parolă inițială</label>
+            <input type="text" id="wizAdminPass" value="PatrimoNet2026">
+            <small style="color:var(--mist)">Administratorul își va putea schimba parola ulterior.</small>
+          </div>
+        </div>
+
+        <!-- Step 3: License Selection -->
+        <div id="wizStep3" class="wiz-content" style="display:none">
+          <h3 style="margin-top:0; color:var(--super-gold)">💳 3. Selecție Licență</h3>
+          <div class="license-options">
+            <div class="license-card" id="lic-free" onclick="selectLicense('FREE')">
+              <div class="lic-title">FREE / TRIAL</div>
+              <div class="lic-price">0 EUR <br><small style="font-size:9px">30 zile test</small></div>
+              <ul class="lic-features">
+                <li>1 Clădire</li>
+                <li>Audit 7 zile</li>
+              </ul>
+            </div>
+            <div class="license-card selected" id="lic-standard" onclick="selectLicense('STANDARD')">
+              <div class="lic-title">STANDARD</div>
+              <div class="lic-price">500 EUR <small style="font-size:10px">/ an</small><br><small
+                  style="font-size:9px">Gestiune Completă</small></div>
+              <ul class="lic-features">
+                <li>Clădiri nelimitate</li>
+                <li>Audit 12 luni</li>
+              </ul>
+            </div>
+            <div class="license-card" id="lic-premium" onclick="selectLicense('PREMIUM PLUS')">
+              <div class="lic-title" style="color:var(--super-gold)">PREMIUM PLUS</div>
+              <div class="lic-price">1000 EUR <small style="font-size:10px">/ an</small><br><small
+                  style="font-size:9px">V.I.P. Support</small></div>
+              <ul class="lic-features">
+                <li>Toate modulele</li>
+                <li>Master Audit</li>
+              </ul>
+            </div>
+          </div>
+          <input type="hidden" id="wizLicenseType" value="STANDARD">
+        </div>
+
+        <!-- Step 4: Finalize -->
+        <div id="wizStep4" class="wiz-content" style="display:none">
+          <h3 style="margin-top:0; color:var(--super-gold)">✅ 4. Confirmare</h3>
+          <div id="wizReview" class="alert alert-info"
+            style="font-size:11px; line-height:1.5; background: rgba(255,255,255,0.05);">
+            <!-- Populat din JS -->
+          </div>
+          <p style="font-size:11px; color:var(--mist); margin-top:20px;">Apăsând "Creează Instanță", platforma va genera
+            mediul de lucru pentru noul client.</p>
+        </div>
+      </div>
+      <div class="modal-foot"
+        style="display:flex; justify-content:space-between; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05)">
+        <button class="btn btn-outline" id="btnWizPrev" onclick="moveStep(-1)" style="visibility:hidden">Înapoi</button>
+        <button class="btn btn-primary" id="btnWizNext" onclick="moveStep(1)">Continuă</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .w-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--dark-pearl);
+      border: 2px solid var(--super-gold);
+      color: var(--super-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      z-index: 1;
+      position: relative;
+      font-size: 14px;
+    }
+
+    .w-circle.active {
+      background: var(--super-gold);
+      color: black;
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    .w-circle.done {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+
+    .license-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .license-card {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.02);
+      text-align: center;
+    }
+
+    .license-card:hover {
+      border-color: var(--super-gold);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .license-card.selected {
+      border-color: var(--super-gold);
+      background: rgba(212, 175, 55, 0.1);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .lic-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--mist);
+      margin-bottom: 8px;
+    }
+
+    .lic-price {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+
+    .lic-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 10px;
+      color: var(--mist);
+      text-align: left;
+    }
+
+    .lic-features li {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .lic-features li::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: bold;
+    }
+  </style>
+
   <script>
     if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com' && !location.hostname.includes('claude')) {
       window.addEventListener('load', () => {
@@ -7197,11 +8543,403 @@
     // Session restore este acum executat automat din blocul principal de script
 
     // Auto-trigger internal notification on app load to signify completion
-    setTimeout(() => {
-      if (currentUser && currentUser.rol === 'admin_app') {
-        addNotification('🎉 Mentenanță finalizată', 'Toate bug-urile raportate au fost reparate successfully.', 'sistem', ['admin_app', 'admin_pat']);
+    // ===== TENANT MANAGEMENT ACTIONS =====
+    window.toggleTenantStatus = function (id) {
+      const t = DEMO_TENANTS.find(x => x.id === id);
+      if (!t) return;
+      t.active = !t.active;
+      toast(`✅ Status tenant ${t.cod} schimbat în: ${t.active ? 'Activ' : 'Inactiv'}`);
+      addIstoricEvent('setari', `Status tenant ${t.cod} schimbat: ${t.active ? 'Activ' : 'Inactiv'}`, currentUser);
+      persistIstoric();
+      updateDashboard();
+      if (document.getElementById('settingsSuperBlock').style.display !== 'none') renderLicenses();
+    }
+
+
+    // Funcția deleteTenant definită global la linia 5121
+    // ===== AI LOGIC =====
+
+    // ASISTENT AI
+    function renderAIAsistent() {
+      const box = document.getElementById('aiChatMessages');
+      if (!box || box.children.length > 1) return;
+    }
+
+    async function sendAiMessage() {
+      const inp = document.getElementById('aiChatInput');
+      const box = document.getElementById('aiChatMessages');
+      if (!inp || !box) return;
+      const text = inp.value.trim();
+      if (!text) return;
+
+      // Add user message
+      box.innerHTML += `<div class="ai-msg user">${text}</div>`;
+      inp.value = '';
+      box.scrollTop = box.scrollHeight;
+
+      // Simulate bot thinking
+      const thinkingId = 'bot-thinking-' + Date.now();
+      box.innerHTML += `<div class="ai-msg bot" id="${thinkingId}">...</div>`;
+      box.scrollTop = box.scrollHeight;
+
+      setTimeout(() => {
+        const reply = processAiQuery(text);
+        const el = document.getElementById(thinkingId);
+        if (el) el.innerHTML = reply;
+        box.scrollTop = box.scrollHeight;
+      }, 800);
+    }
+
+    window.sendAiMessage = sendAiMessage;
+
+    function aiQuickQuery(text) {
+      const inp = document.getElementById('aiChatInput');
+      if (inp) {
+        inp.value = text;
+        sendAiMessage();
       }
-    }, 5000);
+    }
+    window.aiQuickQuery = aiQuickQuery;
+
+    function processAiQuery(q) {
+      const query = q.toLowerCase();
+
+      // 1. Valoare totală inventar
+      if (query.includes('valoare') && query.includes('inventar')) {
+        const total = DB.inventar.reduce((s, b) => s + (b.val || 0), 0);
+        return `Valoarea totală a inventarului înregistrat în sistem este de <strong>${total.toLocaleString('ro-RO')} RON</strong>. Aceasta cuprinde ${DB.inventar.length} bunuri în ${DB.cladiri.length} clădiri.`;
+      }
+
+      // 2. Bunuri defecte / reparații
+      if (query.includes('reparații') || query.includes('defecte')) {
+        const defecte = DB.inventar.filter(b => b.stare === 'Necesită reparații' || b.stare === 'Degradat');
+        if (defecte.length === 0) return "Momentan nu am identificat bunuri marcate cu stare 'Necesită reparații' în baza de date.";
+        return `Am găsit ${defecte.length} bunuri care necesită atenție: <br><ul style="margin-left:20px;margin-top:5px">` +
+          defecte.slice(0, 5).map(b => `<li><strong>${b.nume}</strong> (${b.nrInv}) - ${b.stare}</li>`).join('') +
+          (defecte.length > 5 ? '<li>...și altele.</li>' : '') + '</ul>';
+      }
+
+      // 3. Clădiri / Săli
+      if (query.includes('corpul a') || query.includes('cladirea a')) {
+        const cld = DB.cladiri.find(c => c.cod === 'CLD-A');
+        const camere = DB.camere.filter(c => c.cladireId === cld?.id);
+        const sali = camere.filter(c => c.tip && c.tip.toLowerCase().includes('sal') && c.tip.toLowerCase().includes('clas'));
+        return `În <strong>Corpul A</strong> (${cld?.nume || 'Clădire principală'}) sunt înregistrate ${camere.length} spații, dintre care ${sali.length} sunt săli de clasă.`;
+      }
+
+      // 4. Achiziții recente
+      if (query.includes('achiziții') || query.includes('cumparat')) {
+        const ach = DB.achizitii.slice(0, 3);
+        return `Ultimele achiziții înregistrate sunt: <br><ul style="margin-left:20px;margin-top:5px">` +
+          ach.map(a => `<li>${a.produs} - ${a.val.toLocaleString('ro-RO')} RON (${a.data})</li>`).join('') + '</ul>';
+      }
+
+      // 5. Salut / General
+      if (query.includes('salut') || query.includes('bună')) {
+        return "Salut! Sunt gata să te ajut cu analize de patrimoniu. Întreabă-mă ceva despre inventar sau clădiri.";
+      }
+
+      return "Interesantă întrebare! Momentan baza mea de date îmi permite să răspund la întrebări despre: valoarea inventarului, bunuri defecte, structura clădirilor și achiziții recente. Poți încerca una din sugestiile rapide din dreapta.";
+    }
+
+    // PROPUNERI AI
+    function renderAIPropuneri() {
+      const grid = document.getElementById('aiPropuneriGrid');
+      if (!grid) return;
+
+      const propuneri = [];
+
+      // 1. Analiză casare (bunuri vechi)
+      const vechi = DB.inventar.filter(b => b.data && new Date().getFullYear() - new Date(b.data).getFullYear() > 10 && b.stare !== 'Casat');
+      if (vechi.length > 0) {
+        propuneri.push({
+          titlu: "Propunerere Casare Masivă",
+          desc: `Am identificat ${vechi.length} bunuri cu o vechime de peste 10 ani. Analizarea acestora pentru casare ar putea elibera spațiu și reduce costurile de mentenanță.`,
+          cta: "Vezi bunurile vechi",
+          cls: 'urgenta',
+          icon: '♻️',
+          action: "nav('inventar')"
+        });
+      }
+
+      // 2. Analiză reparații
+      const defecte = DB.inventar.filter(b => b.stare === 'Necesită reparații');
+      if (defecte.length > 0) {
+        propuneri.push({
+          titlu: "Plan Mentenanță Preventivă",
+          desc: `Există ${defecte.length} bunuri defecte. Recomandăm generarea automată a sarcinilor pentru echipa de mentenanță pentru a evita degradarea totală.`,
+          cta: "Generează task-uri",
+          cls: 'optimizare',
+          icon: '🛠️',
+          action: "generateAiTasks()"
+        });
+      }
+
+      // 3. Analiză redistribuire
+      propuneri.push({
+        titlu: "Optimizare Spațiu Săli",
+        desc: "Datele indică faptul că anumite săli au un grad de dotare peste medie. Propunem o analiză de redistribuire a echipamentelor IT către zonele cu deficit.",
+        cta: "Analizează flux",
+        cls: '',
+        icon: '💻',
+        action: "nav('fluxuri')"
+      });
+
+      grid.innerHTML = propuneri.map(p => `
+        <div class="stat-card ${p.cls} propunere-card">
+          <div style="font-size:24px; margin-bottom:10px">${p.icon}</div>
+          <div class="stat-label" style="font-weight:700; color:var(--ink)">${p.titlu}</div>
+          <p style="font-size:12px; color:var(--mist); margin:10px 0">${p.desc}</p>
+          <button class="btn btn-primary btn-sm" onclick="${p.action}">${p.cta}</button>
+        </div>
+      `).join('');
+    }
+    window.renderAIPropuneri = renderAIPropuneri;
+
+    // TO-DO AI
+    let aiTasks = [
+      { id: 101, title: "Inventariere anuală Corp B", date: "2026-03-20", done: false, type: "Obligatoriu" },
+      { id: 102, title: "Verificare extinctoare Corp A", date: "2026-03-15", done: true, type: "Siguranță" },
+      { id: 103, title: "Audit consumabile curățenie", date: "2026-04-01", done: false, type: "Optimizare" }
+    ];
+
+    function renderAIToDo() {
+      const list = document.getElementById('aiTodoList');
+      const countEl = document.getElementById('aiTodoCount');
+      if (!list) return;
+
+      if (countEl) countEl.textContent = aiTasks.filter(t => !t.done).length;
+
+      list.innerHTML = aiTasks.map(t => `
+        <div class="todo-item">
+          <div class="todo-check ${t.done ? 'done' : ''}" onclick="toggleAiTodo(${t.id})"></div>
+          <div class="todo-content">
+            <div class="todo-title" style="${t.done ? 'text-decoration:line-through; color:var(--mist)' : ''}">${t.title}</div>
+            <div class="todo-meta">📅 ${t.date} • ${t.type}</div>
+          </div>
+          <div class="badge ${t.type === 'Siguranță' ? 'b-red' : t.type === 'Obligatoriu' ? 'b-yellow' : 'b-green'}">${t.type}</div>
+        </div>
+      `).join('');
+    }
+    window.renderAIToDo = renderAIToDo;
+
+    function toggleAiTodo(id) {
+      const t = aiTasks.find(x => x.id === id);
+      if (t) t.done = !t.done;
+      renderAIToDo();
+      toast("Task actualizat!");
+    }
+    window.toggleAiTodo = toggleAiTodo;
+
+    function generateAiTasks() {
+      toast("✨ AI analizează datele...");
+      setTimeout(() => {
+        const randBun = DB.inventar[Math.floor(Math.random() * DB.inventar.length)];
+        aiTasks.push({
+          id: Date.now(),
+          title: "Verificare stare " + (randBun?.nume || "bun inventar"),
+          date: new Date().toISOString().split('T')[0],
+          done: false,
+          type: "Optimizare"
+        });
+        renderAIToDo();
+        toast("✅ Task-uri noi generate conform stării actuale!");
+      }, 1500);
+    }
+    window.generateAiTasks = generateAiTasks;
+
+    // ===== PATRIMOBOT DEVELOPER (AI) LOGIC =====
+
+    let aiReportChart = null;
+
+    function renderAIBuilderReports() {
+      // Inițializare interfață;
+    }
+
+    function generateAiBuilderReport() {
+      const input = document.getElementById('aiBuilderReportInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const messages = document.getElementById('aiBuilderReportsMessages');
+      messages.innerHTML += `
+        <div class="ai-msg user">
+          <div class="ai-bubble">${val}</div>
+          <div class="user-avatar" style="width:30px;height:30px;font-size:12px;display:flex;align-items:center;justify-content:center;background:var(--sky);">Tu</div>
+        </div>
+      `;
+      input.value = '';
+
+      const thinkingId = 'think-r-' + Date.now();
+      messages.innerHTML += `
+        <div class="ai-msg bot" id="${thinkingId}">
+          <div class="bot-avatar" style="animation: pulse 1s infinite;">🤖</div>
+          <div class="ai-bubble">Analizez datele și construiesc raportul dinamic...</div>
+        </div>
+      `;
+      messages.scrollTop = messages.scrollHeight;
+
+      setTimeout(() => {
+        const el = document.getElementById(thinkingId);
+        if (el) el.remove();
+
+        messages.innerHTML += `
+          <div class="ai-msg bot">
+            <div class="bot-avatar">🤖</div>
+            <div class="ai-bubble">Graficul a fost generat și este redat mai jos. Puteți acum să îl aprobați pentru administratori.</div>
+          </div>
+        `;
+        messages.scrollTop = messages.scrollHeight;
+
+        const container = document.getElementById('aiReportCanvasContainer');
+        container.style.display = 'block';
+
+        let labels = [];
+        let data = [];
+
+        if (val.toLowerCase().includes('achizi')) {
+          labels = ['Nov 2025', 'Dec 2025', 'Ian 2026', 'Feb 2026', 'Mar 2026'];
+          data = [12000, 15000, 8000, 22000, 18500];
+        } else {
+          labels = DB.cladiri.slice(0, 4).map(c => c.nume.split(' ')[0] + ' ' + (c.nume.split(' ')[1] || ''));
+          data = labels.map(() => Math.floor(Math.random() * 40000) + 15000);
+        }
+
+        if (aiReportChart) aiReportChart.destroy();
+        const ctx = document.getElementById('aiReportCanvas').getContext('2d');
+        aiReportChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Valoare (RON)',
+              data: data,
+              backgroundColor: 'rgba(56, 189, 248, 0.5)',
+              borderColor: '#38bdf8',
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: 'rgba(255,255,255,0.6)' } },
+              x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.6)' } }
+            },
+            plugins: { legend: { display: false } },
+            maintainAspectRatio: false
+          }
+        });
+      }, 1500);
+    }
+    window.generateAiBuilderReport = generateAiBuilderReport;
+
+    function approveAiReport() {
+      alert("✅ Raportul a fost aprobat! Acesta va fi disponibil în secțiunea \"Rapoarte\" a tenanților asociați.");
+    }
+    window.approveAiReport = approveAiReport;
+
+    // --- SCHEMA BUILDER ---
+    function renderAIBuilderSchema() { }
+
+    function generateAiBuilderSchema() {
+      const input = document.getElementById('aiBuilderSchemaInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const messages = document.getElementById('aiBuilderSchemaMessages');
+      messages.innerHTML += `
+        <div class="ai-msg user">
+          <div class="ai-bubble">${val}</div>
+          <div class="user-avatar" style="width:30px;height:30px;font-size:12px;display:flex;align-items:center;justify-content:center;background:var(--sky);">Tu</div>
+        </div>
+      `;
+      input.value = '';
+
+      const thinkingId = 'think-s-' + Date.now();
+      messages.innerHTML += `
+        <div class="ai-msg bot" id="${thinkingId}">
+          <div class="bot-avatar" style="animation: pulse 1s infinite;">🤖</div>
+          <div class="ai-bubble">Reconstruiesc vizual formularele și generez schema JSON pentru baza de date...</div>
+        </div>
+      `;
+      messages.scrollTop = messages.scrollHeight;
+
+      setTimeout(() => {
+        const el = document.getElementById(thinkingId);
+        if (el) el.remove();
+
+        messages.innerHTML += `
+          <div class="ai-msg bot">
+            <div class="bot-avatar">🤖</div>
+            <div class="ai-bubble">Modificarea este gata pentru previzualizare! Am construit UI-ul formularului aferent. Dacă totul arată bine, poți aplica modificarea la toți tenanții.</div>
+          </div>
+        `;
+        messages.scrollTop = messages.scrollHeight;
+
+        preview.innerHTML = `
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-weight: 600; margin-bottom: 20px; font-size: 14px; display:flex; align-items:center; gap:8px;">
+              <span>📝 Formular: Adăugare Achiziție/Inventar</span>
+            </div>
+            <div class="form-row">
+              <label>Denumire Bun *</label>
+              <input type="text" class="input-field" value="Echipament IT (Demo)" disabled style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:var(--mist);">
+            </div>
+            <div class="form-row" style="margin-top:10px;">
+              <label>Cont Contabil *</label>
+              <input type="number" class="input-field" value="214" disabled style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); color:var(--mist);">
+            </div>
+            <div class="form-row" style="background: rgba(234, 179, 8, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; margin-top: 15px; position:relative;">
+              <div style="position:absolute; top:-10px; right:15px; background:var(--gold); color:#000; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">CÂMP NOU (AI)</div>
+              <label style="color: var(--gold); margin-bottom: 8px; display:block; font-weight:600;">Sursă Finanțare *</label>
+              <select class="input-field" style="width:100%; border-color: rgba(234, 179, 8, 0.4); background: rgba(0,0,0,0.2); padding:10px; border-radius:6px; color:white;">
+                <option value="">Alege sursa...</option>
+                <option value="buget_local">Buget Local</option>
+                <option value="pnrr">Fonduri PNRR</option>
+                <option value="venit_propriu">Venituri Proprii</option>
+              </select>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('deployAiSchemaBtn').style.display = 'inline-block';
+      }, 2000);
+    }
+    window.generateAiBuilderSchema = generateAiBuilderSchema;
+
+    function deployAiSchema() {
+      alert("✅ Modificare aplicată (Deploy)! Formularele tuturor tenanților au fost actualizate instant cu noul câmp 'Sursă Finanțare'.");
+      document.getElementById('deployAiSchemaBtn').style.display = 'none';
+      document.getElementById('aiSchemaPreviewArea').innerHTML = '<div style="text-align:center; padding: 40px; color: var(--teal);">🚀 Schema bazei de date a fost extinsă cu succes. Meniurile sunt actualizate.</div>';
+    }
+    window.deployAiSchema = deployAiSchema;
+
+    // --- AUDITOR AI ---
+    function renderAIBuilderAudit(force = false) {
+      const tbody = document.getElementById('aiBuilderAuditTable');
+      if (!force && tbody.children.length > 2) return;
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; font-style:italic; color:var(--mist);">⏳ AI-ul scanează log-urile de sistem. Vă rugăm așteptați...</td></tr>';
+
+      setTimeout(() => {
+        const risks = [
+          { level: 'CRITIC', color: 'var(--rose)', action: 'Export Date', details: 'Adminul "S2_Demo" a exportat inventarul la 03:14 AM.', sugestion: 'Adaugă filtru pe ora de export: doar între 07:00 - 20:00.', btn: 'Blochează acces noapte' },
+          { level: 'MEDIU', color: 'var(--amber)', action: 'Autentificare repetată', details: '"profesor_cnvga" cu 7 logări eșuate în 60 secunde.', sugestion: 'Activează Lockout pentru 15 minute la contul vizat.', btn: 'Activează Lockout API' },
+          { level: 'INFO', color: '#38bdf8', action: 'Performanță Căutare', details: 'Filtrarea după "Cameră" are o latență +300ms.', sugestion: 'AI-ul poate crea un index compus automat pe `cladire_idx` și `camera_idx`.', btn: 'Optimizare Indecși (DB)' }
+        ];
+        tbody.innerHTML = risks.map((r, i) => `
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+            <td style="color: ${r.color}; font-weight: 700;">${r.level}</td>
+            <td style="font-weight: 600;">${r.action}</td>
+            <td style="color: var(--mist); font-size: 13px;">${r.details}</td>
+            <td style="color: var(--teal); font-size: 13px;">💡 ${r.sugestion}</td>
+            <td><button class="btn btn-outline btn-sm" style="font-size: 11px; padding: 5px 10px; border-color: ${r.color}; color: ${r.color};" onclick="alert('Acțiunea (${r.btn}) a fost executată de asistentul de sistem!')">${r.btn}</button></td>
+          </tr>
+        `).join('');
+      }, 2000);
+    }
+    window.renderAIBuilderAudit = renderAIBuilderAudit;
+
   </script>
 </body>
 

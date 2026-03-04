@@ -2892,6 +2892,10 @@
       const { data: testData } = await sbClient.from('cladiri').select('id').limit(1);
       if (!testData || testData.length === 0) {
         console.log('Supabase este gol — se păstrează datele locale demo. Apasă Sincronizează pentru a urca datele.');
+        // If Supabase is empty, we should still load local data if available
+        if (loadLocalDB(true)) {
+          toast('✅ Date locale restaurate (Supabase este gol).');
+        }
         return; // Keep local seed data intact
       }
 
@@ -3044,7 +3048,7 @@
       { id: 3, prenume: 'Director', nume: 'Școală', email: 'director@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
       { id: 4, prenume: 'Director', nume: 'Adjunct 1', email: 'dir.adj1@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
       { id: 5, prenume: 'Director', nume: 'Adjunct 2', email: 'dir.adj2@patrimonet.app', parola: 'dir123', rol: 'director', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
-      { id: 6, prenume: 'Contabil', nume: 'Șef', email: 'contabil@patrimonet.app', parola: 'con123', rol: 'contabil', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
+      { id: 6, prenume: 'Barbu', nume: 'Mioara', email: 'contabil@patrimonet.app', parola: 'con123', rol: 'contabil', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
       { id: 7, prenume: 'Informatician', nume: 'Școlar', email: 'info@patrimonet.app', parola: 'info123', rol: 'informatician', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
       { id: 8, prenume: 'Profesor', nume: 'Demo', email: 'profesor@patrimonet.app', parola: 'prof123', rol: 'profesor', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
       { id: 9, prenume: 'Muncitor', nume: 'Mentenanță 1', email: 'mentenanta@patrimonet.app', parola: 'men123', rol: 'mentenanta', school_id: 1, school_name: 'CN „Vasile Goldiș” Arad', logo_url: 'https://cnvga.ro/wp-content/uploads/2023/11/colegiu-vasile-goldis-arad-logo-svg.svg' },
@@ -3162,7 +3166,7 @@
       document.getElementById('appShell').style.display = 'flex';
       document.body.classList.add('has-session');
       // Reset ALL nav items visibility before applying role permissions
-      document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
+      document.querySelectorAll('.nav-item, .nav-group').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
       // Reset ALL sections
       document.querySelectorAll('.section').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
       try {
@@ -3240,7 +3244,7 @@
       // Reset DB to empty so no previous user's view leaks
       DB.tasks = []; DB.rezervari = []; DB.mutari = []; DB.aprobari = [];
       // Reset nav items
-      document.querySelectorAll('.nav-item').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
+      document.querySelectorAll('.nav-item, .nav-group').forEach(el => { el.style.display = 'flex'; el.classList.remove('active'); });
       // Reset sections
       document.querySelectorAll('.section').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
       // Reset notifications
@@ -3357,24 +3361,63 @@
     }
 
     // ===== PERSISTENȚĂ LOCALDB =====
-    window.loadLocalDB = function () {
+    window.loadLocalDB = function (silent = false) {
       if (!currentUser) return false;
-      const key = 'patrimonet_db_' + (currentUser.school_id || 1);
+      const sid = currentUser.school_id || 1;
+      const key = 'patrimonet_db_' + sid;
       const saved = localStorage.getItem(key);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          DB = { ...DB, ...parsed };
-          return true;
-        } catch (e) { }
+          if (parsed.cladiri && parsed.cladiri.length > 0) {
+            DB = { ...DB, ...parsed };
+            if (!silent) toast('✅ Date restaurate din memoria locală.');
+            return true;
+          }
+        } catch (e) {
+          console.warn('Eroare la parsarea datelor locale:', e);
+        }
       }
-      return false;
+      // Dacă nu s-a găsit nimic pe cheia specifică, încearcă o recuperare mai agresivă
+      return rescueData(silent);
     }
 
     window.saveLocalDB = function () {
       if (!currentUser) return;
       const key = 'patrimonet_db_' + (currentUser.school_id || 1);
+
+      // SIGURANȚĂ: Nu suprascriem un backup existent cu o bază de date goală
+      // (Prevenim ștergerea accidentală la login/sync eșuat)
+      const existing = localStorage.getItem(key);
+      if (existing && existing.length > 50 && (DB.cladiri.length === 0 && DB.inventar.length === 0)) {
+        console.warn('[SECURITY] Save blocat pentru a preveni pierderea datelor locale.');
+        return;
+      }
+
       localStorage.setItem(key, JSON.stringify(DB));
+    }
+
+    // FUNCȚIE AUTOMATĂ DE RECUPERARE (Internă)
+    window.rescueData = function (silent = false) {
+      const sid = currentUser ? (currentUser.school_id || 1) : 1;
+      // Căutăm în toate locurile posibile unde s-ar fi putut salva datele (mutații de dezvoltare)
+      const keys = ['patrimonet_db_' + sid, 'patrimonet_db_undefined', 'patrimonet_db_1', 'patrimonet_db_null', 'db_1'];
+
+      for (let k of keys) {
+        const data = localStorage.getItem(k);
+        if (data && data.length > 200) {
+          try {
+            const p = JSON.parse(data);
+            if (p.cladiri && p.cladiri.length > 0) {
+              console.log('[RECOVERY] Backup găsit în ' + k + ' (' + p.cladiri.length + ' clădiri)');
+              DB = p;
+              if (!silent) toast('✅ Date restaurate automat din memoria locală.');
+              return true;
+            }
+          } catch (e) { }
+        }
+      }
+      return false;
     }
 
     // ===== SEED =====
@@ -3386,8 +3429,8 @@
         return;
       }
 
-      if (loadLocalDB()) {
-        console.log('[LocalDB] Încărcare date stocate pentru tenant: ' + (currentUser?.school_id || 1));
+      if (loadLocalDB() || rescueData(true)) {
+        console.log('[LocalDB] Date restaurate pentru contextul: ' + (currentUser?.school_name || 'Global'));
         return;
       }
 

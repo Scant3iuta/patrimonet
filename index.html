@@ -2875,7 +2875,7 @@
       tasks: (x) => ({ _loaded: true, id: x.id, titlu: x.titlu || x.title || (x.description ? x.description.substring(0, 50) : '') || '—', prioritate: x.prioritate || x.prio || 'Medie', status: ({ 'deschis': 'Deschisă', 'deschisa': 'Deschisă', 'finalizat': 'Finalizată', 'finalizata': 'Finalizată' }[x.status]) || x.status || 'Deschisă', cameraId: x.camera_id, bunId: x.bun_id, assignId: x.assign_id, assignIds: (typeof x.assign_ids === 'string' ? JSON.parse(x.assign_ids || '[]') : (x.assign_ids || [])), userId: x.user_id, desc: x.description || x.desc || '', termen: x.termen }),
       prezenta: (x) => ({ _loaded: true, id: x.id, data: x.data, elevi: x.elevi, tipZi: x.tip_zi, obs: x.obs, userId: x.user_id }),
       mese: (x) => ({ _loaded: true, id: x.id, data: x.data, micDejun: x.mic_dejun, pranz: x.pranz, cina: x.cina, obs: x.obs, userId: x.user_id }),
-      probleme: (x) => ({ _loaded: true, id: x.id, tip: x.tip, locatie: x.locatie, desc: x.desc, prio: x.prio, status: x.status, userId: x.user_id, rezolvatDe: x.rezolvat_de, creat: x.creat }),
+      probleme: (x) => ({ _loaded: true, id: x.id, tip: x.tip, locatie: x.locatie, desc: x.descriere || x.desc || '', prio: x.prio, status: x.status, userId: x.user_id, rezolvatDe: x.rezolvat_de, creat: x.creat || x.created_at }),
       fluxuri: (x) => ({ _loaded: true, id: x.id, tip: x.tip, titlu: x.titlu, responsabilId: x.responsabil_id, userId: x.user_id, termen: x.termen, obs: x.obs, stepCurent: x.step_curent, status: x.status, dataStart: x.data_start, dataFinal: x.data_final, istoricPasi: typeof x.istoric_pasi === 'string' ? JSON.parse(x.istoric_pasi || '[]') : x.istoric_pasi || [] }),
     };
 
@@ -7780,7 +7780,7 @@
 
       toast('⬆️ Curățare date vechi...');
       // Clear in reverse FK order
-      const clearOrder = ['tasks', 'achizitii', 'inventar', 'personal', 'furnizori', 'camere', 'cladiri'];
+      const clearOrder = ['istoric_log', 'mese', 'prezenta', 'probleme', 'fluxuri', 'rezervari', 'mutari', 'tasks', 'achizitii', 'inventar', 'personal', 'furnizori', 'camere', 'cladiri'];
       for (const tbl of clearOrder) {
         try { await sbClient.from(tbl).delete().neq('id', 0); } catch (e) { }
       }
@@ -7879,6 +7879,75 @@
       }
       console.log('tasks done. Total:', total);
 
+      // 8. Insert MUTARI
+      for (const item of (DB.mutari || [])) {
+        try {
+          const row = toSb.mutari(item);
+          row.user_id = personalIdMap[item.userId] || null;
+          row.bun_id = null; // FK complex, skip for now
+          row.la_cladire_id = cladiriIdMap[item.laCladireId] || null;
+          row.la_camera_id = camereIdMap[item.laCameraId] || null;
+          const { error } = await sbClient.from('mutari').insert(row);
+          if (error) { console.error('mutari:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
+      // 9. Insert REZERVARI
+      for (const item of (DB.rezervari || [])) {
+        try {
+          const row = toSb.rezervari(item);
+          row.camera_id = camereIdMap[item.cameraId] || null;
+          row.user_id = personalIdMap[item.userId] || null;
+          const { error } = await sbClient.from('rezervari').insert(row);
+          if (error) { console.error('rezervari:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
+      // 10. Insert FLUXURI (FK nullified dacă personal nu e încă în SB)
+      for (const item of (DB.fluxuri || [])) {
+        try {
+          const row = toSb.fluxuri(item);
+          row.responsabil_id = personalIdMap[item.responsabilId] || null;
+          row.user_id = personalIdMap[item.userId] || null;
+          const { error } = await sbClient.from('fluxuri').insert(row);
+          if (error) { console.error('fluxuri:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
+      // 11. Insert PROBLEME
+      for (const item of (DB.probleme || [])) {
+        try {
+          const row = toSb.probleme(item);
+          row.user_id = personalIdMap[item.userId] || null;
+          const { error } = await sbClient.from('probleme').insert(row);
+          if (error) { console.error('probleme:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
+      // 12. Insert PREZENTA
+      for (const item of (DB.prezenta || [])) {
+        try {
+          const row = toSb.prezenta(item);
+          const { error } = await sbClient.from('prezenta').insert(row);
+          if (error) { console.error('prezenta:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
+      // 13. Insert MESE
+      for (const item of (DB.mese || [])) {
+        try {
+          const row = toSb.mese(item);
+          const { error } = await sbClient.from('mese').insert(row);
+          if (error) { console.error('mese:', error.message); errors++; }
+          else total++;
+        } catch (e) { errors++; }
+      }
+
       console.log('=== SYNC END === Total:', total, '| Errors:', errors);
       toast(total > 0
         ? '✅ ' + total + ' înregistrări sincronizate!' + (errors ? ' (' + errors + ' erori)' : ' Fără erori! 🎉')
@@ -7914,11 +7983,19 @@
         }
         if (tbl === 'tasks' && localObj.assignId) {
           const per = DB.personal.find(p => p.id === localObj.assignId);
-          if (per) row.assign_id = per.id;
+          if (per && per._loaded) row.assign_id = per.id;
+          else row.assign_id = null; // FK inexistent în Supabase
         }
-        if (tbl === 'rezervari' && localObj.cameraId) {
-          const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
-          if (cam) row.camera_id = cam.id;
+        if (tbl === 'rezervari') {
+          if (localObj.cameraId) {
+            const cam = DB.camere.find(cm => cm.id === localObj.cameraId);
+            if (cam && cam._loaded) row.camera_id = cam.id;
+            else row.camera_id = null;
+          }
+          if (localObj.userId) {
+            const per = DB.personal.find(p => p.id === localObj.userId);
+            row.user_id = (per && per._loaded) ? per.id : null;
+          } else { row.user_id = null; }
         }
         if (tbl === 'mutari') {
           if (localObj.userId) {
@@ -7933,6 +8010,27 @@
             const cam = DB.camere.find(c => c.id === localObj.laCameraId);
             if (cam) row.la_camera_id = cam.id;
           }
+          // Nullify bun_id if not loaded in Supabase
+          if (localObj.bunId) {
+            const bun = DB.inventar.find(b => b.id === localObj.bunId);
+            row.bun_id = (bun && bun._loaded) ? bun.id : null;
+          } else { row.bun_id = null; }
+        }
+        if (tbl === 'fluxuri') {
+          if (localObj.responsabilId) {
+            const per = DB.personal.find(p => p.id === localObj.responsabilId);
+            row.responsabil_id = (per && per._loaded) ? per.id : null;
+          } else { row.responsabil_id = null; }
+          if (localObj.userId) {
+            const per = DB.personal.find(p => p.id === localObj.userId);
+            row.user_id = (per && per._loaded) ? per.id : null;
+          } else { row.user_id = null; }
+        }
+        if (tbl === 'probleme') {
+          if (localObj.userId) {
+            const per = DB.personal.find(p => p.id === localObj.userId);
+            row.user_id = (per && per._loaded) ? per.id : null;
+          } else { row.user_id = null; }
         }
 
         Object.keys(row).forEach(k => { if (row[k] === undefined) delete row[k]; });

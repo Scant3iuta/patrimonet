@@ -440,6 +440,17 @@
                   obiecte
                   inventar). Coloanele vor fi detectate automat.
                 </div>
+                <!-- BUTON SINCRONIZARE MANUALA -->
+                <div
+                  style="background: var(--surface); border: 1px dashed var(--gold); border-radius: 8px; padding: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+                  <div style="font-size: 24px;">☁️</div>
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; font-size: 13px;">Sincronizare cu Cloud (Supabase)</div>
+                    <div style="font-size: 11px; color: var(--mist);">Urcă datele de pe acest calculator în baza de date
+                      online pentru a fi vizibile pe mobil.</div>
+                  </div>
+                  <button class="btn btn-primary btn-sm" onclick="syncAllToSupabase()">Sincronizează tot acum</button>
+                </div>
                 <div class="logo-upload-area" id="importDropArea"
                   onclick="document.getElementById('importFile').click()" style="margin-bottom:14px;padding:32px"
                   ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
@@ -2729,11 +2740,18 @@
     let SUPABASE_ENABLED = false;
 
     function initSupabase() {
+      // Păstrăm referința la biblioteca originală din CDN
+      if (!window.supabaseLib) window.supabaseLib = window.supabase;
+      if (!window.supabaseLib || !window.supabaseLib.createClient) {
+        console.error('Supabase library not loaded yet!');
+        return;
+      }
+
       try {
-        sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // Expunem obiectul global `supabase` (folosit în funcția de login implicit) 
-        // dacă nu se accesează prin window.supabase
-        window.supabase = sbClient;
+        sbClient = window.supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // NU mai suprascriem window.supabase cu instanța clientului
+        // dar îl setăm ca fall-back pentru compatibilitate cu codul existent care caută 'supabase'
+        window.sbInstance = sbClient;
 
         SUPABASE_ENABLED = true;
         console.log('✅ Supabase conectat la patrimonet!');
@@ -3090,7 +3108,7 @@
       if (btn) { btn.disabled = true; btn.textContent = 'Autentificare...⏳'; }
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await sbClient.auth.signInWithPassword({
           email: u,
           password: p
         });
@@ -3111,7 +3129,7 @@
 
         if (!found) {
           alert('Contul a fost conectat dar nu are profil asociat în aplicație.');
-          await supabase.auth.signOut();
+          await sbClient.auth.signOut();
           if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
           return;
         }
@@ -3157,7 +3175,7 @@
     // Auto-restore sesiune la încărcarea paginii cu verificare Supabase
     async function tryRestoreSession() {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await sbClient.auth.getSession();
 
         if (error || !session) {
           console.log('[AUTH] Nicio sesiune Supabase activă.');
@@ -3189,7 +3207,7 @@
             sessionStorage.setItem('patrimonet_session', JSON.stringify(savedUser));
           } else {
             console.warn('[AUTH] User-ul din sesiune nu are profil valid. Logout forțat.');
-            await supabase.auth.signOut();
+            await sbClient.auth.signOut();
             return false;
           }
         }
@@ -3236,7 +3254,7 @@
       if (btn) { btn.disabled = false; btn.textContent = 'Autentificare →'; }
 
       // Semnalăm către Supabase
-      try { await supabase.auth.signOut(); } catch (e) { }
+      try { await sbClient.auth.signOut(); } catch (e) { }
 
       toast('La revedere!');
     }
@@ -7629,7 +7647,7 @@
       window._sbUrl = url;
       window._sbKey = key;
       try {
-        sbClient = window.supabase.createClient(url, key);
+        sbClient = (window.supabaseLib || window.supabase || window.supabaseClient).createClient(url, key);
         SUPABASE_ENABLED = true;
         document.getElementById('sbStatusBadge').textContent = '✅ Conectat';
         document.getElementById('sbStatusBadge').className = 'badge b-green';
@@ -7647,7 +7665,7 @@
       if (!url || !key) { toast('⚠️ Completează mai întâi URL și cheia!'); return; }
       document.getElementById('sbTestResult').innerHTML = '⏳ Se testează conexiunea...';
       try {
-        const testClient = window.supabase.createClient(url, key);
+        const testClient = (window.supabaseLib || window.supabase || window.supabaseClient).createClient(url, key);
         const { data, error } = await testClient.from('cladiri').select('count', { count: 'exact', head: true });
         if (error) throw error;
         document.getElementById('sbTestResult').innerHTML = '<span style="color:var(--teal)">✅ Conexiune OK! Baza de date este accesibilă.</span>';
@@ -7846,12 +7864,10 @@
           if (cam) row.camera_id = cam.id;
         }
         if (tbl === 'mutari') {
-          // user_id: remap la Supabase ID sau null
           if (localObj.userId) {
             const per = DB.personal.find(p => p.id === localObj.userId);
             row.user_id = (per && per._loaded) ? per.id : null;
           } else { row.user_id = null; }
-          // FK-uri destinatie
           if (localObj.laCladireId) {
             const cld = DB.cladiri.find(c => c.id === localObj.laCladireId);
             if (cld) row.la_cladire_id = cld.id;
@@ -7862,28 +7878,42 @@
           }
         }
 
-        // Curăță undefined/null string
         Object.keys(row).forEach(k => { if (row[k] === undefined) delete row[k]; });
-
         let sbId = localObj._loaded ? localObj.id : null;
 
         if (sbId) {
-          // UPDATE - obiect existent în SB
           const { error } = await sbClient.from(tbl).update(row).eq('id', sbId);
           if (error) throw error;
         } else {
-          // INSERT - obiect nou
           const { data, error } = await sbClient.from(tbl).insert(row).select().single();
           if (error) throw error;
-          // Actualizează obiectul local cu ID-ul din Supabase
           localObj.id = data.id;
           localObj._loaded = true;
         }
         return localObj;
       } catch (err) {
         console.error('SB Save error [' + tbl + ']:', err.message || err);
-        toast('⚠️ Eroare salvare ' + tbl + ': ' + (err.message || 'necunoscută'));
-        return null; // semnalează eșec
+        return null;
+      }
+    }
+
+    async function syncLocalToSupabase() {
+      if (!SUPABASE_ENABLED || !sbClient) { toast('⚠️ Supabase nu este configurat!'); return; }
+      const tables = ['cladiri', 'camere', 'inventar', 'furnizori', 'achizitii', 'personal', 'mutari', 'rezervari', 'tasks', 'prezenta', 'mese', 'probleme', 'fluxuri', 'istoric_log'];
+      let count = 0;
+      toast('⏳ Se caută date nesincronizate...');
+      for (const tbl of tables) {
+        const locals = DB[tbl].filter(x => !x._loaded);
+        for (const item of locals) {
+          const res = await sbAutoSave(tbl, item);
+          if (res) count++;
+        }
+      }
+      if (count > 0) {
+        toast(`✅ Sincronizare reușită: ${count} obiecte urcate în cloud.`);
+        if (typeof renderCladiri === 'function') renderCladiri();
+      } else {
+        toast('ℹ️ Toate datele sunt deja sincronizate.');
       }
     }
 

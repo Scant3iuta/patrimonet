@@ -5168,6 +5168,10 @@
 
       DB = { cladiri: [], camere: [], inventar: [], furnizori: [], achizitii: [], personal: [], tasks: [], mutari: [], rezervari: [], aprobari: [] };
 
+      // CRITIC: Resetăm flag-ul pentru a permite reîncărcarea datelor din Supabase/Local
+      // Fără acest reset, seedData() și loadFromSupabase() refuză să ruleze
+      _supabaseLoaded = false;
+
       try { sessionStorage.setItem('patrimonet_session', JSON.stringify(currentUser)); } catch (e) { }
       addIstoricEvent('auth', 'Super Admin a preluat identitatea tenant ' + (tenantCode || tenantId), currentUser);
       persistIstoric();

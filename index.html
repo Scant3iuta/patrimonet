@@ -2740,22 +2740,24 @@
     let SUPABASE_ENABLED = false;
 
     function initSupabase() {
-      // Păstrăm referința la biblioteca originală din CDN
+      // Păstrăm referința la biblioteca originală
       if (!window.supabaseLib) window.supabaseLib = window.supabase;
-      if (!window.supabaseLib || !window.supabaseLib.createClient) {
-        console.error('Supabase library not loaded yet!');
+
+      // Dacă biblioteca nu e încărcată, mai încercăm peste 500ms
+      if (!window.supabaseLib || typeof window.supabaseLib.createClient !== 'function') {
+        console.log('⌛ Supabase lib nu e gata, reîncerc...');
+        setTimeout(initSupabase, 500);
         return;
       }
 
       try {
-        sbClient = window.supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // NU mai suprascriem window.supabase cu instanța clientului
-        // dar îl setăm ca fall-back pentru compatibilitate cu codul existent care caută 'supabase'
-        window.sbInstance = sbClient;
+        if (!sbClient) {
+          sbClient = window.supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          window.sbInstance = sbClient;
+        }
 
         SUPABASE_ENABLED = true;
         console.log('✅ Supabase conectat la patrimonet!');
-        // Update badge in settings if visible
         const badge = document.getElementById('sbStatusBadge');
         if (badge) { badge.textContent = '✅ Conectat'; badge.className = 'badge b-green'; }
       } catch (e) {
@@ -2896,15 +2898,13 @@
       toast('⏳ Se încarcă datele din Supabase...');
       for (const tbl of tables) {
         const rows = await sbFetch(tbl);
+        // DOAR dacă tabelul are date în Cloud, le suprascriem pe cele locale
+        // Dacă Cloud-ul e gol, păstrăm ce avem local (pentru a putea face Sync UP ulterior)
         if (rows !== null && rows.length > 0) {
           DB[tbl] = rows.map(r => {
             const obj = fromSb[tbl] ? fromSb[tbl](r) : { ...r, _loaded: true };
             return obj;
           });
-
-        } else if (rows !== null && rows.length === 0) {
-          console.log('Supabase table empty, using Supabase:', tbl);
-          DB[tbl] = [];
         }
       }
       // 1. Dedup + normalize FIRST
@@ -7719,7 +7719,17 @@
     async function syncAllToSupabase() {
       if (!sbClient) initSupabase();
       if (!sbClient) { toast('❌ Supabase nu este conectat!'); return; }
-      if (!DB.cladiri || DB.cladiri.length === 0) { seedData(); await new Promise(r => setTimeout(r, 200)); }
+
+      // NUMĂRĂM DATELE LOCALE
+      const nCld = DB.cladiri.length;
+      const nCam = DB.camere.length;
+      const nBun = DB.inventar.length;
+
+      if (!confirm(`Sincronizare Master PC -> Cloud\n\nAceastă operațiune va urca:\n- ${nCld} Clădiri\n- ${nCam} Camere\n- ${nBun} Bunuri\n\nATENȚIE: Datele vechi din Cloud vor fi șterse și înlocuite cu cele de pe acest calculator. Confirmi?`)) {
+        return;
+      }
+
+      if (nCld === 0) { toast('⚠️ Nu există clădiri de sincronizat!'); return; }
 
       toast('⬆️ Curățare date vechi...');
       // Clear in reverse FK order

@@ -1,0 +1,2 @@
+# patrimonet
+Aplicatie gestiune patrimoniu
